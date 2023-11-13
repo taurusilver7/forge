@@ -32,6 +32,8 @@ Update the environment variables for the sign-in, sign-up paths.
 
 Install [shadcn-ui](https://ui.shadcn.com/docs/installation/next) and configure the components.json.
 
+Create a themeprovider for next-ui light/dark modes. Wrap the layout body with ThemeProvider from next-themes dependency.
+
 ## Deploy on Vercel
 
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
