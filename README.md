@@ -36,6 +36,10 @@ Install [shadcn-ui](https://ui.shadcn.com/docs/installation/next) and configure 
 
 Create a themeprovider for next-ui light/dark modes. Wrap the layout body with ThemeProvider from next-themes dependency.
 
+Create a dashboard route-group. Customize the layout & main page design & styling.
+
+To switch between themes, create a UI component `ThemeSwitcher` which loads the given set of themes based on the mounted state.
+
 ## Deploy on Vercel
 
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
