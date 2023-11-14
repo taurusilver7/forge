@@ -54,6 +54,18 @@ Follow the instructions for prisma and setup the datasource. Update the prisma s
 
 <!-- TODO The prisma database works even with sqlite database too, despite configured for postgresql -->
 
+Create a Form & FormSubmission relational data models. Connect the Form & FormSubmission with `@relation` tag for id field in the Form to formId in FormSubmission.
+
+Run the Prisma database in local development server. Link the project locally with the following commands.
+
+```bash
+npx prisma migrate
+# name the migration database
+npx prisma studio
+```
+
+Enable the server actios in next configuration. Server actions replace the backend REST API's in full-stack development.
+
 ## Deploy on Vercel
 
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
