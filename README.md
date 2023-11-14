@@ -38,7 +38,21 @@ Create a themeprovider for next-ui light/dark modes. Wrap the layout body with T
 
 Create a dashboard route-group. Customize the layout & main page design & styling.
 
-To switch between themes, create a UI component `ThemeSwitcher` which loads the given set of themes based on the mounted state.
+To switch between themes, create a UI component `ThemeSwitcher` which loads the given set of themes based on the mounted state. Add shadcn-ui custom theme to the stylesheet base layer.
+
+## Prisma + Vercel PostgreSQL database configuration
+
+```bash
+npm install prisma --save-dev
+# and
+npx prisma init
+```
+
+Create a postgresql database on Vercel, under the free tier. Under the storage menu, choose the database variant & region.
+
+Follow the instructions for prisma and setup the datasource. Update the prisma schema in the project with database config values. Get the POSTGRES_PRISMA_URL & POSTGRES_URL_NON_POOLING env values.
+
+<!-- TODO The prisma database works even with sqlite database too, despite configured for postgresql -->
 
 ## Deploy on Vercel
 
