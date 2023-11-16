@@ -66,6 +66,8 @@ npx prisma studio
 
 Enable the server actios in next configuration. Server actions replace the backend REST API's in full-stack development.
 
+Create a server action `form.ts` and follow the [doc](https://www.prisma.io/docs/guides/other/troubleshooting-orm/help-articles/nextjs-prisma-client-dev-practices#solution) to setup Instantiating prismaClient with Next.js.
+
 ## Deploy on Vercel
 
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
