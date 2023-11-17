@@ -4,6 +4,18 @@
 
 ![forge-form-builder](https://i.ibb.co/NFnK52M/forge.png)
 
+## Features
+
+-  Fully responsive: mobile & tablet 💻
+-  Create forms with a stunning drag and drop designer.
+-  Layout fields: Title, Subtitle, Spacer, Separator, Paragraph.
+-  Form fields: Text, Number, Select, Date, Checkbox, Textarea.
+-  Is easy to add and customize new fields. 📌
+-  Form preview dialog. 📃
+-  Share form urls.
+-  Form submission/validation.
+-  Form stats: visits and submissions. 👍🏻
+
 ## Getting Started
 
 First, run the development server:
