@@ -8,12 +8,12 @@
 
 -  Fully responsive: mobile & tablet 💻
 -  Create forms with a stunning drag and drop designer.
--  Layout fields: Title, Subtitle, Spacer, Separator, Paragraph.
+-  Layout fields: Title, Subtitle, Spacer, Separator, Paragraph. ⬅➡↕
 -  Form fields: Text, Number, Select, Date, Checkbox, Textarea.
 -  Add and customize new fields. 📌
 -  Form preview dialog. 📃
--  Share form urls.
--  Form submission/validation.
+-  Share form urls. 🔘
+-  Form submission/validation. 
 -  👍🏻 Form stats: visits and submissions.
 
 ## Getting Started
