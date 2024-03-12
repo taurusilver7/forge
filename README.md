@@ -1,4 +1,4 @@
-# Forge
+# Forge - Form Generator
 
 > Explore the state-of-art Custom Form Building SaaS built with Next 14, Typescript, PostgreSQL, and Prisma.
 
