@@ -20,8 +20,10 @@ model Form {
   name String
   description String @default("")
   content String @default("[]")
+
   visits Int @default(0)
   submissions Int @default(0)
+  
   shareURL String @default(uuid())
   FormSubmission FormSubmission[]
 }
