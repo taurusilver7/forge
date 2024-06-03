@@ -13,7 +13,7 @@
 -  Add and customize new fields. 📌
 -  Form preview dialog. 📃
 -  Share form urls. 🔘
--  Form submission/validation. 
+-  Form submission/validation.
 -  👍🏻 Form stats: visits and submissions.
 
 ## Getting Started
@@ -76,9 +76,11 @@ npx prisma migrate
 npx prisma studio
 ```
 
-Enable the server actios in next configuration. Server actions replace the backend REST API's in full-stack development. Create a Form Stat get server action to aggregate the user visits & form submission to the status. Calculate the submission rate against the user visits & bouce rates for the status info.
+Enable the server actions in next configuration. Server actions replace the backend REST API's in full-stack development.
 
-Create a server action `form.ts` and follow the [doc](https://www.prisma.io/docs/guides/other/troubleshooting-orm/help-articles/nextjs-prisma-client-dev-practices#solution) to setup Instantiating prismaClient with Next.js.
+Create a GetFormStat server action to aggregate the user visits & form submission to the status. Calculate the submission rate against the user visits & bouce rates for the status info.
+
+Create a server action `form.ts` and follow the [document](https://www.prisma.io/docs/guides/other/troubleshooting-orm/help-articles/nextjs-prisma-client-dev-practices#solution) to setup Instantiating prismaClient with Next.js.
 
 ## Deploy on Vercel
 
