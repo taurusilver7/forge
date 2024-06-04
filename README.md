@@ -82,6 +82,8 @@ Create a GetFormStat server action to aggregate the user visits & form submissio
 
 Create a server action `form.ts` and follow the [document](https://www.prisma.io/docs/guides/other/troubleshooting-orm/help-articles/nextjs-prisma-client-dev-practices#solution) to setup Instantiating prismaClient with Next.js.
 
+Create a create-form-button component to create a default form in the dashboard. Create a server function to create a form with form data from UI.
+
 ## Deploy on Vercel
 
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
