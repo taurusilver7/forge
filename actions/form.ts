@@ -35,5 +35,6 @@ export async function GetFormStats() {
 	return {
 		visits,
 		submissions,
+		bounceRate
 	};
 }
