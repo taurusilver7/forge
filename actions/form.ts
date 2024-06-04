@@ -3,9 +3,9 @@
 import prisma from "@/lib/prisma";
 import { currentUser } from "@clerk/nextjs";
 
-class UserNotFoundErr extends Error {};
+class UserNotFoundErr extends Error {}
 
-// 
+//
 export async function GetFormStats() {
 	const user = await currentUser();
 	if (!user) {
@@ -35,6 +35,7 @@ export async function GetFormStats() {
 	return {
 		visits,
 		submissions,
-		bounceRate
+		submissionRate,
+		bounceRate,
 	};
 }
