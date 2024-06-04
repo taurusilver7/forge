@@ -1,5 +1,7 @@
 import { GetFormStats } from "@/actions/form";
+import CreateFormButton from "@/components/create-form-btn";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
 	EyeOpenIcon,
@@ -20,6 +22,10 @@ const DashboardPage = () => {
 			<Suspense fallback={<StatCards loading={true} />}>
 				<CardStatsWrapper />
 			</Suspense>
+			<Separator className="my-6" />
+			<h2 className="text-3xl font-bold col-span-2">Your forms</h2>
+			<Separator className="my-6" />
+			<CreateFormButton />
 		</div>
 	);
 };
@@ -57,7 +63,7 @@ function StatCards(props: StatCardsProps) {
 				title="Submissions rate"
 				icon={<CursorArrowIcon className="text-green-600 w-6 h-6" />}
 				helperText="visits that submitted form."
-				value={data?.visits.toLocaleString() || ""}
+				value={data?.submissionRate.toLocaleString() + "%" || ""}
 				loading={loading}
 				className="shadow-md shadow-green-600"
 			/>
@@ -65,7 +71,7 @@ function StatCards(props: StatCardsProps) {
 				title="Bounce rate"
 				icon={<MixerVerticalIcon className="text-rose-600 h-6 w-6" />}
 				helperText="Visits that leave without interacting."
-				value={data?.visits.toLocaleString() || ""}
+				value={data?.bounceRate.toLocaleString() + "%" || ""}
 				loading={loading}
 				className="shadow-md shadow-rose-600"
 			/>
@@ -98,7 +104,7 @@ const StatsCard = ({
 				<div className="text-2xl font-bold">
 					{loading && (
 						<Skeleton>
-							<span className="opacity-0">0</span>
+							<span className="opacity-0">{value}</span>
 						</Skeleton>
 					)}
 				</div>
