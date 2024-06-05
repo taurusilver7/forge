@@ -1,5 +1,6 @@
 import { GetFormStats } from "@/actions/form";
 import CreateFormButton from "@/components/create-form-btn";
+import FormCards, { FormCardSkeleton } from "@/components/form-cards";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -25,7 +26,18 @@ const DashboardPage = () => {
 			<Separator className="my-6" />
 			<h2 className="text-3xl font-bold col-span-2">Your forms</h2>
 			<Separator className="my-6" />
-			<CreateFormButton />
+			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+				<CreateFormButton />
+
+				<Suspense
+					fallback={[1, 2, 3, 4].map((el) => (
+						<FormCardSkeleton key={el} />
+					))}
+				>
+					{/* form cards */}
+					<FormCards />
+				</Suspense>
+			</div>
 		</div>
 	);
 };
