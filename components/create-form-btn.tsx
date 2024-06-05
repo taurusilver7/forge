@@ -19,35 +19,46 @@ import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
 import { ImSpinner } from "react-icons/im";
 import { toast } from "./ui/use-toast";
-
-type formSchemaType = z.infer<typeof formSchema>;
-
-const formSchema = z.object({
-	name: z.string().min(4),
-	description: z.string().optional(),
-});
+import { formSchema, formSchemaType } from "@/lib/schema";
+import { CreateForm } from "@/actions/form";
+import { BsFileEarmarkPlus } from "react-icons/bs";
 
 const CreateFormButton = () => {
 	const form = useForm<formSchemaType>({
 		resolver: zodResolver(formSchema),
 	});
 
-	const onSubmit = (values: formSchemaType) => {
+	const onSubmit = async (values: formSchemaType) => {
 		// console.log(values);
 
 		try {
+			const formId = await CreateForm(values);
+			toast({
+				title: "Success",
+				description: "Form created successfully",
+				variant: "default",
+			});
+			console.log("FORM Id", formId);
 		} catch (error) {
 			toast({
 				title: "Error",
 				description: "Something went wrong, please try again later.",
-				variant: "destructive", 
+				variant: "destructive",
 			});
 		}
 	};
 	return (
 		<Dialog>
 			<DialogTrigger asChild>
-				<Button>Create new form</Button>
+				<Button
+					className="group border border-primary/20 h-48 items-center justify-center flex flex-col hover:border-primary hover:cursor-pointer border-dashed gap-4"
+					variant="outline"
+				>
+					<BsFileEarmarkPlus className="h-8 w-8 text-muted-foreground group-hover:text-primary" />
+					<p className="font-bold text-xl text-muted-foreground group-hover:text-primary">
+						Create new form
+					</p>
+				</Button>
 			</DialogTrigger>
 			<DialogContent>
 				<DialogHeader>
@@ -90,6 +101,7 @@ const CreateFormButton = () => {
 				</Form>
 				<DialogFooter>
 					<Button
+						onClick={form.handleSubmit(onSubmit)}
 						disabled={form.formState.isSubmitting}
 						className="w-full mt-4"
 					>
