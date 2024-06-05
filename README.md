@@ -84,6 +84,10 @@ Create a server action `form.ts` and follow the [document](https://www.prisma.io
 
 Create a create-form-button component to create a default form in the dashboard. Create a server function to create a form with form data from UI.
 
+Create a schema directory for all the input validation schema & types. Create a server action CreateForm to store a new form with input entry values in the database.
+
+Style the create-form-button & dashboard page.
+
 ## Deploy on Vercel
 
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
