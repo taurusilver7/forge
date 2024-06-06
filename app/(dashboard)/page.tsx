@@ -1,6 +1,7 @@
 import { GetFormStats } from "@/actions/form";
 import CreateFormButton from "@/components/create-form-btn";
 import FormCards, { FormCardSkeleton } from "@/components/form-cards";
+import StatsCard from "@/components/stats-card";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -90,38 +91,3 @@ function StatCards(props: StatCardsProps) {
 		</div>
 	);
 }
-
-const StatsCard = ({
-	title,
-	value,
-	icon,
-	helperText,
-	loading,
-	className,
-}: {
-	title: string;
-	value: string;
-	helperText: string;
-	loading: boolean;
-	icon: ReactNode;
-	className: string;
-}) => {
-	return (
-		<Card className={className}>
-			<CardHeader className="flex flex-row items-center justify-between pb-2">
-				<CardTitle className="text-sm font-medium">{title}</CardTitle>
-				{icon}
-			</CardHeader>
-			<CardContent>
-				<div className="text-2xl font-bold">
-					{loading && (
-						<Skeleton>
-							<span className="opacity-0">{value}</span>
-						</Skeleton>
-					)}
-				</div>
-				<p className="text-xs text-muted-foreground pt-1">{helperText}</p>
-			</CardContent>
-		</Card>
-	);
-};
