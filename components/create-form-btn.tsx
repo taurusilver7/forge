@@ -22,8 +22,10 @@ import { toast } from "./ui/use-toast";
 import { formSchema, formSchemaType } from "@/lib/schema";
 import { CreateForm } from "@/actions/form";
 import { BsFileEarmarkPlus } from "react-icons/bs";
+import { useRouter } from "next/navigation";
 
 const CreateFormButton = () => {
+	const router = useRouter();
 	const form = useForm<formSchemaType>({
 		resolver: zodResolver(formSchema),
 	});
@@ -38,13 +40,15 @@ const CreateFormButton = () => {
 				description: "Form created successfully",
 				variant: "default",
 			});
-			console.log("FORM Id", formId);
+			// console.log("FORM Id", formId);
+			router.push(`/builder/${formId}`);
 		} catch (error) {
 			toast({
 				title: "Error",
 				description: "Something went wrong, please try again later.",
 				variant: "destructive",
 			});
+			router.refresh();
 		}
 	};
 	return (
@@ -62,7 +66,7 @@ const CreateFormButton = () => {
 			</DialogTrigger>
 			<DialogContent>
 				<DialogHeader>
-					<DialogTitle>Create form</DialogTitle>
+					<DialogTitle>Create Form</DialogTitle>
 					<DialogDescription>
 						Create a new form to start collecting responses
 					</DialogDescription>
@@ -105,7 +109,7 @@ const CreateFormButton = () => {
 						disabled={form.formState.isSubmitting}
 						className="w-full mt-4"
 					>
-						{!form.formState.isSubmitting && <span>Save</span>}
+						{!form.formState.isSubmitting && <span>Create</span>}
 						{form.formState.isSubmitting && (
 							<ImSpinner className="animate-spin" />
 						)}
