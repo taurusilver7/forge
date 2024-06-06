@@ -86,10 +86,39 @@ Create a create-form-button component to create a default form in the dashboard.
 
 Create a schema directory for all the input validation schema & types. Create a server action CreateForm to store a new form with input entry values in the database.
 
-Style the create-form-button & dashboard page.
+Style the create-form-button & dashboard page. Create a form-cards component to map the forms to display as summary in the dashboard. Populate each form in FormCard component.
+
+Each form card either leads to the published form (if the form was published) or builder portal to edit/modify the custom form-template.
+
+## Builder
+
+Create a builder/[id] route in the dashboard route-group. The user will be routed to the builder portal to create the form from ground-up.
+
+Create a server action to find the form data from the params in the url (formId). Populate the form information in FormBuilder component.
+
+Create a layout, error & loading for the builder route for smooth UI experience.
 
 ## Deploy on Vercel
 
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+
+1. form-builder
+
+-  preview dialog btn
+-  publish form btn
+-  save form btn
+-  drag-overlay-wrapper stats-card
+-  designer (designer-sidebar)
+
+forms - published-forms
+
+-  form link share
+-  visit btn
+-  form-elements
+
+submit route
+
+form-elements
+form-submit component
