@@ -4,6 +4,7 @@ import { Form } from "@prisma/client";
 import SaveBtn from "./save";
 import Publish from "./publish";
 import Preview from "./preview";
+import Designer from "./designer";
 
 const FormBuilder = ({ form }: { form: Form }) => {
 	return (
@@ -28,7 +29,7 @@ const FormBuilder = ({ form }: { form: Form }) => {
 
 			<div className="relative overflow-y-auto h-52 flex-grow flex w-full items-center justify-center bg-accent bg-[url(/paper.svg)] dark:bg-[url(/paper-dark.svg)]">
 				{/* Form Editor */}
-				Form Editor
+				<Designer />
 			</div>
 		</main>
 	);
