@@ -100,6 +100,8 @@ Create a server action to find the form data from the params in the url (formId)
 
 Create a layout, error & loading for the builder route for smooth UI experience.
 
+Design the form-builder with functional buttons to build & a main form editor. Create a designer component that acts as main form editor display.
+
 ## Deploy on Vercel
 
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
@@ -131,5 +133,3 @@ form-element (& every component that has form element)
 form element sidebar
 sidebar btn element
 properties from sidebar
-
-
