@@ -25,6 +25,11 @@ const FormBuilder = ({ form }: { form: Form }) => {
 					)}
 				</div>
 			</nav>
+
+			<div className="relative overflow-y-auto h-52 flex-grow flex w-full items-center justify-center bg-accent bg-[url(/paper.svg)] dark:bg-[url(/paper-dark.svg)]">
+				{/* Form Editor */}
+				Form Editor
+			</div>
 		</main>
 	);
 };
