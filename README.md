@@ -88,6 +88,8 @@ Create a schema directory for all the input validation schema & types. Create a 
 
 Style the create-form-button & dashboard page. Create a form-cards component to map the forms to display as summary in the dashboard. Populate each form in FormCard component.
 
+Create a server action to filter out all the form created by the specific user id (logged user).
+
 Each form card either leads to the published form (if the form was published) or builder portal to edit/modify the custom form-template.
 
 ## Builder
@@ -109,7 +111,8 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/deploym
 -  preview dialog btn
 -  publish form btn
 -  save form btn
--  drag-overlay-wrapper stats-card
+
+-  drag-overlay-wrapper
 -  designer (designer-sidebar)
 
 forms - published-forms
@@ -122,3 +125,11 @@ submit route
 
 form-elements
 form-submit component
+
+common
+form-element (& every component that has form element)
+form element sidebar
+sidebar btn element
+properties from sidebar
+
+
