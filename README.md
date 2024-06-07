@@ -102,6 +102,12 @@ Create a layout, error & loading for the builder route for smooth UI experience.
 
 Design the form-builder with functional buttons to build & a main form editor. Create a designer component that acts as main form editor display.
 
+Add [dnd-kit](https://dndkit.com/) to add drag-drop functions to the designer. Wrap the form-builder with DndContext to use the drag-drop feature in the designer.
+
+The designer has the dropzone & desgin sidebar. The sidebar has created form elements. Each element has another property sidebar component to customize the form element.
+
+Create form-elements, a collective elements components for all the form elements (text, heading, paragraph, Number field, textarea.,)
+
 ## Deploy on Vercel
 
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
