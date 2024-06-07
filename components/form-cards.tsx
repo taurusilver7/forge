@@ -19,6 +19,7 @@ import Link from "next/link";
 import { GetForms } from "@/actions/form";
 import { Form } from "@prisma/client";
 import { Badge } from "./ui/badge";
+import { formatDistance } from "date-fns";
 
 const FormCards = async () => {
 	const forms = await GetForms();
@@ -46,13 +47,16 @@ const FormCard = ({ form }: { form: Form }) => {
 					{form.published && <Badge>Published</Badge>}
 					{!form.published && <Badge variant="destructive">Draft</Badge>}
 				</CardTitle>
-				<CardDescription className="flex items-center justify-between text-sm text-muted-foreground">
-					<span className="flex items-center gap-2">
-						<EyeOpenIcon className="text-muted-foreground" />
-						<span>{form.visits.toLocaleString()}</span>
-						<ViewVerticalIcon className="text-muted-foreground" />
-						<span>{form.submissions.toLocaleString()}</span>
-					</span>
+				<CardDescription className="flex items-center justify-between text-xs text-muted-foreground">
+					{formatDistance(form.createdAt, new Date())}
+					{form.published && (
+						<span className="flex items-center gap-2">
+							<EyeOpenIcon className="text-muted-foreground" />
+							<span>{form.visits.toLocaleString()}</span>
+							<ViewVerticalIcon className="text-muted-foreground" />
+							<span>{form.submissions.toLocaleString()}</span>
+						</span>
+					)}
 				</CardDescription>
 			</CardHeader>
 			<CardContent className="h-5 truncate text-sm text-muted-foreground">
