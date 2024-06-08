@@ -15,7 +15,7 @@ interface StatsCardProps {
 
 const StatsCard = ({
 	title,
-	value,
+	value = "0",
 	icon,
 	helperText,
 	loading,
@@ -31,9 +31,10 @@ const StatsCard = ({
 				<div className="text-2xl font-bold">
 					{loading && (
 						<Skeleton>
-							<span className="opacity-0">{value}</span>
+							<span className="opacity-50">{value}</span>
 						</Skeleton>
 					)}
+					{!false && value}
 				</div>
 				<p className="text-xs text-muted-foreground pt-1">{helperText}</p>
 			</CardContent>
