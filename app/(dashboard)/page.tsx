@@ -7,6 +7,7 @@ import {
 	EyeOpenIcon,
 	CursorArrowIcon,
 	ViewVerticalIcon,
+	DashboardIcon,
 	MixerVerticalIcon,
 } from "@radix-ui/react-icons";
 import React, { ReactNode, Suspense } from "react";
@@ -64,7 +65,7 @@ function StatCards(props: StatCardsProps) {
 			/>
 			<StatsCard
 				title="Total Submissions"
-				icon={<ViewVerticalIcon className="text-yellow-600 w-6 h-6" />}
+				icon={<DashboardIcon className="text-yellow-600 w-6 h-6" />}
 				helperText="All time submissions."
 				value={data?.submissions.toLocaleString() || ""}
 				loading={loading}
@@ -74,7 +75,7 @@ function StatCards(props: StatCardsProps) {
 				title="Submissions rate"
 				icon={<CursorArrowIcon className="text-green-600 w-6 h-6" />}
 				helperText="visits that submitted form."
-				value={data?.submissionRate.toLocaleString() + "%" || ""}
+				value={data?.submissionRate.toLocaleString() + "%" || "0"}
 				loading={loading}
 				className="shadow-md shadow-green-600"
 			/>
@@ -82,7 +83,7 @@ function StatCards(props: StatCardsProps) {
 				title="Bounce rate"
 				icon={<MixerVerticalIcon className="text-rose-600 h-6 w-6" />}
 				helperText="Visits that leave without interacting."
-				value={data?.bounceRate.toLocaleString() + "%" || ""}
+				value={data?.bounceRate.toLocaleString() + "%" || "0"}
 				loading={loading}
 				className="shadow-md shadow-rose-600"
 			/>
