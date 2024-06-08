@@ -106,7 +106,15 @@ Add [dnd-kit](https://dndkit.com/) to add drag-drop functions to the designer. W
 
 The designer has the dropzone & desgin sidebar. The sidebar has created form elements. Each element has another property sidebar component to customize the form element.
 
-Create form-elements, a collective elements components for all the form elements (text, heading, paragraph, Number field, textarea.,)
+Create form-elements, a collective elements components for all the form elements (text, heading, paragraph, Number field, textarea.,). Create a type for the elements going to be used in the form, formElementType.
+
+Create multiple form elements (that are either textfields or numberfields), each with properties of FormElement, to be used as multiple input elements in form builder.
+
+Create a SidebarBtnElement that populates each FormElement in the builder designer sidebar. Use dnd-kit to make the sidebarBtnElement draggable to the designer space.
+
+Create a drag-overlay beneath the Designer to render the drag elements in the designer. To check if there are dragged elements to render, create a custom hook to monitor drag operations like onDragStart event listeners.
+
+Use a state in Designer to stall the dragged element from sidebar in the designer.
 
 ## Deploy on Vercel
 
