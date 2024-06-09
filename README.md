@@ -122,7 +122,7 @@ Listen to the onDragEnd event in designer, and call addElement from the custom h
 
 Every child component can use the dnd-monitor, as long the parent/root component was wrapped by the DndContext. With the useDndMonitor & onDragEnd event, find the dragged element and add to the list of elements.
 
-Map through the added elements to render them in the designer.
+Map through the added elements to render them in the designer. For each form element (Text field, Number field), style the designer component to render them in designer workspace.
 
 ## Deploy on Vercel
 
