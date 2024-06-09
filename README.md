@@ -114,7 +114,15 @@ Create a SidebarBtnElement that populates each FormElement in the builder design
 
 Create a drag-overlay beneath the Designer to render the drag elements in the designer. To check if there are dragged elements to render, create a custom hook to monitor drag operations like onDragStart event listeners.
 
-Use a state in Designer to stall the dragged element from sidebar in the designer.
+Use a state in Designer to stall the dragged element from sidebar in the designer. However, this dragged element must be rendered in preview page too. A context menu is preferred to state.
+
+Wrap the root layout with designer context provider to let the state(values) available to all the components.
+
+Listen to the onDragEnd event in designer, and call addElement from the custom hook to add the dragged element to the elements list in context.
+
+Every child component can use the dnd-monitor, as long the parent/root component was wrapped by the DndContext. With the useDndMonitor & onDragEnd event, find the dragged element and add to the list of elements.
+
+Map through the added elements to render them in the designer.
 
 ## Deploy on Vercel
 
