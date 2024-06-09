@@ -66,7 +66,7 @@ const Designer = () => {
 					)}
 
 					{elements.length > 0 && (
-						<div className="p-4 w-full gap-2 flex flex-col text-background">
+						<div className="p-4 w-full gap-2 flex flex-col">
 							{elements.map((element) => (
 								<DesignerElementWrapper
 									key={element.id}
@@ -88,5 +88,5 @@ export default Designer;
 function DesignerElementWrapper({ element }: { element: FormElementInstance }) {
 	const DesignerElement = FormElements[element.type].designerComponent;
 
-	return <DesignerElement />;
+	return <DesignerElement elementInstance={element} />;
 }
