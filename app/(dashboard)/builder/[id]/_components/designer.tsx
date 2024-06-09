@@ -1,15 +1,47 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import React from "react";
-import DesignerSidebar from "./desginer-sidebar";
-import { useDroppable } from "@dnd-kit/core";
+import React, { useState } from "react";
+import DesignerSidebar from "./designer-sidebar";
+import { DragEndEvent, useDndMonitor, useDroppable } from "@dnd-kit/core";
+import {
+	ElementType,
+	FormElementInstance,
+	FormElements,
+} from "@/components/form-elements";
+import useDesigner from "@/hooks/useDesigner";
+import { idGenerator } from "@/lib/id-generator";
 
 const Designer = () => {
+	const { elements, addElement } = useDesigner();
 	const droppable = useDroppable({
 		id: "designer-drop-area",
 		data: {
 			isDesignerDropArea: true,
+		},
+	});
+
+	console.log("ELEMENTs", elements);
+
+	useDndMonitor({
+		onDragEnd: (event: DragEndEvent) => {
+			const { active, over } = event;
+
+			if (!active || !over) return;
+
+			const isDesignerBtnElement =
+				active?.data?.current?.isDesignerBtnElement;
+
+			if (isDesignerBtnElement) {
+				const type = active?.data?.current?.type;
+				const newElement = FormElements[type as ElementType].construct(
+					idGenerator()
+				);
+				addElement(0, newElement);
+				console.log("NEW ELEMENT", newElement);
+			}
+
+			// console.log("DRAG END", event);
 		},
 	});
 	return (
@@ -27,10 +59,21 @@ const Designer = () => {
 							<div className="bg-primary/20 h-32 rounded-md"></div>
 						</div>
 					)}
-					{!droppable.isOver && (
+					{!droppable.isOver && elements.length === 0 && (
 						<p className="text-3xl text-muted-foreground flex flex-grow items-center font-bold">
 							Drop here
 						</p>
+					)}
+
+					{elements.length > 0 && (
+						<div className="p-4 w-full gap-2 flex flex-col text-background">
+							{elements.map((element) => (
+								<DesignerElementWrapper
+									key={element.id}
+									element={element}
+								/>
+							))}
+						</div>
 					)}
 				</div>
 			</div>
@@ -41,3 +84,9 @@ const Designer = () => {
 };
 
 export default Designer;
+
+function DesignerElementWrapper({ element }: { element: FormElementInstance }) {
+	const DesignerElement = FormElements[element.type].designerComponent;
+
+	return <DesignerElement />;
+}
