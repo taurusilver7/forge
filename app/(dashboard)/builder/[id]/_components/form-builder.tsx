@@ -21,7 +21,7 @@ const FormBuilder = ({ form }: { form: Form }) => {
 						)}
 						role="button"
 					>
-						<DoubleArrowUpIcon className="w-6 h-6" />
+						<DoubleArrowUpIcon className="w-6 h-6 ml-auto" />
 					</div>
 					<h2 className="truncate font-medium">
 						<span className="text-muted-foreground mr-2">Form:</span>
