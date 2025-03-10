@@ -34,7 +34,7 @@ const StatsCard = ({
 							<span className="opacity-50">{value}</span>
 						</Skeleton>
 					)}
-					{!false && value}
+					{!loading && value}
 				</div>
 				<p className="text-xs text-muted-foreground pt-1">{helperText}</p>
 			</CardContent>
