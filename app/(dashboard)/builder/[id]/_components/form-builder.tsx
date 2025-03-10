@@ -17,11 +17,11 @@ const FormBuilder = ({ form }: { form: Form }) => {
 				<nav className="flex group/topbar justify-between border-b-2 p-4 gap-3 items-center relative">
 					<div
 						className={cn(
-							"h-8 w-8 text-muted-foreground hover:bg-neutral-100 z-50 dark:hover:bg-neutral-700 absolute top-16 right-1/4 opacity-100 group-hover/topbar:opacity-100 transition rounded-full"
+							"h-10 w-10 text-muted-foreground bg-primary-foreground hover:bg-neutral-100 z-50 dark:hover:bg-neutral-700 absolute top-16 right-1/4 opacity-100 group-hover/topbar:opacity-100 transition rounded-full"
 						)}
 						role="button"
 					>
-						<DoubleArrowUpIcon className="w-6 h-6 ml-auto" />
+						<DoubleArrowUpIcon className="w-6 h-6 ml-2 mt-1" />
 					</div>
 					<h2 className="truncate font-medium">
 						<span className="text-muted-foreground mr-2">Form:</span>
