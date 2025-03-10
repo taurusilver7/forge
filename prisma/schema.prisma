@@ -5,18 +5,13 @@ generator client {
   provider = "prisma-client-js"
 }
 
-// datasource db {
-//   provider  = "postgresql"
-//   url       = env("POSTGRES_PRISMA_URL") // uses connection pooling
-//   directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
-// }
 datasource db {
   provider = "sqlite"
   url      = "file:/dev.db"
 }
 
 model Form {
-  id          String   @id @default(uuid())
+  id          Int      @id @default(autoincrement())
   userId      String
   createdAt   DateTime @default(now())
   published   Boolean  @default(false)
@@ -36,7 +31,7 @@ model Form {
 model FormSubmission {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
-  formId    String
+  formId    Int
   form      Form     @relation(fields: [formId], references: [id])
   content   String
 }
