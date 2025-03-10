@@ -6,15 +6,15 @@
 
 ## Features
 
--  Fully responsive: mobile & tablet 💻
--  Create forms with a stunning drag and drop designer.
--  Layout fields: Title, Subtitle, Spacer, Separator, Paragraph. ⬅➡↕
--  Form fields: Text, Number, Select, Date, Checkbox, Textarea.
--  Add and customize new fields. 📌
--  Form preview dialog. 📃
--  Share form urls. 🔘
--  Form submission/validation.
--  👍🏻 Form stats: visits and submissions.
+- Fully responsive: mobile & tablet 💻
+- Create forms with a stunning drag and drop designer.
+- Layout fields: Title, Subtitle, Spacer, Separator, Paragraph. ⬅➡↕
+- Form fields: Text, Number, Select, Date, Checkbox, Textarea.
+- Add and customize new fields. 📌
+- Form preview dialog. 📃
+- Share form urls. 🔘
+- Form submission/validation.
+- 👍🏻 Form stats: visits and submissions.
 
 ## Getting Started
 
@@ -132,18 +132,18 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/deploym
 
 1. form-builder
 
--  preview dialog btn
--  publish form btn
--  save form btn
+- preview dialog btn
+- publish form btn
+- save form btn
 
--  drag-overlay-wrapper
--  designer (designer-sidebar)
+- drag-overlay-wrapper
+- designer (designer-sidebar)
 
 forms - published-forms
 
--  form link share
--  visit btn
--  form-elements
+- form link share
+- visit btn
+- form-elements
 
 submit route
 
@@ -155,3 +155,13 @@ form-element (& every component that has form element)
 form element sidebar
 sidebar btn element
 properties from sidebar
+
+## Datasource Prisma
+
+```bash
+ datasource db {
+ provider = "postgresql"
+ url = env("POSTGRES_PRISMA_URL") // uses connection pooling
+ directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
+
+```
