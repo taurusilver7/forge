@@ -124,6 +124,8 @@ Every child component can use the dnd-monitor, as long the parent/root component
 
 Map through the added elements to render them in the designer. For each form element (Text field, Number field), style the designer component to render them in designer workspace.
 
+Define the custom-attribute of the element in a type `CustomInstance` in the form-element. It's an extension of FormElementInstance with extraAttributes to it.
+
 ## Deploy on Vercel
 
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
