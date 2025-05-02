@@ -7,8 +7,6 @@ import Preview from "./preview";
 import Designer from "./designer";
 import { DndContext } from "@dnd-kit/core";
 import DragOverlayWrapper from "./drag-overlay";
-import { DoubleArrowUpIcon, PinTopIcon } from "@radix-ui/react-icons";
-import { cn } from "@/lib/utils";
 
 const FormBuilder = ({ form }: { form: Form }) => {
 	return (
