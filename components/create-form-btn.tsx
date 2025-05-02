@@ -14,7 +14,14 @@ import { Button } from "./ui/button";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useForm } from "react-hook-form";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "./ui/form";
+import {
+	Form,
+	FormControl,
+	FormField,
+	FormItem,
+	FormLabel,
+	FormMessage,
+} from "./ui/form";
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
 import { ImSpinner } from "react-icons/im";
@@ -41,6 +48,7 @@ const CreateFormButton = () => {
 				variant: "default",
 			});
 			// console.log("FORM Id", formId);
+			form.reset();
 			router.push(`/builder/${formId}`);
 		} catch (error) {
 			toast({
