@@ -9,8 +9,16 @@ import DesignerContextProvider from "@/components/context/designer-context";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-	title: "Forge | Form Builder",
+	title: "Forge | A Form Building Master",
 	description: "A full-stack form building SaaS",
+	icons: {
+		icon: [
+			{
+				href: "/logo.svg",
+				url: "/logo.svg",
+			},
+		],
+	},
 };
 
 export default function RootLayout({
