@@ -1,10 +1,10 @@
 // Sidebar Button Element + Sidebar Element Drag Overlay
 
 import React from "react";
-import { FormElement } from "./form-elements";
 import { Button } from "./ui/button";
-import { useDraggable } from "@dnd-kit/core";
 import { cn } from "@/lib/utils";
+import { FormElement } from "./form-elements";
+import { useDraggable } from "@dnd-kit/core";
 
 const SidebarElement = ({ formElement }: { formElement: FormElement }) => {
 	const { label, icon: Icon } = formElement.designerBtnElement;
@@ -32,8 +32,6 @@ const SidebarElement = ({ formElement }: { formElement: FormElement }) => {
 	);
 };
 
-export default SidebarElement;
-
 export const SidebarElementDragOverlay = ({
 	formElement,
 }: {
@@ -51,3 +49,5 @@ export const SidebarElementDragOverlay = ({
 		</Button>
 	);
 };
+
+export default SidebarElement;
