@@ -1,6 +1,6 @@
 import React, { ReactNode } from "react";
 
-export default function RootLayout({
+export default function BuilderLayout({
 	children,
 }: {
 	children: React.ReactNode;
