@@ -1,6 +1,6 @@
 "use server";
 
-import prisma from "@/lib/prisma";
+import db from "@/lib/prisma";
 import { formSchema, formSchemaType } from "@/lib/schema";
 import { currentUser } from "@clerk/nextjs";
 import { redirect } from "next/navigation";
@@ -10,11 +10,11 @@ class UserNotFoundErr extends Error {}
 export async function GetFormStats() {
 	const user = await currentUser();
 	if (!user) {
-		redirect("/sign-in");
-		// throw new UserNotFoundErr();
+		throw new UserNotFoundErr();
+		// redirect("/sign-in");
 	}
 
-	const stats = await prisma.form.aggregate({
+	const stats = await db.form.aggregate({
 		where: {
 			userId: user.id,
 		},
@@ -57,7 +57,7 @@ export async function CreateForm(data: formSchemaType) {
 	}
 
 	const { name, description } = data;
-	const form = await prisma.form.create({
+	const form = await db.form.create({
 		data: {
 			userId: user.id,
 			name,
@@ -81,7 +81,7 @@ export async function GetForms() {
 		// throw new UserNotFoundErr();
 	}
 
-	const forms = await prisma.form.findMany({
+	const forms = await db.form.findMany({
 		where: {
 			userId: user.id,
 		},
@@ -93,7 +93,7 @@ export async function GetForms() {
 	return forms;
 }
 
-export async function GetFormById(id: any) {
+export async function GetFormById(id: string) {
 	const user = await currentUser();
 
 	if (!user) {
@@ -102,7 +102,7 @@ export async function GetFormById(id: any) {
 		// throw new UserNotFoundErr();
 	}
 
-	return await prisma.form.findUnique({
+	return await db.form.findUnique({
 		where: {
 			userId: user.id,
 			id,
