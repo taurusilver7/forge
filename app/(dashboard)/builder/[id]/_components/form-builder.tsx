@@ -12,8 +12,7 @@ const FormBuilder = ({ form }: { form: Form }) => {
 	return (
 		<DndContext>
 			<main className="flex flex-col w-full">
-				<nav className="flex group/topbar justify-between border-b-2 p-4 gap-3 items-center relative">
-					
+				<nav className="flex justify-between border-b-2 p-4 gap-3 items-center relative">
 					<h2 className="truncate font-medium">
 						<span className="text-muted-foreground mr-2">Form:</span>
 						{form.name}
@@ -31,7 +30,7 @@ const FormBuilder = ({ form }: { form: Form }) => {
 					</div>
 				</nav>
 
-				<div className="relative overflow-y-auto h-52 flex-grow flex w-full items-center justify-center bg-accent bg-[url(/paper.svg)] dark:bg-[url(/paper-dark.svg)]">
+				<div className="relative overflow-y-auto h-auto flex-grow w-full items-center justify-center bg-accent bg-[url(/paper.svg)] dark:bg-[url(/paper-dark.svg)]">
 					{/* Form Editor */}
 					<Designer />
 				</div>
