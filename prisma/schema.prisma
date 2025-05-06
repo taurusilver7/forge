@@ -7,17 +7,17 @@ generator client {
 
 datasource db {
   provider = "sqlite"
-  url      = "file:./dev.db"
+  url      = "file:./db.sqlite"
 }
 
 model Form {
-  id          Int      @id @default(autoincrement())
-  userId      String
-  createdAt   DateTime @default(now())
-  published   Boolean  @default(false)
+  id        String  @id @default(uuid())
+  userId    String
+  published Boolean @default(false)
+
   name        String
-  description String   @default("")
-  content     String   @default("[]")
+  description String @default("")
+  content     String @default("[]")
 
   visits      Int @default(0)
   submissions Int @default(0)
@@ -25,13 +25,16 @@ model Form {
   shareURL       String           @default(uuid())
   FormSubmission FormSubmission[]
 
+  createdAt DateTime @default(now())
+
   @@unique([name, userId])
 }
 
 model FormSubmission {
-  id        Int      @id @default(autoincrement())
+  id      String @id @default(uuid())
+  formId  String
+  form    Form   @relation(fields: [formId], references: [id])
+  content String
+
   createdAt DateTime @default(now())
-  formId    Int
-  form      Form     @relation(fields: [formId], references: [id])
-  content   String
 }
