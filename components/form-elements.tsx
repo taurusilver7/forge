@@ -16,11 +16,17 @@ export type FormElement = {
 		icon: React.ElementType;
 		label: string;
 	};
+	// component displayed in builder
 	designerComponent: React.FC<{
 		elementInstance: FormElementInstance;
 	}>;
+	// component displayed in preview/submit
 	formComponent: React.FC;
 	propertiesComponent: React.FC;
+	validate: (
+		formElement: FormElementInstance,
+		currentValue: string
+	) => boolean;
 };
 
 type FormElementType = {
