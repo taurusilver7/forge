@@ -4,10 +4,10 @@ import {
 	ElementType,
 	FormElement,
 	FormElementInstance,
-} from "../form-elements";
+} from "@/components/form-elements";
 import { TextIcon } from "@radix-ui/react-icons";
-import { Label } from "../ui/label";
-import { Input } from "../ui/input";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 
 const type: ElementType = "TextField";
 
@@ -37,6 +37,16 @@ export const TextFieldFormElement: FormElement = {
 	designerComponent: DesignerComponent,
 	formComponent: () => <div>Form Component</div>,
 	propertiesComponent: () => <div>Properties Component</div>,
+	validate: (
+		formElement: FormElementInstance,
+		currentValue: string
+	): boolean => {
+		const element = formElement as CustomInstance;
+		if (element.extraAttributes?.required) {
+			return currentValue.length > 0;
+		}
+		return true;
+	},
 };
 
 function DesignerComponent({
@@ -47,7 +57,7 @@ function DesignerComponent({
 	const element = elementInstance as CustomInstance;
 	const { label, placeholder, required, helperText } = element.extraAttributes;
 	return (
-		<div className="flex flex-col gap-2 w-full text-white">
+		<div className="flex flex-col gap-2 w-full">
 			<Label>
 				{label}
 				{required && "*"}
