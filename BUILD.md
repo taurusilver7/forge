@@ -70,7 +70,7 @@ Design the form-builder with functional buttons to build & a main form editor. C
 
 Add [dnd-kit](https://dndkit.com/) to add drag-drop functions to the designer. Wrap the form-builder with DndContext to use the drag-drop feature in the designer.
 
-The designer has the dropzone & desgin sidebar. The sidebar has created form elements. Each element has another property sidebar component to customize the form element.
+The designer has the dropzone & design-sidebar. The sidebar has stipulated/generated form elements. Each element has another property-sidebar component to customize the form element.
 
 Create form-elements, a collective elements components for all the form elements (text, heading, paragraph, Number field, textarea.,). Create a type for the elements going to be used in the form, formElementType.
 
