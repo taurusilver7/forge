@@ -22,7 +22,7 @@ import { Badge } from "./ui/badge";
 import { formatDistance } from "date-fns";
 
 const FormCards = async () => {
-	const forms = await GetForms();
+	const forms = (await GetForms()) ?? [];
 	return (
 		<>
 			{forms.map((form) => (
@@ -48,7 +48,7 @@ const FormCard = ({ form }: { form: Form }) => {
 					{!form.published && <Badge variant="destructive">Draft</Badge>}
 				</CardTitle>
 				<CardDescription className="flex items-center justify-between text-xs text-muted-foreground">
-					{formatDistance(form.createdAt, new Date(), {addSuffix: true})}
+					{formatDistance(form.createdAt, new Date(), { addSuffix: true })}
 					{form.published && (
 						<span className="flex items-center gap-2">
 							<EyeOpenIcon className="text-muted-foreground" />
