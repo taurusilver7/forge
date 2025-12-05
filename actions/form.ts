@@ -24,8 +24,8 @@ export async function GetFormStats() {
 		},
 	});
 
-	const visits = stats._sum.visits || 0;
-	const submissions = stats._sum.submissions || 0;
+	const visits = stats._sum.visits ?? 0;
+	const submissions = stats._sum.submissions ?? 0;
 
 	let submissionRate = 0;
 
