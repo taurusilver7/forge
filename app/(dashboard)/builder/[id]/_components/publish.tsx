@@ -17,7 +17,7 @@ import { FaSpinner } from "react-icons/fa";
 const Publish = () => {
 	return (
 		<AlertDialog>
-			<AlertDialogTrigger>
+			<AlertDialogTrigger asChild>
 				<Button
 					variant="outline"
 					className="gap-1 text-white bg-gradient-to-r from-indigo-500 to-cyan-500"
