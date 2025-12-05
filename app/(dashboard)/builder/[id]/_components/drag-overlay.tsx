@@ -27,16 +27,16 @@ const DragOverlayWrapper = () => {
 	let node = <div>No drag overlay</div>;
 
 	// is the dragged item a sidebar designer element?
-	const isSidebarElement: boolean =
-		draggedItem.data.current?.isDesignerBtnElement ?? false;
+	const isSidebarBtnElement: boolean =
+		draggedItem.data?.current?.isDesignerBtnElement;
 
-	if (isSidebarElement) {
+	if (isSidebarBtnElement) {
 		const type = draggedItem?.data?.current?.type as ElementType;
 		node = <SidebarElementDragOverlay formElement={FormElements[type]} />;
 	}
 
 	const isDesignerElement: boolean =
-		draggedItem?.data?.current?.isDesignerElement ?? false;
+		draggedItem?.data?.current?.isDesignerElement;
 
 	// console.log("draggedItem", draggedItem);
 	// console.log("isSidebarElement", isSidebarElement);
@@ -45,9 +45,8 @@ const DragOverlayWrapper = () => {
 	if (isDesignerElement) {
 		const elementId = draggedItem?.data?.current?.elementId;
 		const element = elements.find((el) => el.id === elementId);
-		if (!element) {
-			node = <div>no element</div>;
-		} else {
+		if (!element) node = <div>no element</div>;
+		else {
 			const DesignerElementComponent =
 				FormElements[element.type].designerComponent;
 
