@@ -5,9 +5,9 @@ import { FormElementInstance } from "../form-elements";
 
 type DesignerContextType = {
 	elements: FormElementInstance[];
-	removeElement: (id: string) => void;
 	setElements: Dispatch<SetStateAction<FormElementInstance[]>>;
 	addElement: (index: number, element: FormElementInstance) => void;
+	removeElement: (id: string) => void;
 
 	selectedElement: FormElementInstance | null;
 	setSelectedElement: Dispatch<SetStateAction<FormElementInstance | null>>;
@@ -35,12 +35,12 @@ export default function DesignerContextProvider({
 	};
 
 	const removeElement = (id: string) => {
-		console.log("Removing element", id);
+		// console.log("Removing element", id);
 		setElements(
 			(prev) => prev.filter((element) => element.id !== id)
 
 			/*
-			Alternate method to filter out hte selected element to remove.
+			Alternate method to filter out tte selected element to remove.
 				{
 				const newElements = [...prev];
 				const index = newElements.findIndex((e) => e.id === id);
