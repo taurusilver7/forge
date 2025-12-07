@@ -1,4 +1,34 @@
 "use client";
+/**
+ * DesignerContext Component
+ * 
+ * PURPOSE:
+ * Provides a centralized state management system for the form builder's designer.
+ * Manages all form elements, their manipulation, and the currently selected element.
+ * 
+ * FEATURES:
+ * - Add elements to the form at a specific index
+ * - Remove elements by ID
+ * - Update element properties
+ * - Track the currently selected element for editing
+ * - Maintain the ordered list of all form elements
+ * 
+ * FLOW:
+ * 1. FormBuilder wraps the Designer component with this context provider
+ * 2. Child components (Designer, DesignerElementWrapper) consume the context via useDesigner hook
+ * 3. When user adds/removes/modifies elements, context methods are called
+ * 4. State updates trigger re-renders in all consuming components
+ * 5. Selected element state is used to highlight and show properties panel
+ * 
+ * STATE MANAGEMENT:
+ * - elements: FormElementInstance[] - Array of all form fields/elements
+ * - selectedElement: FormElementInstance | null - Currently selected element for editing
+ * 
+ * ERROR HANDLING:
+ * - useDesigner hook throws error if context is not available (ensures proper provider wrapping)
+ * - updateElement safely finds element by ID before updating (prevents crashes on invalid IDs)
+ */
+
 
 import { createContext, useState, Dispatch, SetStateAction } from "react";
 import { FormElementInstance } from "../form-elements";
