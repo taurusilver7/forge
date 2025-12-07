@@ -21,8 +21,15 @@ export type FormElement = {
 		elementInstance: FormElementInstance;
 	}>;
 	// component displayed in preview/submit
-	formComponent: React.FC;
-	propertiesComponent: React.FC;
+	formComponent: React.FC<{
+		elementInstance: FormElementInstance;
+		submitValue?: (key: string, value: string) => void;
+		isInvalid?: boolean;
+		defaultValue?: string;
+	}>;
+	propertiesComponent: React.FC<{
+		elementInstance: FormElementInstance;
+	}>;
 	validate: (
 		formElement: FormElementInstance,
 		currentValue: string
@@ -36,3 +43,5 @@ type FormElementType = {
 export const FormElements: FormElementType = {
 	TextField: TextFieldFormElement,
 };
+
+export type SubmitFunction = (key: string, value: string) => void;
