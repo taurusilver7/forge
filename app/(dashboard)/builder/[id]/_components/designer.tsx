@@ -139,8 +139,8 @@ const Designer = () => {
 				<div
 					ref={droppable.setNodeRef}
 					className={cn(
-						"bg-background max-w-5xl mx-auto h-full rounded-xl flex flex-col flex-grow items-center justify-start flex-1 overflow-y-auto",
-						droppable.isOver && "ring-2 ring-primary ring-inset"
+						"bg-background max-w-5xl m-auto h-full rounded-xl flex flex-col flex-grow items-center justify-start flex-1 overflow-y-auto",
+						droppable.isOver && "ring-5 ring-primary ring-inset"
 					)}
 				>
 					{droppable.isOver && elements.length === 0 && (
@@ -236,6 +236,11 @@ function DesignerElementWrapper({ element }: { element: FormElementInstance }) {
 
 			{mouseIsOver && (
 				<>
+					<div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-pulse">
+						<p className="text-muted-foreground text-sm">
+							Click for properties or drag to move
+						</p>
+					</div>
 					<div className="absolute right-0 h-full z-50">
 						<Button
 							className="rounded-l-none flex justify-items-center h-full border rounded-md bg-orange-500"
@@ -248,11 +253,6 @@ function DesignerElementWrapper({ element }: { element: FormElementInstance }) {
 						>
 							<BiSolidTrash className="h-6 w-6" />
 						</Button>
-					</div>
-					<div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-pulse">
-						<p className="text-muted-foreground text-sm">
-							Click for properties or drag to move
-						</p>
 					</div>
 				</>
 			)}
