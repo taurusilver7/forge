@@ -1,4 +1,36 @@
-// A wrapper overlay to render the drag elements from the Designer sidebar (sidebar elements).
+/**
+ * DragOverlayWrapper Component
+ * 
+ * PURPOSE:
+ * Provides visual feedback during drag operations by rendering a preview/ghost image
+ * of the item being dragged. Displays above other elements to show drag trajectory.
+ * 
+ * FEATURES:
+ * - Tracks active drag item state
+ * - Renders different overlay based on drag type:
+ *   - Sidebar element drag -> Shows form field preview
+ *   - Designer element drag -> Shows existing form element being reordered
+ * - Automatically hides when drag ends/cancels
+ * - Prevents rendering when no active drag
+ * 
+ * FLOW:
+ * 1. useDndMonitor listens for drag lifecycle events
+ * 2. onDragStart: Captures the item being dragged
+ * 3. Determines drag type via dnd-kit active.data:
+ *    - isDesignerBtnElement -> Sidebar field being added
+ *    - isDesignerElement -> Existing form element being moved
+ * 4. Renders appropriate overlay component for visual feedback
+ * 5. onDragEnd/onDragCancel: Clears drag state and hides overlay
+ * 
+ * DRAG TYPES HANDLED:
+ * - Sidebar button drag: Shows preview of form field being added
+ * - Designer element drag: Shows preview of existing element being reordered
+ * 
+ * ERROR HANDLING:
+ * - Returns null if no active drag (prevents unnecessary rendering)
+ * - Validates element exists before rendering designer element overlay
+ * - Falls back to "no drag overlay" message if type cannot be determined
+ */
 
 import React, { useState } from "react";
 import { SidebarElementDragOverlay } from "@/components/sidebar-element";
