@@ -212,8 +212,6 @@ function DesignerElementWrapper({ element }: { element: FormElementInstance }) {
 		<div
 			className="relative h-32 flex flex-col text-foreground hover:cursor-pointer rounded-md ring-1 ring-accent ring-inset"
 			ref={draggable.setNodeRef}
-			{...draggable.listeners}
-			{...draggable.attributes}
 			onMouseEnter={() => {
 				setMouseIsOver(true);
 			}}
@@ -236,14 +234,20 @@ function DesignerElementWrapper({ element }: { element: FormElementInstance }) {
 
 			{mouseIsOver && (
 				<>
+					{/* Drag handle: left side grab zone */}
+					<div
+						className="absolute left-0 top-0 h-full w-8 cursor-grab z-40 hover:bg-primary/10"
+						{...draggable.listeners}
+						{...draggable.attributes}
+					/>
 					<div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-pulse">
 						<p className="text-muted-foreground text-sm">
 							Click for properties or drag to move
 						</p>
 					</div>
-					<div className="absolute right-0 h-full z-50">
+					<div className="absolute right-0 h-full">
 						<Button
-							className="rounded-l-none flex justify-items-center h-full border rounded-md bg-orange-500"
+							className="rounded-l-none flex justify-center h-full border rounded-md bg-orange-500"
 							variant={"outline"}
 							onClick={(e) => {
 								e.stopPropagation();
