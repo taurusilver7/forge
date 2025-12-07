@@ -1,3 +1,37 @@
+/**
+ * FormBuilder Component
+ * 
+ * PURPOSE:
+ * Top-level wrapper for the form building interface.
+ * Orchestrates the main builder layout with header navigation and editor canvas.
+ * Provides DnD context for all child components to enable drag-and-drop functionality.
+ * 
+ * FEATURES:
+ * - Displays form name and metadata in navigation header
+ * - Conditionally shows Save and Publish buttons (only for unpublished forms)
+ * - Provides Preview button for testing the form
+ * - Sets up DnD system context for designer and sidebar
+ * - Background styling with paper texture for visual feedback
+ * 
+ * FLOW:
+ * 1. Receives form data as prop from parent (BuilderPage)
+ * 2. Wraps entire builder in DndContext to enable drag-and-drop
+ * 3. Renders navigation bar with form name and action buttons
+ * 4. Renders Designer canvas in main content area
+ * 5. Renders DragOverlayWrapper to show visual feedback during drag operations
+ * 
+ * CHILD COMPONENTS:
+ * - SaveBtn: Persists form changes to database
+ * - Publish: Makes form publicly accessible
+ * - Preview: Opens modal to test form interaction
+ * - Designer: Main canvas for element arrangement
+ * - DragOverlayWrapper: Visual representation of dragged items
+ * 
+ * ERROR HANDLING:
+ * - Relies on parent page validation (form existence check)
+ * - DnD errors handled by underlying dnd-kit library
+ */
+
 "use client";
 import React from "react";
 import { Form } from "@prisma/client";
