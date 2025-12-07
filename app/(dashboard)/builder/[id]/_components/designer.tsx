@@ -1,3 +1,40 @@
+/**
+ * Designer Component
+ *
+ * PURPOSE:
+ * Main canvas/workspace where users visually design and arrange form elements.
+ * Handles drag-and-drop of form fields, element selection, and element removal.
+ *
+ * FEATURES:
+ * - Drop zone for adding new form elements from the sidebar
+ * - Drag-and-drop to reorder elements within the designer
+ * - Click to select elements for editing properties
+ * - Hover to reveal delete button for each element
+ * - Visual feedback for drag-over zones (top/bottom halves for insertion positioning)
+ * - Empty state messaging
+ *
+ * FLOW:
+ * 1. DndContext enables drag-and-drop via dnd-kit library
+ * 2. Main Designer div is a droppable area that accepts sidebar elements
+ * 3. useDndMonitor tracks all drag events and handles:
+ *    - Adding new elements from sidebar (stage 1)
+ *    - Adding sidebar elements over existing elements (stage 2)
+ *    - Reordering designer elements by dragging (stage 3)
+ * 4. DesignerElementWrapper renders each element with interactivity
+ * 5. DesignerSidebar shows available form field types to drag
+ *
+ * ELEMENT INTERACTION:
+ * - Click element -> Select it (trigger properties panel)
+ * - Drag left handle -> Reorder element
+ * - Hover -> Show delete button
+ * - Click trash icon -> Remove element from form
+ *
+ * ERROR HANDLING:
+ * - Throws error if element not found during reordering (defensive check)
+ * - Validates droppable target before processing drop events
+ * - Returns null during drag to prevent double-rendering
+ */
+
 "use client";
 
 import React, { useState } from "react";
@@ -139,10 +176,11 @@ const Designer = () => {
 				<div
 					ref={droppable.setNodeRef}
 					className={cn(
-						"bg-background max-w-5xl m-auto h-full rounded-xl flex flex-col flex-grow items-center justify-start flex-1 overflow-y-auto",
-						droppable.isOver && "ring-5 ring-primary ring-inset"
+						"bg-background max-w-6xl mx-auto h-full rounded-xl flex flex-col flex-grow items-center justify-start flex-1 overflow-y-auto",
+						droppable.isOver && "ring-2 ring-primary/50 ring-inset"
 					)}
 				>
+					{/* drop position overlay in UI */}
 					{droppable.isOver && elements.length === 0 && (
 						<div className="w-full p-4">
 							<div className="bg-primary/20 h-32 rounded-md" />
@@ -236,7 +274,7 @@ function DesignerElementWrapper({ element }: { element: FormElementInstance }) {
 				<>
 					{/* Drag handle: left side grab zone */}
 					<div
-						className="absolute left-0 top-0 h-full w-8 cursor-grab z-40 hover:bg-primary/10"
+						className="absolute left-0 top-0 h-full w-10/12 md:w-11/12 lg:w-[95%] cursor-grab z-40 hover:bg-primary/10"
 						{...draggable.listeners}
 						{...draggable.attributes}
 					/>
@@ -245,9 +283,10 @@ function DesignerElementWrapper({ element }: { element: FormElementInstance }) {
 							Click for properties or drag to move
 						</p>
 					</div>
+
 					<div className="absolute right-0 h-full">
 						<Button
-							className="rounded-l-none flex justify-center h-full border rounded-md bg-orange-500"
+							className="rounded-l-none flex justify-center h-full border rounded-md bg-orange-500 hover:bg-orange-600"
 							variant={"outline"}
 							onClick={(e) => {
 								e.stopPropagation();
