@@ -82,9 +82,18 @@ import { useEffect, useState } from "react";
 import { z } from "zod";
 import { TextFieldSchema } from "@/lib/schema";
 import useDesigner from "@/hooks/useDesigner";
-import { Form } from "../ui/form";
+import {
+	Form,
+	FormControl,
+	FormDescription,
+	FormField,
+	FormItem,
+	FormLabel,
+	FormMessage,
+} from "../ui/form";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Switch } from "../ui/switch";
 
 const type: ElementType = "TextField";
 
@@ -245,7 +254,100 @@ function PropertiesComponent({
 
 	return (
 		<Form {...form}>
-			<form className="space-y-3"></form>
+			<form
+				className="space-y-3"
+				onBlur={form.handleSubmit(applyChanges)}
+				onSubmit={(e) => {
+					e.preventDefault();
+				}}
+			>
+				<FormField
+					control={form.control}
+					name="label"
+					render={({ field }) => (
+						<FormItem>
+							<FormLabel>Label</FormLabel>
+							<FormControl>
+								<Input
+									{...field}
+									onKeyDown={(e) => {
+										if (e.key === "Enter") e.currentTarget.blur();
+									}}
+								/>
+							</FormControl>
+							<FormDescription>
+								The field label <br /> Displayed above the field
+							</FormDescription>
+							<FormMessage />
+						</FormItem>
+					)}
+				/>
+
+				<FormField
+					control={form.control}
+					name="placeholder"
+					render={({ field }) => (
+						<FormItem>
+							<FormLabel>Placeholder</FormLabel>
+							<FormControl>
+								<Input
+									{...field}
+									onKeyDown={(e) => {
+										if (e.key === "Enter") e.currentTarget.blur();
+									}}
+								/>
+							</FormControl>
+							<FormDescription>The field placeholder.</FormDescription>
+							<FormMessage />
+						</FormItem>
+					)}
+				/>
+				<FormField
+					control={form.control}
+					name="helperText"
+					render={({ field }) => (
+						<FormItem>
+							<FormLabel>Helper text</FormLabel>
+							<FormControl>
+								<Input
+									{...field}
+									onKeyDown={(e) => {
+										if (e.key === "Enter") e.currentTarget.blur();
+									}}
+								/>
+							</FormControl>
+							<FormDescription>
+								The field helper text. <br />
+								displayed below the field.
+							</FormDescription>
+							<FormMessage />
+						</FormItem>
+					)}
+				/>
+
+				<FormField
+					control={form.control}
+					name="required"
+					render={({ field }) => (
+						<FormItem className="flex items-center justify-between rounded-lg border p-3 shadow-sm">
+							<div className="space-y-0.5">
+								<FormLabel>Required</FormLabel>
+								<FormDescription>
+									The helper text of the field. <br />
+									It will be displayed below the field.
+								</FormDescription>
+							</div>
+							<FormControl>
+								<Switch
+									checked={field.value}
+									onCheckedChange={field.onChange}
+								/>
+							</FormControl>
+							<FormMessage />
+						</FormItem>
+					)}
+				/>
+			</form>
 		</Form>
 	);
 }
