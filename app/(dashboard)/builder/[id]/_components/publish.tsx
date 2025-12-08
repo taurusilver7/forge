@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { RocketIcon, UploadIcon } from "@radix-ui/react-icons";
-import React from "react";
+import React, { useTransition } from "react";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -13,8 +13,29 @@ import {
 	AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { FaSpinner } from "react-icons/fa";
+import { useRouter } from "next/navigation";
+import { PublishForm } from "@/actions/form";
+import { toast } from "@/components/ui/use-toast";
 
-const Publish = () => {
+const Publish = ({ id }: { id: string }) => {
+	const [loading, startTransition] = useTransition();
+	const router = useRouter();
+
+	const publishForm = async () => {
+		try {
+			await PublishForm(id);
+			toast({
+				title: "Form Published",
+				description: "Your form is now available to the public",
+			});
+			router.refresh();
+		} catch (error) {
+			toast({
+				title: "Error",
+				description: "Something went wrong",
+			});
+		}
+	};
 	return (
 		<AlertDialog>
 			<AlertDialogTrigger asChild>
@@ -31,7 +52,7 @@ const Publish = () => {
 					<AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
 					<AlertDialogDescription>
 						This action cannot be undone. You will not be able to edit
-						after publishing the form. <br />
+						after publishing the form. <br /> <br />
 						<span className="font-medium">
 							You&apos;re making the form public to collect submissions
 							from users.
@@ -42,12 +63,14 @@ const Publish = () => {
 				<AlertDialogFooter>
 					<AlertDialogCancel>Cancel</AlertDialogCancel>
 					<AlertDialogAction
+						disabled={loading}
 						onClick={(e) => {
 							e.preventDefault();
+							startTransition(publishForm);
 						}}
 					>
-						Proceed
-						{false && <FaSpinner className="animate-spin" />}
+						Publish
+						{loading && <FaSpinner className="animate-spin" />}
 					</AlertDialogAction>
 				</AlertDialogFooter>
 			</AlertDialogContent>
