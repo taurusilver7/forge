@@ -17,7 +17,7 @@ const FormElementSidebar = () => {
 				<p className="text-sm text-muted-foreground col-span-1 md:col-span-2 my-2 place-self-start">
 					Form Elements
 				</p>
-				<SidebarElement formElement={FormElements.TextField} />
+				{/* <SidebarElement formElement={FormElements.TextField} /> */}
 			</div>
 		</div>
 	);
