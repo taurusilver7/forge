@@ -1,164 +1,174 @@
-# FORGE : FORM GENERATOR
+## Forge — (Builder & Designer)
 
-## Build
+-  This document describes the project purpose and provides a concise, technical guide to set up and run the application locally with a focus on the form builder (Designer)
+   and the Designer Sidebar features developed so far.
+-  Keep this file short and actionable — intended for a developer getting up to speed on the builder features.
 
-Setup clerk authentication and create a clerk project. Get the public & secret key as environment variables.
+---
 
-Refactor the main `layout` in `app` directory. Add the ClerkProvider as wrapper around the layout.
+### Purpose
 
-Create a auth route-group with sign-in & sign-up pages. Follow the [doc](https://clerk.com/docs/references/nextjs/custom-signup-signin-pages) for setting up custom sign-in pages.
+-  Forge is a visual form builder. The Builder UI allows drag-and-drop creation of form templates using a set of reusable form elements (TextField, NumberField, etc.).
 
-Update the environment variables for the sign-in, sign-up paths.
+-  The Designer is the canvas where instances of FormElements are arranged, selected, and edited. The Sidebar provides draggable form elements (Designer buttons) and
+   a properties panel to configure selected elements.
 
-Install [shadcn-ui](https://ui.shadcn.com/docs/installation/next) and configure the components.json.
+---
 
-Create a themeprovider for next-ui light/dark modes. Wrap the layout body with ThemeProvider from next-themes dependency.
+### Project structure (relevant to the builder)
 
-Create a dashboard route-group. Customize the layout & main page design & styling.
+-  `app/(dashboard)/builder/[id]/_components/`
 
-To switch between themes, create a UI component `ThemeSwitcher` which loads the given set of themes based on the mounted state. Add shadcn-ui custom theme to the stylesheet base layer.
+-  `form-builder.tsx` — top-level component for the builder page; wraps content in `DndContext`
+-  `designer.tsx` — the Designer canvas (drop zone, element rendering, selection)
+-  `_components/designer-sidebar.tsx` — sidebar that lists draggable element buttons
+-  `_components/drag-overlay.tsx` — shows visual ghost during drag operations
+-  `_components/form-builder.tsx` — orchestration and header actions (save/publish/preview)
 
-## Prisma + Vercel PostgreSQL database configuration
+-  `components/form-elements.tsx` — registry + types for form elements. Each FormElement exposes:
 
-```bash
-npm install prisma --save-dev
-# and
+-  `designerBtnElement` (icon + label for the sidebar)
+-  `designerComponent` (read-only preview shown on the canvas)
+-  `propertiesComponent` (properties panel to add attributes to the elements shown on the canvas)
+-  `formComponent` (Fully customized form-elements shown in the preview)
+
+### Quick summary
+
+-  Forge is a visual form-builder: drag elements from the Designer Sidebar onto the canvas, configure them via
+   a properties panel. Preview the end-results and publish runtime forms.
+
+---
+
+### Must-have environment (local development)
+
+-  Node.js 18+ and `npm` (or `pnpm`/`yarn`)
+-  Local `.env` with at minimum:
+   -  `CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY` (auth)
+   -  `POSTGRES_PRISMA_URL`, `POSTGRES_URL_NON_POOLING` (database)
+
+Keep secrets out of source control.
+
+---
+
+### One-time setup
+
+```cmd
+npm install
+npx prisma generate
+```
+
+If you need to initialize prisma for the first time:
+
+```cmd
 npx prisma init
+npx prisma migrate dev --name init
 ```
 
-Create a postgresql database on Vercel, under the free tier. Under the storage menu, choose the database variant & region.
+---
 
-Follow the instructions for prisma and setup the datasource. Update the prisma schema in the project with database config values. Get the POSTGRES_PRISMA_URL & POSTGRES_URL_NON_POOLING env values.
+### Common developer commands
 
-<!-- TODO The prisma database works even with sqlite database too, despite configured for postgresql -->
+-  Start dev server:
 
-Create a Form & FormSubmission relational data models. Connect the Form & FormSubmission with `@relation` tag for id field in the Form to formId in FormSubmission.
-
-Run the Prisma database in local development server. Link the project locally with the following commands.
-
-```bash
-npx prisma migrate
-# name the migration database
-npx prisma studio
+```cmd
+npm run dev
 ```
 
-Enable the server actions in next configuration. Server actions replace the backend REST API's in full-stack development.
-
-Create a GetFormStat server action to aggregate the user visits & form submission to the status. Calculate the submission rate against the user visits & bouce rates for the status info.
-
-Create a server action `form.ts` and follow the [document](https://www.prisma.io/docs/guides/other/troubleshooting-orm/help-articles/nextjs-prisma-client-dev-practices#solution) to setup Instantiating prismaClient with Next.js.
-
-Create a create-form-button component to create a default form in the dashboard. Create a server function to create a form with form data from UI.
-
-Create a schema directory for all the input validation schema & types. Create a server action CreateForm to store a new form with input entry values in the database.
-
-Style the create-form-button & dashboard page. Create a form-cards component to map the forms to display as summary in the dashboard. Populate each form in FormCard component.
-
-Create a server action to filter out all the form created by the specific user id (logged user).
-
-Each form card either leads to the published form (if the form was published) or builder portal to edit/modify the custom form-template.
-
-## Builder
-
-Create a builder/[id] route in the dashboard route-group. The user will be routed to the builder portal to create the form from ground-up.
-
-Create a server action to find the form data from the params in the url (formId). Populate the form information in FormBuilder component.
-
-Create a layout, error & loading for the builder route for smooth UI experience.
-
-Design the form-builder with functional buttons to build & a main form editor. Create a designer component that acts as main form editor display.
-
-Add [dnd-kit](https://dndkit.com/) to add drag-drop functions to the designer. Wrap the form-builder with DndContext to use the drag-drop feature in the designer.
-
-The designer has the dropzone & design-sidebar. The sidebar has stipulated/generated form elements. Each element has another property-sidebar component to customize the form element.
-
-Create form-elements, a collective elements components for all the form elements (text, heading, paragraph, Number field, textarea.,). Create a type for the elements going to be used in the form, formElementType.
-
-Create multiple form elements (that are either textfields or numberfields), each with properties of FormElement, to be used as multiple input elements in form builder.
-
-Create a SidebarBtnElement that populates each FormElement in the builder designer sidebar. Use dnd-kit to make the sidebarBtnElement draggable to the designer space.
-
-Create a drag-overlay beneath the Designer to render the drag elements in the designer. To check if there are dragged elements to render, create a custom hook to monitor drag operations like onDragStart event listeners.
-
-Use a state in Designer to stall the dragged element from sidebar in the designer. However, this dragged element must be rendered in preview page too. A context menu is preferred to state.
-
-Wrap the root layout with designer context provider to let the state(values) available to all the components.
-
-Listen to the onDragEnd event in designer, and call addElement from the custom hook to add the dragged element to the elements list in context.
-
-Every child component can use the dnd-monitor, as long the parent/root component was wrapped by the DndContext. With the useDndMonitor & onDragEnd event, find the dragged element and add to the list of elements.
-
-Map through the added elements to render them in the designer. For each form element (Text field, Number field), style the designer component to render them in designer workspace.
-
-Define the custom-attribute of the element in a type `CustomInstance` in the form-element. It's an extension of FormElementInstance with extraAttributes to it.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-1. form-builder
-
-- preview dialog btn
-- publish form btn
-- save form btn
-
-- drag-overlay-wrapper
-- designer (designer-sidebar)
-
-forms - published-forms
-
-- form link share
-- visit btn
-- form-elements
-
-submit route
-
-form-elements
-form-submit component
-
-common
-form-element (& every component that has form element)
-form element sidebar
-sidebar btn element
-properties from sidebar
-
-## Datasource Prisma
-
-```bash
- datasource db {
- provider = "postgresql"
- url = env("POSTGRES_PRISMA_URL") // uses connection pooling
- directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
-
+-  Build and run production locally:
+
+```cmd
+npm run build
+npm start
 ```
+
+-  Prisma tooling:
+
+```cmd
+npx prisma studio          # view DB
+npx prisma migrate dev     # create migration and apply
+npx prisma generate        # regenerate client after schema changes
+```
+
+---
+
+### Key files & folders (builder-focused)
+
+-  `app/(dashboard)/builder/[id]/_components/`
+
+   -  `form-builder.tsx`: top-level builder page; supplies `DndContext` and overlay
+   -  `designer.tsx`: canvas, dropzone, elements rendering, `useDndMonitor` handling
+   -  `designer-sidebar.tsx`: draggable element buttons (sidebar)
+   -  `drag-overlay.tsx`: render ghost preview during drag
+
+-  `components/form-elements.tsx`: central registry and types for form elements
+-  `components/context/designer-context.tsx`: shared state (`elements`, selection, add/remove/update)
+
+---
+
+### Implementation notes (concise decisions on previous lines)
+
+-  Clerk & Auth: keep `ClerkProvider` at root layout; ensure redirect paths are set in env when customizing sign-in/up pages.
+-  UI library: shadcn-ui is configured; ThemeProvider wraps app for dark/light themes. Implement a visible `ThemeSwitcher` component.
+-  Prisma: prefer `POSTGRES_PRISMA_URL` for runtime (pooled) and `POSTGRES_URL_NON_POOLING` for migrations locally.
+
+---
+
+### Builder flows (how code maps to behavior)
+
+1. Drag & drop from Sidebar → Designer
+
+   -  Sidebar buttons include dnd metadata: `isDesignerBtnElement` + `type`.
+   -  `DragOverlayWrapper` renders a preview during drag via `useDndMonitor`.
+   -  `Designer` `onDragEnd` creates a new FormElementInstance and calls `addElement(index, newElement)`.
+
+2. Reorder existing elements
+
+   -  Each designer element is both draggable and droppable. Use top/bottom droppable zones to compute insertion index.
+   -  On drag end, remove the active element and insert at new index.
+
+3. Select → Properties → Update
+
+   -  Click sets `selectedElement` in `DesignerContext`.
+   -  The properties panel renders the element's `propertiesComponent` which uses React Hook Form + Zod.
+   -  `updateElement(id, element)` persists changes back to context.
+
+---
+
+### Debug tips and gotchas
+
+-  Pointer events: attaching dnd-kit listeners to the whole element wrapper can block children clicks. Use a narrow drag-handle.
+-  While dragging, use `isDragging` to avoid duplicate render of the original element.
+-  If `removeElement` or context methods appear not to fire, confirm the provider wraps the component tree and that hooks use the correct context.
+
+---
+
+### How to add an element (concise)
+
+1. Create `components/fields/<your-field>.tsx` and export a `FormElement` object with the required fields:
+   -  `type`, `construct(id)`, `designerBtnElement`, `designerComponent`, `formComponent`, `propertiesComponent`, `validate`.
+2. Register in `components/form-elements.tsx`.
+3. Add UI in the sidebar mapping if needed.
+
+---
+
+### Drag&Drop features/scenario
+
+-  Drag & Drop for Sidebar-Element (Text, Number) to dropzone area.
+-  Drag & Drop a Sidebar Element over a Design-Element (Already in the dropzone)
+-  Drag&Drop a Designer Element over another Designer-Element in the dropzone.
+
+## FormElements design positions
+
+-  Each Object in FormElement instance are displayed/parsed at specific positions during development
+
+-  `designerBtnElement` is parsed in the `FormElementSidebar` to represent the btn-format of the form-element for drag&drop.
+-  `designerComponent` is parsed in the desginer-dropzone for primary element manipulation (customize, position)
+-  `propertiesComponent` is parsed in the `PropertyFormSidebar` afer a form-element is placed in the designer-dropzone. It added properties/attributes to the form-element
+-  `formComponent` is parsed in the `Preview` view to display the end result after design & property evaluation.
+
+## Form Functions (Preview, Save & Publish)
+
+-  The Preview opens a dialog to parse the FormComponent of the stacked form-elements in the designer-dropzone.
+-  The Save button fires a server action to update the form contents in the database. Use use-transition hook to trigger the save.
+   Create a persistant state for the saved form elements in the design context with a useEffect hook in form-builder. Avoid render delay with a state.
+-  Publish button opens a alert-dialog to fire a server action to publish the form to public. A published form cannot be modified further. Render UI based on the published form status.

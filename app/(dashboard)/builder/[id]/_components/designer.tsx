@@ -81,29 +81,35 @@ const Designer = () => {
 
 			if (!active || !over) return;
 
+			// 1.  Drag & Drop for Sidebar-Element (Text, Number) to dropzone area.
+			// 2.  Drag & Drop a Sidebar Element over a Design-Element (Already in the dropzone)
+			// 3.  Drag & Drop a Designer Element over another Designer-Element in the dropzone.
+
 			const isDesignerBtnElement: boolean =
 				active?.data?.current?.isDesignerBtnElement ?? false;
-			const isDroppingOverDesignDropArea =
-				over?.data?.current?.isDesignerDropArea ?? false;
+			const isDroppingOverDesignDropArea: boolean =
+				over?.data?.current?.isDesignerDropArea;
 
-			// First Step: Dropping Elements
+			//! First case: Dropping Sidebar-Elements over designer dropzone
 			if (isDesignerBtnElement && isDroppingOverDesignDropArea) {
 				const type = active?.data?.current?.type;
 				const newElement = FormElements[type as ElementType].construct(
 					idGenerator()
 				);
 				addElement(elements.length, newElement);
+				// add new element at the bottom instead of top; b/c of element.length
 				return;
 			}
 
-			// Second step: dragging elements over sidebar elements
-			const isDroppingOverDesignerElementTopHalf =
-				over.data?.current?.isTopHalfDesignElement;
-			const isDroppingOverDesignerElementBottomHalf =
-				over.data?.current?.isBottomHalfDesignElement;
+			//! Second case: dropping sidebar-elements over designer-elements (from sidebar over onto a element in dropzone)
+			const isDroppingOverDesignerElementTopHalf: boolean =
+				over.data?.current?.isTopHalfDesignerElement ?? false;
+			const isDroppingOverDesignerElementBottomHalf: boolean =
+				over.data?.current?.isBottomHalfDesignerElement ?? false;
 
+			// check whether dropping over one of the two droppable halves.
 			const isDroppingOverDesignerElement =
-				isDroppingOverDesignerElementBottomHalf |
+				isDroppingOverDesignerElementBottomHalf ||
 				isDroppingOverDesignerElementTopHalf;
 
 			const droppingSidebarBtnOverDesignerElement =
@@ -114,6 +120,7 @@ const Designer = () => {
 				const newElement = FormElements[type as ElementType].construct(
 					idGenerator()
 				);
+				// check where we're dropping the element
 				const overId = over?.data?.current?.elementId;
 				const overElementIndex = elements.findIndex(
 					(el) => el.id === overId
@@ -132,13 +139,14 @@ const Designer = () => {
 				return;
 			}
 
-			// third step: dragging elements over designer elments
+			//! third case: dragging designer-elements over another designer-elments
 			const isDraggingDesignerElement =
 				active?.data?.current?.isDesignerElement;
 
-			const isDraggingDsgnEleOverAnthrDsgnEle =
+			const isDraggingDesignerElementOverAnotherDesignerElement =
 				isDroppingOverDesignerElement && isDraggingDesignerElement;
-			if (isDraggingDsgnEleOverAnthrDsgnEle) {
+
+			if (isDraggingDesignerElementOverAnotherDesignerElement) {
 				const activeId = active.data?.current?.elementId;
 				const overId = over?.data?.current?.elementId;
 
@@ -154,7 +162,7 @@ const Designer = () => {
 				}
 
 				const activeElement = { ...elements[activeElementIndex] };
-				removeElement(activeId);
+				removeElement(activeId); // remove the dragging element from its initial position
 
 				let indexForNewElement = overElementIndex; // dropping over top half of element
 				if (isDroppingOverDesignerElementBottomHalf) {
@@ -177,7 +185,7 @@ const Designer = () => {
 					ref={droppable.setNodeRef}
 					className={cn(
 						"bg-background max-w-5xl lg:max-w-6xl mx-auto h-full rounded-xl flex flex-col flex-grow items-center justify-start flex-1 overflow-y-auto",
-						droppable.isOver && "ring-2 ring-primary/50 ring-inset"
+						droppable.isOver && "ring-3 ring-primary ring-inset"
 					)}
 				>
 					{/* drop position overlay in UI only for top element */}

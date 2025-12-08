@@ -54,16 +54,22 @@ npx prisma studio
 
 ## Prerequisites
 
--  Node.js 18+
+-  Node.js >= 18.16 (or use the repo's preferred runtime). This project uses `npm` scripts (see `package.json`).
 -  NPM/Yarn/Bun
 -  Clerk Accounts
 -  NeonTech/Vercel Database Account
 
-## Env Variables
+### Quick Prerequisites
+
+-  PostgreSQL on Vercel or local Postgres for production-like testing. Prisma is configured
+   to use connection pooling by default (see `.env` keys `POSTGRES_PRISMA_URL` and
+   `POSTGRES_URL_NON_POOLING`).
+
+## Environment Variables
 
 Create an `.env.local` file with:
 
-```base
+```bash
 
 # Next.js
 NODE_ENV=development
@@ -81,6 +87,11 @@ NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=/
 # Postgresql
 POSTGRES_PRISMA_URL=your_postgresql_database_pooling_url
 POSTGRES_URL_NON_POOLING=your_postgresql_non_pooling_url
+
+# Vercel
+NEXT_PUBLIC_VERCEL_URL=(optional for webhooks/preview)
+
+Store these in a local `.env` during development.
 ```
 
 ## Deploy on Vercel

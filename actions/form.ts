@@ -109,3 +109,96 @@ export async function GetFormById(id: string) {
 		},
 	});
 }
+
+export async function UpdateFormContent(id: string, jsonContent: string) {
+	const user = await currentUser();
+	if (!user) {
+		redirect("/sign-in");
+	}
+
+	const response = await db.form.update({
+		where: {
+			userId: user.id,
+			id,
+		},
+		data: {
+			content: jsonContent,
+		},
+	});
+	return response;
+}
+
+export async function PublishForm(id: string) {
+	const user = await currentUser();
+	if (!user) {
+		redirect("/sign-in");
+	}
+
+	const response = await db.form.update({
+		where: {
+			userId: user.id,
+			id,
+		},
+		data: {
+			published: true,
+		},
+	});
+
+	return response;
+}
+
+export async function GetFormWithSubmissions(id: string) {
+	const user = await currentUser();
+	if (!user) {
+		redirect("/sign-in");
+	}
+
+	const response = await db.form.findUnique({
+		where: {
+			userId: user.id,
+			id,
+		},
+		include: {
+			FormSubmission: true,
+		},
+	});
+
+	return response;
+}
+
+export async function GetFormContentByUrl(formUrl: string) {
+	const response = await db.form.update({
+		select: {
+			content: true,
+		},
+		where: {
+			shareURL: formUrl,
+		},
+		data: {
+			visits: {
+				increment: 1,
+			},
+		},
+	});
+
+	return response;
+}
+
+export async function SubmitForm(formUrl: string, content: string) {
+	const response = await db.form.update({
+		where: {
+			shareURL: formUrl,
+			published: true,
+		},
+		data: {
+			submissions: {
+				increment: 1,
+			},
+			FormSubmission: {
+				create: {
+					content,
+				},
+			},
+		},
+	});
+}
