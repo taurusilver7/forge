@@ -169,4 +169,6 @@ npx prisma generate        # regenerate client after schema changes
 ## Form Functions (Preview, Save & Publish)
 
 -  The Preview opens a dialog to parse the FormComponent of the stacked form-elements in the designer-dropzone.
--  The Save
+-  The Save button fires a server action to update the form contents in the database. Use use-transition hook to trigger the save.
+   Create a persistant state for the saved form elements in the design context with a useEffect hook in form-builder. Avoid render delay with a state.
+-  Publish button opens a alert-dialog to fire a server action to publish the form to public. A published form cannot be modified further. Render UI based on the published form status.
