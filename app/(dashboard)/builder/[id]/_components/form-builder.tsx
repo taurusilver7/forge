@@ -1,3 +1,4 @@
+"use client";
 /**
  * FormBuilder Component
  *
@@ -32,8 +33,7 @@
  * - DnD errors handled by underlying dnd-kit library
  */
 
-"use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Form } from "@prisma/client";
 import SaveBtn from "./save";
 import Publish from "./publish";
@@ -47,8 +47,13 @@ import {
 	useSensor,
 } from "@dnd-kit/core";
 import DragOverlayWrapper from "./drag-overlay";
+import useDesigner from "@/hooks/useDesigner";
+import { ImSpinner2 } from "react-icons/im";
 
 const FormBuilder = ({ form }: { form: Form }) => {
+	const { setElements } = useDesigner();
+	const [isReady, setIsReady] = useState<boolean>(false);
+
 	// sensors for dnd-kit (drag-drop) to monitor I/O events (mouse-clicks)
 	const mouseSensor = useSensor(MouseSensor, {
 		activationConstraint: {
@@ -62,6 +67,26 @@ const FormBuilder = ({ form }: { form: Form }) => {
 		},
 	});
 	const sensors = useSensors(mouseSensor, touchSensor);
+
+	// persistant state for loading the saved form elements in the design context
+	useEffect(() => {
+		if (isReady) return;
+		const elements = JSON.parse(form.content);
+		setElements(elements);
+		const readyTimeout = setTimeout(() => setIsReady(true), 500);
+
+		return () => clearTimeout(readyTimeout);
+	}, [form, setElements]);
+
+	// render delay spinner
+	if (!isReady) {
+		return (
+			<div className="flex items-center justify-center w-full h-full">
+				<ImSpinner2 className="animate-spin h-12 w-12" />
+			</div>
+		);
+	}
+
 	return (
 		<DndContext sensors={sensors}>
 			<main className="flex flex-col w-full">
@@ -76,9 +101,9 @@ const FormBuilder = ({ form }: { form: Form }) => {
 
 						{!form.published && (
 							<>
-								<SaveBtn />
-								<Publish />
-							</>
+								<SaveBtn id={form.id} />
+								<Publish id={form.id} />
+							</> 
 						)}
 					</div>
 				</nav>
