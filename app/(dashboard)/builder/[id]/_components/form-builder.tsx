@@ -34,11 +34,13 @@
  */
 
 import React, { useEffect, useState } from "react";
+import Link from "next/link";
 import { Form } from "@prisma/client";
 import SaveBtn from "./save";
 import Publish from "./publish";
 import Preview from "./preview";
 import Designer from "./designer";
+import Confetti from "react-confetti";
 import {
 	DndContext,
 	useSensors,
@@ -48,6 +50,10 @@ import {
 } from "@dnd-kit/core";
 import DragOverlayWrapper from "./drag-overlay";
 import useDesigner from "@/hooks/useDesigner";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { toast } from "@/components/ui/use-toast";
+import { ArrowLeftIcon, ArrowRightIcon } from "@radix-ui/react-icons";
 import { ImSpinner2 } from "react-icons/im";
 
 const FormBuilder = ({ form }: { form: Form }) => {
@@ -87,6 +93,61 @@ const FormBuilder = ({ form }: { form: Form }) => {
 		);
 	}
 
+	const shareUrl = `${window.location.origin}/submit/${form.shareURL}`;
+	const copyLink = () => {
+		navigator.clipboard.writeText(shareUrl);
+		toast({
+			title: "URL Copied 📋",
+			description: "URL copied to clipboard!",
+		});
+	};
+
+	// Form Builder UI for a published form
+	if (form.published) {
+		return (
+			<>
+				<Confetti
+					width={window.innerWidth}
+					height={window.innerHeight}
+					recycle={false}
+					numberOfPieces={1000}
+				/>
+				<div className="flex flex-col items-center justify-center h-full w-full">
+					<div className="max-w-lg">
+						<h1 className="text-center text-4xl font-bold text-primary mb-10 pb-10 border-b">
+							🚀🚀Form Published🚀🚀
+						</h1>
+						<h2 className="text-2xl">Share the form</h2>
+						<h3 className="text-xl text-muted-foreground border-b pb-10">
+							The link allows anyone to view and submit form.
+						</h3>
+
+						<div className="my-4 flex flex-col items-center w-full border-b pb-4">
+							<Input className="w-full" readOnly value={shareUrl} />
+							<Button className="mt-2 w-full" onClick={copyLink}>
+								Copy Link
+							</Button>
+						</div>
+						<div className="flex justify-between">
+							<Button variant="link" asChild>
+								<Link href={"/"} className="gap-2">
+									<ArrowLeftIcon className="h-6 w-6" />
+									Go Home
+								</Link>
+							</Button>
+							<Button variant="link" asChild>
+								<Link href={`/form/${form.id}`} className="gap-2">
+									Form Details
+									<ArrowRightIcon className="h-6 w-6" />
+								</Link>
+							</Button>
+						</div>
+					</div>
+				</div>
+			</>
+		);
+	}
+
 	return (
 		<DndContext sensors={sensors}>
 			<main className="flex flex-col w-full">
@@ -103,7 +164,7 @@ const FormBuilder = ({ form }: { form: Form }) => {
 							<>
 								<SaveBtn id={form.id} />
 								<Publish id={form.id} />
-							</> 
+							</>
 						)}
 					</div>
 				</nav>
