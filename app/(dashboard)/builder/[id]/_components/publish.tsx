@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { UploadIcon } from "@radix-ui/react-icons";
+import { RocketIcon, UploadIcon } from "@radix-ui/react-icons";
 import React from "react";
 import {
 	AlertDialog,
@@ -22,7 +22,7 @@ const Publish = () => {
 					variant="outline"
 					className="gap-1 text-white bg-gradient-to-r from-indigo-500 to-cyan-500"
 				>
-					<UploadIcon className="w-4 h-4 font-bold" />
+					<RocketIcon className="w-4 h-4 font-bold" />
 					Publish
 				</Button>
 			</AlertDialogTrigger>

@@ -176,11 +176,11 @@ const Designer = () => {
 				<div
 					ref={droppable.setNodeRef}
 					className={cn(
-						"bg-background max-w-6xl mx-auto h-full rounded-xl flex flex-col flex-grow items-center justify-start flex-1 overflow-y-auto",
+						"bg-background max-w-5xl lg:max-w-6xl mx-auto h-full rounded-xl flex flex-col flex-grow items-center justify-start flex-1 overflow-y-auto",
 						droppable.isOver && "ring-2 ring-primary/50 ring-inset"
 					)}
 				>
-					{/* drop position overlay in UI */}
+					{/* drop position overlay in UI only for top element */}
 					{droppable.isOver && elements.length === 0 && (
 						<div className="w-full p-4">
 							<div className="bg-primary/20 h-32 rounded-md" />
@@ -213,7 +213,7 @@ const Designer = () => {
 export default Designer;
 
 function DesignerElementWrapper({ element }: { element: FormElementInstance }) {
-	const { removeElement, setSelectedElement } = useDesigner();
+	const { removeElement, selectedElement, setSelectedElement } = useDesigner();
 	const [mouseIsOver, setMouseIsOver] = useState<boolean>(false);
 
 	const topHalf = useDroppable({
@@ -242,9 +242,11 @@ function DesignerElementWrapper({ element }: { element: FormElementInstance }) {
 		},
 	});
 
+	// remove the element from stack while dragging
 	if (draggable?.isDragging) return null;
 
 	const DesignerElement = FormElements[element.type].designerComponent;
+	// console.log("SELECTED ELEMENT", selectedElement);
 
 	return (
 		<div
@@ -272,7 +274,6 @@ function DesignerElementWrapper({ element }: { element: FormElementInstance }) {
 
 			{mouseIsOver && (
 				<>
-					{/* Drag handle: left side grab zone */}
 					<div
 						className="absolute left-0 top-0 h-full w-10/12 md:w-11/12 lg:w-[95%] cursor-grab z-40 hover:bg-primary/10"
 						{...draggable.listeners}
@@ -286,7 +287,7 @@ function DesignerElementWrapper({ element }: { element: FormElementInstance }) {
 
 					<div className="absolute right-0 h-full">
 						<Button
-							className="rounded-l-none flex justify-center h-full border rounded-md bg-orange-500 hover:bg-orange-600"
+							className="rounded-l-none flex justify-items-center h-full border rounded-md bg-orange-500 hover:bg-orange-600"
 							variant={"outline"}
 							onClick={(e) => {
 								e.stopPropagation();
@@ -301,7 +302,7 @@ function DesignerElementWrapper({ element }: { element: FormElementInstance }) {
 			)}
 
 			{topHalf.isOver && (
-				<div className="absolute top-0 w-full rounded-md h-2 bg-primary rounded-b-none" />
+				<div className="absolute top-0 w-full rounded-md h-1 bg-primary rounded-b-none" />
 			)}
 			<div
 				className={cn(
@@ -312,7 +313,7 @@ function DesignerElementWrapper({ element }: { element: FormElementInstance }) {
 				<DesignerElement elementInstance={element} />
 			</div>
 			{bottomHalf.isOver && (
-				<div className="absolute bottom-0 w-full rounded-md h-2 bg-primary rounded-t-none" />
+				<div className="absolute bottom-0 w-full rounded-md h-1 bg-primary rounded-t-none" />
 			)}
 		</div>
 	);
