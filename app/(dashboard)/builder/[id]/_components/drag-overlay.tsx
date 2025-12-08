@@ -1,10 +1,10 @@
 /**
  * DragOverlayWrapper Component
- * 
+ *
  * PURPOSE:
  * Provides visual feedback during drag operations by rendering a preview/ghost image
  * of the item being dragged. Displays above other elements to show drag trajectory.
- * 
+ *
  * FEATURES:
  * - Tracks active drag item state
  * - Renders different overlay based on drag type:
@@ -12,7 +12,7 @@
  *   - Designer element drag -> Shows existing form element being reordered
  * - Automatically hides when drag ends/cancels
  * - Prevents rendering when no active drag
- * 
+ *
  * FLOW:
  * 1. useDndMonitor listens for drag lifecycle events
  * 2. onDragStart: Captures the item being dragged
@@ -21,11 +21,11 @@
  *    - isDesignerElement -> Existing form element being moved
  * 4. Renders appropriate overlay component for visual feedback
  * 5. onDragEnd/onDragCancel: Clears drag state and hides overlay
- * 
+ *
  * DRAG TYPES HANDLED:
  * - Sidebar button drag: Shows preview of form field being added
  * - Designer element drag: Shows preview of existing element being reordered
- * 
+ *
  * ERROR HANDLING:
  * - Returns null if no active drag (prevents unnecessary rendering)
  * - Validates element exists before rendering designer element overlay
@@ -83,7 +83,7 @@ const DragOverlayWrapper = () => {
 				FormElements[element.type].designerComponent;
 
 			node = (
-				<div className="flex bg-accent rounded-md h-32 w-full py-2 px-4 opacity-80">
+				<div className="flex bg-accent rounded-md h-32 w-full py-2 px-4 opacity-80 pointer-events-none">
 					<DesignerElementComponent elementInstance={element} />
 				</div>
 			);
