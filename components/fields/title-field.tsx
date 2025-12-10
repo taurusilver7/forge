@@ -1,8 +1,10 @@
 /**
- * TitleField Component - Title Input Form Field
+ * TitleField Component - Title/Heading Display Element
  *
  * PURPOSE:
- * Defines a complete text input field for the form builder system.
+ * Defines a read-only heading/title element for the form builder system.
+ * Used to add visual structure and labels to forms. Unlike TextField, this is a display-only element
+ * that does not collect user input or validation.
  * Implements all three required contexts: Designer (visual builder), Form (runtime), and Properties (editor).
  *
  * STRUCTURE:
@@ -10,60 +12,50 @@
  *
  * 1. METADATA & CONFIGURATION
  *    - type: "TitleField" - Unique identifier for this field type
- *    - extraAttributes: Default configuration (label, placeholder, required, helperText)
+ *    - extraAttributes: Configuration (title text)
  *    - construct(): Factory function that creates new TitleField instances
  *
  * 2. DESIGNER COMPONENT (DesignerComponent)
  *    - Renders in the form builder canvas
- *    - Shows: Label + disabled preview input + helper text
- *    - Displays required indicator (*) when applicable
- *    - Read-only preview (user cannot interact in builder)
- *    - Used to visualize the field during form design
+ *    - Shows: H1 label + preview of title text
+ *    - Read-only preview (non-interactive)
+ *    - Used to visualize the heading during form design
  *
  * 3. FORM COMPONENT (FormComponent)
  *    - Renders in published forms and previews
- *    - Interactive input that accepts user data
- *    - Features:
- *      - State management (value, error)
- *      - Real-time validation on blur event
- *      - Error display (red border + red text)
- *      - Placeholder and helper text support
- *      - Calls submitValue() on successful validation
- *    - Used by end-users filling out the form
+ *    - Simple text display (styled as H1 heading)
+ *    - No interactivity, validation, or value collection
+ *    - Used to display section titles, instructions, or visual separators
  *
  * 4. PROPERTIES COMPONENT (PropertiesComponent)
  *    - Renders in the properties sidebar when field is selected
  *    - React Hook Form for state management
  *    - Zod validation for schema enforcement
  *    - Features:
- *      - Edit label, placeholder, helper text, required flag
+ *      - Edit title text (2-50 characters)
  *      - Changes sync back to designer canvas in real-time
  *      - Form reset on element selection change
- *    - Used by form builders customizing field settings
+ *    - Used by form builders customizing the heading text
  *
  * 5. VALIDATION LOGIC
- *    - validate(): Checks if field meets constraints
- *    - Returns true if: field is not required OR has non-empty value
- *    - Used by FormComponent on blur and PropertiesComponent schema validation
+ *    - validate(): Always returns true (no user input to validate)
+ *    - This element does not participate in form submission
  *
  * 6. TYPE SAFETY
  *    - CustomInstance: Extends FormElementInstance with typed extraAttributes
- *    - TitleFieldSchema: Zod schema (defined in @/lib/schema) validates all properties
+ *    - propertiesSchema: Zod schema validates title text constraints
  *
  * DATA FLOW:
  * 1. User drags TitleField from sidebar -> construct() creates instance
  * 2. Instance renders via DesignerComponent in canvas
  * 3. User clicks field -> PropertiesComponent appears in sidebar
- * 4. User edits properties -> updateElement() updates context
- * 5. DesignerComponent re-renders with new config
- * 6. On form publish -> FormComponent replaces DesignerComponent
- * 7. End-user fills form -> FormComponent validates and calls submitValue()
+ * 4. User edits title text -> updateElement() updates context
+ * 5. DesignerComponent re-renders with new text
+ * 6. On form publish -> FormComponent displays as heading (no interactivity)
+ * 7. End-user sees the title; no input, validation, or submission involved
  *
  * ATTRIBUTE SCHEMA:
- * - label: Display label for the field
- * - placeholder: Hint text inside input
- * - required: Boolean - field must have value before submit
- * - helperText: Additional description below input
+ * - title: Display heading text (2-50 chars)
  */
 
 "use client";
@@ -77,14 +69,13 @@ import {
 import { HeadingIcon } from "@radix-ui/react-icons";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
-import { useEffect, useState } from "react";
+
+import { useEffect } from "react";
 import { z } from "zod";
 import useDesigner from "@/hooks/useDesigner";
 import {
 	Form,
 	FormControl,
-	FormDescription,
 	FormField,
 	FormItem,
 	FormLabel,
@@ -97,7 +88,7 @@ import { Switch } from "../ui/switch";
 const type: ElementType = "TitleField";
 
 const extraAttributes = {
-	title: "Title Field",
+	title: "Text Here",
 };
 
 const propertiesSchema = z.object({
@@ -145,7 +136,7 @@ function DesignerComponent({
 	const { title } = element.extraAttributes;
 	return (
 		<div className="flex flex-col gap-2 w-full">
-			<Label className="flex flex-col gap-2 w-full">H1 Heading Field</Label>
+			<Label className="flex flex-col gap-2 w-full">H1 Heading</Label>
 
 			<p className="text-xl">{title}</p>
 		</div>
@@ -211,7 +202,7 @@ function PropertiesComponent({
 					name="title"
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel>Title</FormLabel>
+							<FormLabel>Hi Heading</FormLabel>
 							<FormControl>
 								<Input
 									{...field}
