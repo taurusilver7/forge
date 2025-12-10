@@ -124,16 +124,7 @@ export const TextFieldFormElement: FormElement = {
 	formComponent: FormComponent,
 	propertiesComponent: PropertiesComponent,
 
-	validate: (
-		formElement: FormElementInstance,
-		currentValue: string
-	): boolean => {
-		const element = formElement as CustomInstance;
-		if (element.extraAttributes?.required) {
-			return currentValue.length > 0;
-		}
-		return true;
-	},
+	validate: () => true,
 };
 
 function DesignerComponent({
