@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import {
 	Dialog,
 	DialogContent,
@@ -33,6 +33,7 @@ import { useRouter } from "next/navigation";
 
 const CreateFormButton = () => {
 	const router = useRouter();
+	const [open, setOpen] = useState(false);
 	const form = useForm<formSchemaType>({
 		resolver: zodResolver(formSchema),
 	});
@@ -60,7 +61,7 @@ const CreateFormButton = () => {
 		}
 	};
 	return (
-		<Dialog>
+		<Dialog open={open} onOpenChange={setOpen}>
 			<DialogTrigger asChild>
 				<Button
 					className="group border border-primary/20 h-48 items-center justify-center flex flex-col hover:border-primary hover:cursor-pointer border-dashed gap-4"
