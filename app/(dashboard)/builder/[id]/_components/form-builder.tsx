@@ -53,12 +53,18 @@ import useDesigner from "@/hooks/useDesigner";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/use-toast";
-import { ArrowLeftIcon, ArrowRightIcon } from "@radix-ui/react-icons";
+import {
+	ArrowLeftIcon,
+	ArrowRightIcon,
+	ChevronUpIcon,
+	ChevronDownIcon,
+} from "@radix-ui/react-icons";
 import { ImSpinner2 } from "react-icons/im";
 
 const FormBuilder = ({ form }: { form: Form }) => {
 	const { setElements } = useDesigner();
 	const [isReady, setIsReady] = useState<boolean>(false);
+	const [isNavMinimized, setIsNavMinimized] = useState<boolean>(false);
 
 	// sensors for dnd-kit (drag-drop) to monitor I/O events (mouse-clicks)
 	const mouseSensor = useSensor(MouseSensor, {
@@ -151,23 +157,50 @@ const FormBuilder = ({ form }: { form: Form }) => {
 	return (
 		<DndContext sensors={sensors}>
 			<main className="flex flex-col w-full">
-				<nav className="flex justify-between border-b-2 p-4 gap-3 items-center relative">
-					<h2 className="truncate font-medium">
-						<span className="text-muted-foreground mr-2">Form:</span>
-						{form.name}
-					</h2>
+				{!isNavMinimized && (
+					<nav className="flex justify-between border-b-2 p-4 gap-3 items-center relative">
+						<div className="flex items-center gap-2">
+							<Button
+								variant="ghost"
+								size="sm"
+								onClick={() => setIsNavMinimized(!isNavMinimized)}
+								className="p-1"
+							>
+								<ChevronUpIcon className="h-4 w-4" />
+							</Button>
+							<h2 className="truncate font-medium">
+								<span className="text-muted-foreground mr-2">
+									Form:
+								</span>
+								{form.name}
+							</h2>
+						</div>
 
-					<div className="flex items-center gap-2">
-						<Preview />
+						<div className="flex items-center gap-2">
+							<Preview />
 
-						{!form.published && (
-							<>
-								<SaveBtn id={form.id} />
-								<Publish id={form.id} />
-							</>
-						)}
+							{!form.published && (
+								<>
+									<SaveBtn id={form.id} />
+									<Publish id={form.id} />
+								</>
+							)}
+						</div>
+					</nav>
+				)}
+
+				{isNavMinimized && (
+					<div className="fixed top-16 left-4 z-50">
+						<Button
+							variant="outline"
+							size="sm"
+							onClick={() => setIsNavMinimized(false)}
+							className="p-2"
+						>
+							<ChevronDownIcon className="h-4 w-4" />
+						</Button>
 					</div>
-				</nav>
+				)}
 
 				<div className="relative overflow-y-auto h-auto flex-grow w-full items-center justify-center bg-accent bg-[url(/paper.svg)] dark:bg-[url(/paper-dark.svg)]">
 					{/* Form Editor */}
