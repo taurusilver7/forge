@@ -1,5 +1,5 @@
 /**
- * TextField Component - Text Input Form Field
+ * DateField Component - Text Input Form Field
  *
  * PURPOSE:
  * Defines a complete text input field for the form builder system.
@@ -9,9 +9,9 @@
  * This file exports TextFieldFormElement, which is a FormElement implementation containing:
  *
  * 1. METADATA & CONFIGURATION
- *    - type: "TextField" - Unique identifier for this field type
+ *    - type: "DateField" - Unique identifier for this field type
  *    - extraAttributes: Default configuration (label, placeholder, required, helperText)
- *    - construct(): Factory function that creates new TextField instances
+ *    - construct(): Factory function that creates new DateField instances
  *
  * 2. DESIGNER COMPONENT (DesignerComponent)
  *    - Renders in the form builder canvas
@@ -51,7 +51,7 @@
  *    - TextFieldSchema: Zod schema (defined in @/lib/schema) validates all properties
  *
  * DATA FLOW:
- * 1. User drags TextField from sidebar -> construct() creates instance
+ * 1. User drags DateField from sidebar -> construct() creates instance
  * 2. Instance renders via DesignerComponent in canvas
  * 3. User clicks field -> PropertiesComponent appears in sidebar
  * 4. User edits properties -> updateElement() updates context
@@ -74,7 +74,7 @@ import {
 	FormElementInstance,
 	SubmitFunction,
 } from "@/components/form-elements";
-import { TextIcon } from "@radix-ui/react-icons";
+import { CalendarIcon } from "@radix-ui/react-icons";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -93,28 +93,30 @@ import {
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Switch } from "../ui/switch";
+import { Button } from "../ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { format } from "date-fns";
+import { Calendar } from "../ui/calendar";
 
-const type: ElementType = "TextField";
+const type: ElementType = "DateField";
 
 const extraAttributes = {
-	label: "Text Field",
-	helperText: "Helper Text",
+	label: "Date Field",
+	helperText: "Pick a date",
 	required: false,
-	placeholder: "Value here...",
 };
 
 const propertiesSchema = z.object({
 	label: z.string().min(2).max(50),
 	helperText: z.string().max(200),
 	required: z.boolean().default(false),
-	placeholder: z.string().max(50),
 });
 
 type CustomInstance = FormElementInstance & {
 	extraAttributes: typeof extraAttributes;
 };
 
-export const TextFieldFormElement: FormElement = {
+export const DateFieldFormElement: FormElement = {
 	type,
 
 	construct: (id: string) => ({
@@ -123,8 +125,8 @@ export const TextFieldFormElement: FormElement = {
 		extraAttributes,
 	}),
 	designerBtnElement: {
-		icon: TextIcon,
-		label: "Text Field",
+		icon: CalendarIcon,
+		label: "Date Field",
 	},
 	designerComponent: DesignerComponent,
 	formComponent: FormComponent,
@@ -148,14 +150,21 @@ function DesignerComponent({
 	elementInstance: FormElementInstance;
 }) {
 	const element = elementInstance as CustomInstance;
-	const { label, placeholder, required, helperText } = element.extraAttributes;
+	const { label, required, helperText } = element.extraAttributes;
 	return (
 		<div className="flex flex-col gap-2 w-full">
 			<Label>
 				{label}
 				{required && "*"}
 			</Label>
-			<Input readOnly disabled placeholder={placeholder} />
+			<Button
+				variant="outline"
+				className="w-full justify-start text-left font-normal"
+			>
+				<CalendarIcon className="mr-2 h-4 w-4" />
+				<span>Pick a Date</span>
+			</Button>
+
 			{helperText && (
 				<p className="text-muted-foreground text-xs">{helperText}</p>
 			)}
@@ -177,36 +186,57 @@ function FormComponent({
 	defaultValue,
 }: FormComponentProps) {
 	const element = elementInstance as CustomInstance;
-	const [value, setValue] = useState<string>(defaultValue || "");
+	const [date, setDate] = useState<Date | undefined>(
+		defaultValue ? new Date(defaultValue) : undefined
+	);
 	const [error, setError] = useState(false);
 
 	useEffect(() => {
 		setError(isInvalid === true);
 	}, [isInvalid]);
 
-	const { label, required, helperText, placeholder } = element.extraAttributes;
+	const { label, required, helperText } = element.extraAttributes;
 	return (
 		<div className="flex flex-col gap-2 w-full">
 			<Label className={cn(error && "text-red-500")}>
 				{label}
-				{required && "*"}
+				{required && ""}
 			</Label>
-			<Input
-				className={cn(error && "border-red-500")}
-				placeholder={placeholder}
-				onChange={(e) => setValue(e.target.value)}
-				onBlur={(e) => {
-					if (!submitValue) return;
-					const valid = TextFieldFormElement.validate(
-						element,
-						e.target.value
-					);
-					setError(!valid);
-					if (!valid) return;
-					submitValue(element.id, e.target.value);
-				}}
-				value={value}
-			/>
+			<Popover>
+				<PopoverTrigger asChild>
+					<Button
+						variant={"outline"}
+						className={cn(
+							"w-full justify-start text-left font-normal",
+							!date && "text-muted-foreground",
+							error && "border-red-500"
+						)}
+					>
+						<CalendarIcon className="mr-2 w-4 h-4" />
+						{date ? format(date, "PPP") : <span>Pick a date</span>}
+					</Button>
+				</PopoverTrigger>
+				<PopoverContent className="w-auto p-0" align="start">
+					<Calendar
+						defaultMonth={date}
+						selected={date}
+						onSelect={(date: Date) => {
+							setDate(date);
+
+							if (!submitValue) return;
+							const value = date?.toUTCString() || "";
+							const valid = DateFieldFormElement.validate(
+								element,
+								value
+							);
+							setError(!valid);
+							submitValue(element.id, value);
+						}}
+						className="rounded-lg border shadow-sm"
+					/>
+				</PopoverContent>
+			</Popover>
+
 			{helperText && (
 				<p
 					className={cn(
@@ -237,7 +267,6 @@ function PropertiesComponent({
 			label: element.extraAttributes.label,
 			helperText: element.extraAttributes.helperText,
 			required: element.extraAttributes.required,
-			placeholder: element.extraAttributes.placeholder,
 		},
 	});
 
@@ -246,13 +275,12 @@ function PropertiesComponent({
 	}, [element, form]);
 
 	function applyChanges(values: propertiesSchemaType) {
-		const { helperText, label, placeholder, required } = values;
+		const { helperText, label, required } = values;
 		updateElement(element.id, {
 			...element,
 			extraAttributes: {
 				label,
 				helperText,
-				placeholder,
 				required,
 			},
 		});
@@ -289,25 +317,7 @@ function PropertiesComponent({
 					)}
 				/>
 
-				<FormField
-					control={form.control}
-					name="placeholder"
-					render={({ field }) => (
-						<FormItem>
-							<FormLabel>Placeholder</FormLabel>
-							<FormControl>
-								<Input
-									{...field}
-									onKeyDown={(e) => {
-										if (e.key === "Enter") e.currentTarget.blur();
-									}}
-								/>
-							</FormControl>
-
-							<FormMessage />
-						</FormItem>
-					)}
-				/>
+			
 				<FormField
 					control={form.control}
 					name="helperText"
@@ -323,6 +333,7 @@ function PropertiesComponent({
 								/>
 							</FormControl>
 							<FormDescription>
+								The field helper text. <br />
 								displayed below the field.
 							</FormDescription>
 							<FormMessage />
@@ -337,6 +348,10 @@ function PropertiesComponent({
 						<FormItem className="flex items-center justify-between rounded-lg border p-3 shadow-sm">
 							<div className="space-y-0.5">
 								<FormLabel>Required</FormLabel>
+								<FormDescription>
+									The helper text of the field. <br />
+									It will be displayed below the field.
+								</FormDescription>
 							</div>
 							<FormControl>
 								<Switch

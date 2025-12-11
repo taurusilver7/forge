@@ -6,7 +6,7 @@ import React, { ReactNode } from "react";
 const DashboardLayout = ({ children }: { children: ReactNode }) => {
 	return (
 		<div className="flex flex-col min-h-screen min-w-full bg-background max-h-screen">
-			<nav className="flex justify-between border-b border-border h-16 px-4 py-2 items-center">
+			<nav className="flex justify-between border-b border-border h-16 px-4 py-2 items-center sticky top-0 bg-background z-50">
 				<Logo />
 				<div className="flex items-center gap-4">
 					<ThemeSwitcher />
@@ -20,4 +20,3 @@ const DashboardLayout = ({ children }: { children: ReactNode }) => {
 };
 
 export default DashboardLayout;
-

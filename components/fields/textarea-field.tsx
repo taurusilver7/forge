@@ -93,14 +93,18 @@ import {
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Switch } from "../ui/switch";
+import { BsTextareaResize } from "react-icons/bs";
+import { Textarea } from "../ui/textarea";
+import { Slider } from "../ui/slider";
 
-const type: ElementType = "TextField";
+const type: ElementType = "TextAreaField";
 
 const extraAttributes = {
-	label: "Text Field",
+	label: "Textarea Field",
 	helperText: "Helper Text",
 	required: false,
 	placeholder: "Value here...",
+	rows: 3,
 };
 
 const propertiesSchema = z.object({
@@ -108,13 +112,14 @@ const propertiesSchema = z.object({
 	helperText: z.string().max(200),
 	required: z.boolean().default(false),
 	placeholder: z.string().max(50),
+	rows: z.number().min(1).max(10),
 });
 
 type CustomInstance = FormElementInstance & {
 	extraAttributes: typeof extraAttributes;
 };
 
-export const TextFieldFormElement: FormElement = {
+export const TextAreaFieldFormElement: FormElement = {
 	type,
 
 	construct: (id: string) => ({
@@ -123,8 +128,8 @@ export const TextFieldFormElement: FormElement = {
 		extraAttributes,
 	}),
 	designerBtnElement: {
-		icon: TextIcon,
-		label: "Text Field",
+		icon: BsTextareaResize,
+		label: "Textarea Field",
 	},
 	designerComponent: DesignerComponent,
 	formComponent: FormComponent,
@@ -148,14 +153,15 @@ function DesignerComponent({
 	elementInstance: FormElementInstance;
 }) {
 	const element = elementInstance as CustomInstance;
-	const { label, placeholder, required, helperText } = element.extraAttributes;
+	const { label, placeholder, required, helperText, rows } =
+		element.extraAttributes;
 	return (
 		<div className="flex flex-col gap-2 w-full">
 			<Label>
 				{label}
 				{required && "*"}
 			</Label>
-			<Input readOnly disabled placeholder={placeholder} />
+			<Textarea readOnly disabled placeholder={placeholder} />
 			{helperText && (
 				<p className="text-muted-foreground text-xs">{helperText}</p>
 			)}
@@ -184,20 +190,22 @@ function FormComponent({
 		setError(isInvalid === true);
 	}, [isInvalid]);
 
-	const { label, required, helperText, placeholder } = element.extraAttributes;
+	const { label, required, helperText, placeholder, rows } =
+		element.extraAttributes;
 	return (
 		<div className="flex flex-col gap-2 w-full">
 			<Label className={cn(error && "text-red-500")}>
 				{label}
-				{required && "*"}
+				{required && ""}
 			</Label>
-			<Input
+			<Textarea
+				rows={rows}
 				className={cn(error && "border-red-500")}
 				placeholder={placeholder}
 				onChange={(e) => setValue(e.target.value)}
 				onBlur={(e) => {
 					if (!submitValue) return;
-					const valid = TextFieldFormElement.validate(
+					const valid = TextAreaFieldFormElement.validate(
 						element,
 						e.target.value
 					);
@@ -238,6 +246,7 @@ function PropertiesComponent({
 			helperText: element.extraAttributes.helperText,
 			required: element.extraAttributes.required,
 			placeholder: element.extraAttributes.placeholder,
+			rows: element.extraAttributes.rows,
 		},
 	});
 
@@ -246,7 +255,7 @@ function PropertiesComponent({
 	}, [element, form]);
 
 	function applyChanges(values: propertiesSchemaType) {
-		const { helperText, label, placeholder, required } = values;
+		const { helperText, label, placeholder, required, rows } = values;
 		updateElement(element.id, {
 			...element,
 			extraAttributes: {
@@ -254,6 +263,7 @@ function PropertiesComponent({
 				helperText,
 				placeholder,
 				required,
+				rows,
 			},
 		});
 	}
@@ -303,7 +313,7 @@ function PropertiesComponent({
 									}}
 								/>
 							</FormControl>
-
+							<FormDescription>The field placeholder.</FormDescription>
 							<FormMessage />
 						</FormItem>
 					)}
@@ -323,8 +333,31 @@ function PropertiesComponent({
 								/>
 							</FormControl>
 							<FormDescription>
+								The field helper text. <br />
 								displayed below the field.
 							</FormDescription>
+							<FormMessage />
+						</FormItem>
+					)}
+				/>
+				<FormField
+					control={form.control}
+					name="rows"
+					render={({ field }) => (
+						<FormItem>
+							<FormLabel>Rows: {form.watch("rows")} </FormLabel>
+							<FormControl>
+								<Slider
+									defaultValue={[field.value]}
+									min={1}
+									max={10}
+									step={1}
+									onValueChange={(value) => {
+										field.onChange(value[0]);
+									}}
+								/>
+							</FormControl>
+
 							<FormMessage />
 						</FormItem>
 					)}
@@ -337,6 +370,10 @@ function PropertiesComponent({
 						<FormItem className="flex items-center justify-between rounded-lg border p-3 shadow-sm">
 							<div className="space-y-0.5">
 								<FormLabel>Required</FormLabel>
+								<FormDescription>
+									The helper text of the field. <br />
+									It will be displayed below the field.
+								</FormDescription>
 							</div>
 							<FormControl>
 								<Switch

@@ -1,69 +1,61 @@
 /**
- * TextField Component - Text Input Form Field
+ * TitleField Component - Title/Heading Display Element
  *
  * PURPOSE:
- * Defines a complete text input field for the form builder system.
+ * Defines a read-only heading/title element for the form builder system.
+ * Used to add visual structure and labels to forms. Unlike TextField, this is a display-only element
+ * that does not collect user input or validation.
  * Implements all three required contexts: Designer (visual builder), Form (runtime), and Properties (editor).
  *
  * STRUCTURE:
- * This file exports TextFieldFormElement, which is a FormElement implementation containing:
+ * This file exports TitleFieldFormElement, which is a FormElement implementation containing:
  *
  * 1. METADATA & CONFIGURATION
- *    - type: "TextField" - Unique identifier for this field type
- *    - extraAttributes: Default configuration (label, placeholder, required, helperText)
- *    - construct(): Factory function that creates new TextField instances
+ *    - type: "TitleField" - Unique identifier for this field type
+ *    - extraAttributes: Configuration (title text)
+ *    - construct(): Factory function that creates new TitleField instances
  *
  * 2. DESIGNER COMPONENT (DesignerComponent)
  *    - Renders in the form builder canvas
- *    - Shows: Label + disabled preview input + helper text
- *    - Displays required indicator (*) when applicable
- *    - Read-only preview (user cannot interact in builder)
- *    - Used to visualize the field during form design
+ *    - Shows: H1 label + preview of title text
+ *    - Read-only preview (non-interactive)
+ *    - Used to visualize the heading during form design
  *
  * 3. FORM COMPONENT (FormComponent)
  *    - Renders in published forms and previews
- *    - Interactive input that accepts user data
- *    - Features:
- *      - State management (value, error)
- *      - Real-time validation on blur event
- *      - Error display (red border + red text)
- *      - Placeholder and helper text support
- *      - Calls submitValue() on successful validation
- *    - Used by end-users filling out the form
+ *    - Simple text display (styled as H1 heading)
+ *    - No interactivity, validation, or value collection
+ *    - Used to display section titles, instructions, or visual separators
  *
  * 4. PROPERTIES COMPONENT (PropertiesComponent)
  *    - Renders in the properties sidebar when field is selected
  *    - React Hook Form for state management
  *    - Zod validation for schema enforcement
  *    - Features:
- *      - Edit label, placeholder, helper text, required flag
+ *      - Edit title text (2-50 characters)
  *      - Changes sync back to designer canvas in real-time
  *      - Form reset on element selection change
- *    - Used by form builders customizing field settings
+ *    - Used by form builders customizing the heading text
  *
  * 5. VALIDATION LOGIC
- *    - validate(): Checks if field meets constraints
- *    - Returns true if: field is not required OR has non-empty value
- *    - Used by FormComponent on blur and PropertiesComponent schema validation
+ *    - validate(): Always returns true (no user input to validate)
+ *    - This element does not participate in form submission
  *
  * 6. TYPE SAFETY
  *    - CustomInstance: Extends FormElementInstance with typed extraAttributes
- *    - TextFieldSchema: Zod schema (defined in @/lib/schema) validates all properties
+ *    - propertiesSchema: Zod schema validates title text constraints
  *
  * DATA FLOW:
- * 1. User drags TextField from sidebar -> construct() creates instance
+ * 1. User drags TitleField from sidebar -> construct() creates instance
  * 2. Instance renders via DesignerComponent in canvas
  * 3. User clicks field -> PropertiesComponent appears in sidebar
- * 4. User edits properties -> updateElement() updates context
- * 5. DesignerComponent re-renders with new config
- * 6. On form publish -> FormComponent replaces DesignerComponent
- * 7. End-user fills form -> FormComponent validates and calls submitValue()
+ * 4. User edits title text -> updateElement() updates context
+ * 5. DesignerComponent re-renders with new text
+ * 6. On form publish -> FormComponent displays as heading (no interactivity)
+ * 7. End-user sees the title; no input, validation, or submission involved
  *
  * ATTRIBUTE SCHEMA:
- * - label: Display label for the field
- * - placeholder: Hint text inside input
- * - required: Boolean - field must have value before submit
- * - helperText: Additional description below input
+ * - title: Display heading text (2-50 chars)
  */
 
 "use client";
@@ -74,10 +66,10 @@ import {
 	FormElementInstance,
 	SubmitFunction,
 } from "@/components/form-elements";
-import { TextIcon } from "@radix-ui/react-icons";
+import { CheckboxIcon } from "@radix-ui/react-icons";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
+
 import { useEffect, useState } from "react";
 import { z } from "zod";
 import useDesigner from "@/hooks/useDesigner";
@@ -93,28 +85,28 @@ import {
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Switch } from "../ui/switch";
+import { Checkbox } from "../ui/checkbox";
+import { cn } from "@/lib/utils";
 
-const type: ElementType = "TextField";
+const type: ElementType = "CheckboxField";
 
 const extraAttributes = {
-	label: "Text Field",
+	label: "Checkbox field",
 	helperText: "Helper Text",
 	required: false,
-	placeholder: "Value here...",
 };
 
 const propertiesSchema = z.object({
 	label: z.string().min(2).max(50),
 	helperText: z.string().max(200),
 	required: z.boolean().default(false),
-	placeholder: z.string().max(50),
 });
 
 type CustomInstance = FormElementInstance & {
 	extraAttributes: typeof extraAttributes;
 };
 
-export const TextFieldFormElement: FormElement = {
+export const CheckboxFieldFormElement: FormElement = {
 	type,
 
 	construct: (id: string) => ({
@@ -123,8 +115,8 @@ export const TextFieldFormElement: FormElement = {
 		extraAttributes,
 	}),
 	designerBtnElement: {
-		icon: TextIcon,
-		label: "Text Field",
+		icon: CheckboxIcon,
+		label: "Checkbox Field",
 	},
 	designerComponent: DesignerComponent,
 	formComponent: FormComponent,
@@ -135,9 +127,10 @@ export const TextFieldFormElement: FormElement = {
 		currentValue: string
 	): boolean => {
 		const element = formElement as CustomInstance;
-		if (element.extraAttributes?.required) {
-			return currentValue.length > 0;
+		if (element.extraAttributes.required) {
+			return currentValue === "true";
 		}
+
 		return true;
 	},
 };
@@ -148,17 +141,20 @@ function DesignerComponent({
 	elementInstance: FormElementInstance;
 }) {
 	const element = elementInstance as CustomInstance;
-	const { label, placeholder, required, helperText } = element.extraAttributes;
+	const { helperText, label, required } = element.extraAttributes;
+	const id = `checkbox-${element.id}`;
 	return (
-		<div className="flex flex-col gap-2 w-full">
-			<Label>
-				{label}
-				{required && "*"}
-			</Label>
-			<Input readOnly disabled placeholder={placeholder} />
-			{helperText && (
-				<p className="text-muted-foreground text-xs">{helperText}</p>
-			)}
+		<div className="flex items-start space-x-2">
+			<Checkbox id={id} />
+			<div className="grid gap-1 5 leading-none">
+				<Label className="" htmlFor={id}>
+					{label}
+					{required && "*"}
+				</Label>
+				{helperText && (
+					<p className="text-muted-foreground text-xs">{helperText}</p>
+				)}
+			</div>
 		</div>
 	);
 }
@@ -172,56 +168,66 @@ interface FormComponentProps {
 
 function FormComponent({
 	elementInstance,
-	submitValue,
-	isInvalid,
 	defaultValue,
+	isInvalid,
+	submitValue,
 }: FormComponentProps) {
 	const element = elementInstance as CustomInstance;
-	const [value, setValue] = useState<string>(defaultValue || "");
+
+	const [value, setValue] = useState<boolean>(
+		defaultValue === "true" ? true : false
+	);
 	const [error, setError] = useState(false);
 
 	useEffect(() => {
 		setError(isInvalid === true);
 	}, [isInvalid]);
 
-	const { label, required, helperText, placeholder } = element.extraAttributes;
+	const { label, helperText, required } = element.extraAttributes;
+	const id = `checkbox-${element.id}`;
 	return (
-		<div className="flex flex-col gap-2 w-full">
-			<Label className={cn(error && "text-red-500")}>
-				{label}
-				{required && "*"}
-			</Label>
-			<Input
+		<div className="flex items-start space-x-2">
+			<Checkbox
+				id={id}
+				checked={value}
 				className={cn(error && "border-red-500")}
-				placeholder={placeholder}
-				onChange={(e) => setValue(e.target.value)}
-				onBlur={(e) => {
+				onCheckedChange={(checked) => {
+					let value = false;
+					if (checked === true) value = true;
+
+					setValue(value);
 					if (!submitValue) return;
-					const valid = TextFieldFormElement.validate(
+
+					const stringValue = value ? "true" : "false";
+					const valid = CheckboxFieldFormElement.validate(
 						element,
-						e.target.value
+						stringValue
 					);
 					setError(!valid);
-					if (!valid) return;
-					submitValue(element.id, e.target.value);
+					submitValue(element.id, stringValue);
 				}}
-				value={value}
 			/>
-			{helperText && (
-				<p
-					className={cn(
-						"text-muted-foreground text-sm",
-						error && "text-red-500"
-					)}
-				>
-					{helperText}
-				</p>
-			)}
+			<div className="grid gap-1.5 leading-none">
+				<Label htmlFor={id} className={cn(error && "text-red-500")}>
+					{label}
+					{required && "*"}
+				</Label>
+				{helperText && (
+					<p
+						className={cn(
+							"text-muted-foreground text-[0.8rem]",
+							error && "text-red-500"
+						)}
+					>
+						{helperText}
+					</p>
+				)}
+			</div>
 		</div>
 	);
 }
 
-type propertiesSchemaType = z.infer<typeof propertiesSchema>;
+type titleFieldSchemaType = z.infer<typeof propertiesSchema>;
 function PropertiesComponent({
 	elementInstance,
 }: {
@@ -230,14 +236,13 @@ function PropertiesComponent({
 	const element = elementInstance as CustomInstance;
 
 	const { updateElement } = useDesigner();
-	const form = useForm<propertiesSchemaType>({
+	const form = useForm<titleFieldSchemaType>({
 		resolver: zodResolver(propertiesSchema),
 		mode: "onBlur",
 		defaultValues: {
 			label: element.extraAttributes.label,
 			helperText: element.extraAttributes.helperText,
 			required: element.extraAttributes.required,
-			placeholder: element.extraAttributes.placeholder,
 		},
 	});
 
@@ -245,15 +250,14 @@ function PropertiesComponent({
 		form.reset(element.extraAttributes);
 	}, [element, form]);
 
-	function applyChanges(values: propertiesSchemaType) {
-		const { helperText, label, placeholder, required } = values;
+	function applyChanges(values: titleFieldSchemaType) {
+		const { helperText, label, required } = values;
 		updateElement(element.id, {
 			...element,
 			extraAttributes: {
-				label,
 				helperText,
-				placeholder,
 				required,
+				label,
 			},
 		});
 	}
@@ -281,29 +285,6 @@ function PropertiesComponent({
 									}}
 								/>
 							</FormControl>
-							<FormDescription>
-								The field label <br /> Displayed above the field
-							</FormDescription>
-							<FormMessage />
-						</FormItem>
-					)}
-				/>
-
-				<FormField
-					control={form.control}
-					name="placeholder"
-					render={({ field }) => (
-						<FormItem>
-							<FormLabel>Placeholder</FormLabel>
-							<FormControl>
-								<Input
-									{...field}
-									onKeyDown={(e) => {
-										if (e.key === "Enter") e.currentTarget.blur();
-									}}
-								/>
-							</FormControl>
-
 							<FormMessage />
 						</FormItem>
 					)}
@@ -323,13 +304,12 @@ function PropertiesComponent({
 								/>
 							</FormControl>
 							<FormDescription>
-								displayed below the field.
+								displayed below the field <br />
 							</FormDescription>
 							<FormMessage />
 						</FormItem>
 					)}
 				/>
-
 				<FormField
 					control={form.control}
 					name="required"
@@ -337,6 +317,9 @@ function PropertiesComponent({
 						<FormItem className="flex items-center justify-between rounded-lg border p-3 shadow-sm">
 							<div className="space-y-0.5">
 								<FormLabel>Required</FormLabel>
+								<FormDescription>
+									displayed below the field.
+								</FormDescription>
 							</div>
 							<FormControl>
 								<Switch

@@ -74,7 +74,7 @@ import {
 	FormElementInstance,
 	SubmitFunction,
 } from "@/components/form-elements";
-import { TextIcon } from "@radix-ui/react-icons";
+import { DropdownMenuIcon, TextIcon } from "@radix-ui/react-icons";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -93,14 +93,26 @@ import {
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Switch } from "../ui/switch";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "../ui/select";
+import { Separator } from "../ui/separator";
+import { Button } from "../ui/button";
+import { Plus, PlusCircle, X } from "lucide-react";
+import { toast } from "../ui/use-toast";
 
-const type: ElementType = "TextField";
+const type: ElementType = "SelectField";
 
 const extraAttributes = {
-	label: "Text Field",
+	label: "Select Field",
 	helperText: "Helper Text",
 	required: false,
 	placeholder: "Value here...",
+	options: [],
 };
 
 const propertiesSchema = z.object({
@@ -108,13 +120,14 @@ const propertiesSchema = z.object({
 	helperText: z.string().max(200),
 	required: z.boolean().default(false),
 	placeholder: z.string().max(50),
+	options: z.array(z.string()).default([]),
 });
 
 type CustomInstance = FormElementInstance & {
 	extraAttributes: typeof extraAttributes;
 };
 
-export const TextFieldFormElement: FormElement = {
+export const SelectFieldFormElement: FormElement = {
 	type,
 
 	construct: (id: string) => ({
@@ -123,8 +136,8 @@ export const TextFieldFormElement: FormElement = {
 		extraAttributes,
 	}),
 	designerBtnElement: {
-		icon: TextIcon,
-		label: "Text Field",
+		icon: DropdownMenuIcon,
+		label: "Select Field",
 	},
 	designerComponent: DesignerComponent,
 	formComponent: FormComponent,
@@ -155,7 +168,11 @@ function DesignerComponent({
 				{label}
 				{required && "*"}
 			</Label>
-			<Input readOnly disabled placeholder={placeholder} />
+			<Select>
+				<SelectTrigger className="w-full">
+					<SelectValue placeholder={placeholder} />
+				</SelectTrigger>
+			</Select>
 			{helperText && (
 				<p className="text-muted-foreground text-xs">{helperText}</p>
 			)}
@@ -184,29 +201,36 @@ function FormComponent({
 		setError(isInvalid === true);
 	}, [isInvalid]);
 
-	const { label, required, helperText, placeholder } = element.extraAttributes;
+	const { label, required, helperText, placeholder, options } =
+		element.extraAttributes;
 	return (
 		<div className="flex flex-col gap-2 w-full">
 			<Label className={cn(error && "text-red-500")}>
 				{label}
 				{required && "*"}
 			</Label>
-			<Input
-				className={cn(error && "border-red-500")}
-				placeholder={placeholder}
-				onChange={(e) => setValue(e.target.value)}
-				onBlur={(e) => {
+			<Select
+				defaultValue={value}
+				onValueChange={(value) => {
+					setValue(value);
 					if (!submitValue) return;
-					const valid = TextFieldFormElement.validate(
-						element,
-						e.target.value
-					);
-					setError(!valid);
-					if (!valid) return;
-					submitValue(element.id, e.target.value);
+
+					const valid = SelectFieldFormElement.validate(element, value);
+					setError((prev) => !prev);
+					submitValue(element.id, value);
 				}}
-				value={value}
-			/>
+			>
+				<SelectTrigger className={cn("w-full", error && "border-red-500")}>
+					<SelectValue placeholder={placeholder} />
+				</SelectTrigger>
+				<SelectContent>
+					{options?.map((option) => (
+						<SelectItem key={option} value={option}>
+							{option}
+						</SelectItem>
+					))}
+				</SelectContent>
+			</Select>
 			{helperText && (
 				<p
 					className={cn(
@@ -229,15 +253,16 @@ function PropertiesComponent({
 }) {
 	const element = elementInstance as CustomInstance;
 
-	const { updateElement } = useDesigner();
+	const { updateElement, setSelectedElement } = useDesigner();
 	const form = useForm<propertiesSchemaType>({
 		resolver: zodResolver(propertiesSchema),
-		mode: "onBlur",
+		mode: "onSubmit",
 		defaultValues: {
 			label: element.extraAttributes.label,
 			helperText: element.extraAttributes.helperText,
 			required: element.extraAttributes.required,
 			placeholder: element.extraAttributes.placeholder,
+			options: element.extraAttributes.options,
 		},
 	});
 
@@ -246,7 +271,7 @@ function PropertiesComponent({
 	}, [element, form]);
 
 	function applyChanges(values: propertiesSchemaType) {
-		const { helperText, label, placeholder, required } = values;
+		const { helperText, label, placeholder, required, options } = values;
 		updateElement(element.id, {
 			...element,
 			extraAttributes: {
@@ -254,19 +279,20 @@ function PropertiesComponent({
 				helperText,
 				placeholder,
 				required,
+				options,
 			},
 		});
+
+		toast({
+			title: "success",
+			description: "Properties saved successfully",
+		});
+		setSelectedElement(null);
 	}
 
 	return (
 		<Form {...form}>
-			<form
-				className="space-y-3"
-				onBlur={form.handleSubmit(applyChanges)}
-				onSubmit={(e) => {
-					e.preventDefault();
-				}}
-			>
+			<form className="space-y-3" onSubmit={form.handleSubmit(applyChanges)}>
 				<FormField
 					control={form.control}
 					name="label"
@@ -282,7 +308,7 @@ function PropertiesComponent({
 								/>
 							</FormControl>
 							<FormDescription>
-								The field label <br /> Displayed above the field
+								Displayed above the field
 							</FormDescription>
 							<FormMessage />
 						</FormItem>
@@ -313,7 +339,7 @@ function PropertiesComponent({
 					name="helperText"
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel>Helper text</FormLabel>
+							<FormLabel>Helper Text</FormLabel>
 							<FormControl>
 								<Input
 									{...field}
@@ -322,9 +348,61 @@ function PropertiesComponent({
 									}}
 								/>
 							</FormControl>
-							<FormDescription>
-								displayed below the field.
-							</FormDescription>
+
+							<FormMessage />
+						</FormItem>
+					)}
+				/>
+				<Separator />
+				<FormField
+					control={form.control}
+					name="options"
+					render={({ field }) => (
+						<FormItem>
+							<div className="flex justify-between items-center">
+								<FormLabel>Options</FormLabel>
+								<Button
+									variant={"outline"}
+									size="icon"
+									className="gap-2"
+									onClick={(e) => {
+										e.preventDefault();
+										form.setValue(
+											"options",
+											field.value.concat("New option")
+										);
+									}}
+								>
+									<Plus className="h-4 w-4" />
+								</Button>
+							</div>
+							<div className="flex flex-col gap-2">
+								{form.watch("options").map((option, index) => (
+									<div className="flex items-center justify-between gap-1">
+										<Input
+											placeholder=""
+											value={option}
+											onChange={(e) => {
+												field.value[index] = e.target.value;
+												field.onChange(field.value);
+											}}
+										/>
+										<Button
+											variant="ghost"
+											size="icon"
+											onClick={(e) => {
+												e.preventDefault();
+												const newOptions = [...field.value];
+												newOptions.splice(index, 1);
+												field.onChange(newOptions);
+											}}
+										>
+											<X className="w-4 h-4" />
+										</Button>
+									</div>
+								))}
+							</div>
+
 							<FormMessage />
 						</FormItem>
 					)}
@@ -337,6 +415,10 @@ function PropertiesComponent({
 						<FormItem className="flex items-center justify-between rounded-lg border p-3 shadow-sm">
 							<div className="space-y-0.5">
 								<FormLabel>Required</FormLabel>
+								<FormDescription>
+									The helper text of the field. <br />
+									It will be displayed below the field.
+								</FormDescription>
 							</div>
 							<FormControl>
 								<Switch
@@ -348,6 +430,10 @@ function PropertiesComponent({
 						</FormItem>
 					)}
 				/>
+				<Separator />
+				<Button className="w-full" type="submit">
+					Save
+				</Button>
 			</form>
 		</Form>
 	);

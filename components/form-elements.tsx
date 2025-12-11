@@ -65,8 +65,28 @@
 
 import React from "react";
 import { TextFieldFormElement } from "./fields/text-field";
+import { TitleFieldFormElement } from "./fields/title-field";
+import { SubTitleFieldFormElement } from "./fields/sub-title-field";
+import { ParagraphFieldFormElement } from "./fields/paragraph-field";
+import { SeparatorFieldFormElement } from "./fields/separator-field";
+import { SpacerFieldFormElement } from "./fields/spacer-field";
+import { NumberFieldFormElement } from "./fields/number-field";
+import { TextAreaFieldFormElement } from "./fields/textarea-field";
+import { DateFieldFormElement } from "./fields/date-field";
+import { CheckboxFieldFormElement } from "./fields/checkbox-field";
+import { SelectFieldFormElement } from "./fields/select-field";
 
-export type ElementType = "TextField";
+export type ElementType =
+	| "TextField"
+	| "TitleField"
+	| "SubTitleField"
+	| "ParagraphField"
+	| "SeparatorField"
+	| "SpacerField"
+	| "NumberField"
+	| "TextAreaField"
+	| "DateField"
+	| "CheckboxField" | "SelectField";
 
 export type FormElementInstance = {
 	id: string;
@@ -107,6 +127,16 @@ type FormElementType = {
 
 export const FormElements: FormElementType = {
 	TextField: TextFieldFormElement,
+	TitleField: TitleFieldFormElement,
+	SubTitleField: SubTitleFieldFormElement,
+	ParagraphField: ParagraphFieldFormElement,
+	SeparatorField: SeparatorFieldFormElement,
+	SpacerField: SpacerFieldFormElement,
+	NumberField: NumberFieldFormElement,
+	TextAreaField: TextAreaFieldFormElement,
+	DateField: DateFieldFormElement,
+	CheckboxField: CheckboxFieldFormElement,
+	SelectField: SelectFieldFormElement
 };
 
 export type SubmitFunction = (key: string, value: string) => void;

@@ -1,69 +1,58 @@
 /**
- * TextField Component - Text Input Form Field
+ * NumberField Component - Numeric Input Form Field
  *
  * PURPOSE:
- * Defines a complete text input field for the form builder system.
- * Implements all three required contexts: Designer (visual builder), Form (runtime), and Properties (editor).
+ * Implements a numeric input element used in the form builder. Provides
+ * Designer (visual preview), Form (runtime interactive input), and
+ * Properties (editor) components. Validates presence when `required` is set
+ * and ensures the value is numeric at the FormComponent level.
  *
  * STRUCTURE:
- * This file exports TextFieldFormElement, which is a FormElement implementation containing:
+ * Exports `NumberFieldFormElement`, a FormElement implementation containing:
  *
  * 1. METADATA & CONFIGURATION
- *    - type: "TextField" - Unique identifier for this field type
+ *    - type: "NumberField" - Unique identifier for this field type
  *    - extraAttributes: Default configuration (label, placeholder, required, helperText)
- *    - construct(): Factory function that creates new TextField instances
+ *    - construct(): Factory function that creates new NumberField instances
  *
  * 2. DESIGNER COMPONENT (DesignerComponent)
- *    - Renders in the form builder canvas
- *    - Shows: Label + disabled preview input + helper text
- *    - Displays required indicator (*) when applicable
- *    - Read-only preview (user cannot interact in builder)
- *    - Used to visualize the field during form design
+ *    - Renders a read-only preview of the numeric field on the canvas
+ *    - Shows label, disabled number input with placeholder, and helper text
+ *    - Used to visualize layout and field appearance while designing
  *
  * 3. FORM COMPONENT (FormComponent)
- *    - Renders in published forms and previews
- *    - Interactive input that accepts user data
- *    - Features:
- *      - State management (value, error)
- *      - Real-time validation on blur event
- *      - Error display (red border + red text)
- *      - Placeholder and helper text support
- *      - Calls submitValue() on successful validation
- *    - Used by end-users filling out the form
+ *    - Renders an interactive `<input type="number">` at runtime
+ *    - Manages local value and error state
+ *    - Validates on blur: if `required` is true, non-empty numeric value required
+ *    - Calls `submitValue(id, value)` when validation passes
  *
  * 4. PROPERTIES COMPONENT (PropertiesComponent)
- *    - Renders in the properties sidebar when field is selected
- *    - React Hook Form for state management
- *    - Zod validation for schema enforcement
- *    - Features:
- *      - Edit label, placeholder, helper text, required flag
- *      - Changes sync back to designer canvas in real-time
- *      - Form reset on element selection change
- *    - Used by form builders customizing field settings
+ *    - Uses React Hook Form + Zod to edit `label`, `placeholder`, `helperText`, and `required`
+ *    - Slider/switch controls are not required here; standard inputs and a `Switch` are used
+ *    - Updates sync back to the designer via `updateElement()` in real-time
  *
  * 5. VALIDATION LOGIC
- *    - validate(): Checks if field meets constraints
- *    - Returns true if: field is not required OR has non-empty value
- *    - Used by FormComponent on blur and PropertiesComponent schema validation
+ *    - `validate(formElement, currentValue)`: returns `false` when `required` is true and
+ *      the current value is empty; otherwise returns `true`
+ *    - Numeric coercion/formatting should be handled by the consumer if necessary
  *
  * 6. TYPE SAFETY
- *    - CustomInstance: Extends FormElementInstance with typed extraAttributes
- *    - TextFieldSchema: Zod schema (defined in @/lib/schema) validates all properties
+ *    - `CustomInstance` extends `FormElementInstance` with strongly-typed `extraAttributes`
+ *    - `propertiesSchema` is a Zod schema enforcing label length, helper text max length,
+ *      placeholder length, and `required` boolean
  *
  * DATA FLOW:
- * 1. User drags TextField from sidebar -> construct() creates instance
- * 2. Instance renders via DesignerComponent in canvas
- * 3. User clicks field -> PropertiesComponent appears in sidebar
- * 4. User edits properties -> updateElement() updates context
- * 5. DesignerComponent re-renders with new config
- * 6. On form publish -> FormComponent replaces DesignerComponent
- * 7. End-user fills form -> FormComponent validates and calls submitValue()
+ * 1. Drag Number Field from sidebar → `construct()` creates instance with defaults
+ * 2. Designer shows a read-only preview of the field
+ * 3. Select field → Properties panel opens with editors
+ * 4. Edit properties → `updateElement()` updates context → Designer re-renders
+ * 5. Publish → FormComponent handles user input and validation, calling `submitValue()` on success
  *
  * ATTRIBUTE SCHEMA:
- * - label: Display label for the field
- * - placeholder: Hint text inside input
- * - required: Boolean - field must have value before submit
- * - helperText: Additional description below input
+ * - label: string (2-50) - Display label above the field
+ * - placeholder: string (max 50) - Hint shown inside the numeric input
+ * - helperText: string (max 200) - Small description shown below the field
+ * - required: boolean - If true, field must contain a value before submit
  */
 
 "use client";
@@ -74,12 +63,12 @@ import {
 	FormElementInstance,
 	SubmitFunction,
 } from "@/components/form-elements";
-import { TextIcon } from "@radix-ui/react-icons";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { z } from "zod";
+
 import useDesigner from "@/hooks/useDesigner";
 import {
 	Form,
@@ -93,14 +82,19 @@ import {
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Switch } from "../ui/switch";
+import { Bs123 } from "react-icons/bs";
 
-const type: ElementType = "TextField";
+const type: ElementType = "NumberField";
 
 const extraAttributes = {
-	label: "Text Field",
+	label: "Number Field",
 	helperText: "Helper Text",
 	required: false,
-	placeholder: "Value here...",
+	placeholder: "0",
+};
+
+type CustomInstance = FormElementInstance & {
+	extraAttributes: typeof extraAttributes;
 };
 
 const propertiesSchema = z.object({
@@ -110,11 +104,7 @@ const propertiesSchema = z.object({
 	placeholder: z.string().max(50),
 });
 
-type CustomInstance = FormElementInstance & {
-	extraAttributes: typeof extraAttributes;
-};
-
-export const TextFieldFormElement: FormElement = {
+export const NumberFieldFormElement: FormElement = {
 	type,
 
 	construct: (id: string) => ({
@@ -123,8 +113,8 @@ export const TextFieldFormElement: FormElement = {
 		extraAttributes,
 	}),
 	designerBtnElement: {
-		icon: TextIcon,
-		label: "Text Field",
+		icon: Bs123,
+		label: "Number Field",
 	},
 	designerComponent: DesignerComponent,
 	formComponent: FormComponent,
@@ -155,7 +145,7 @@ function DesignerComponent({
 				{label}
 				{required && "*"}
 			</Label>
-			<Input readOnly disabled placeholder={placeholder} />
+			<Input type="number" readOnly disabled placeholder={placeholder} />
 			{helperText && (
 				<p className="text-muted-foreground text-xs">{helperText}</p>
 			)}
@@ -189,15 +179,16 @@ function FormComponent({
 		<div className="flex flex-col gap-2 w-full">
 			<Label className={cn(error && "text-red-500")}>
 				{label}
-				{required && "*"}
+				{required && ""}
 			</Label>
 			<Input
+				type="number"
 				className={cn(error && "border-red-500")}
 				placeholder={placeholder}
 				onChange={(e) => setValue(e.target.value)}
 				onBlur={(e) => {
 					if (!submitValue) return;
-					const valid = TextFieldFormElement.validate(
+					const valid = NumberFieldFormElement.validate(
 						element,
 						e.target.value
 					);
@@ -303,7 +294,7 @@ function PropertiesComponent({
 									}}
 								/>
 							</FormControl>
-
+							<FormDescription>The field placeholder.</FormDescription>
 							<FormMessage />
 						</FormItem>
 					)}
@@ -323,6 +314,7 @@ function PropertiesComponent({
 								/>
 							</FormControl>
 							<FormDescription>
+								The field helper text. <br />
 								displayed below the field.
 							</FormDescription>
 							<FormMessage />
@@ -337,6 +329,10 @@ function PropertiesComponent({
 						<FormItem className="flex items-center justify-between rounded-lg border p-3 shadow-sm">
 							<div className="space-y-0.5">
 								<FormLabel>Required</FormLabel>
+								<FormDescription>
+									The helper text of the field. <br />
+									It will be displayed below the field.
+								</FormDescription>
 							</div>
 							<FormControl>
 								<Switch
