@@ -80,7 +80,6 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { z } from "zod";
-import { TextFieldSchema } from "@/lib/schema";
 import useDesigner from "@/hooks/useDesigner";
 import {
 	Form,
@@ -104,6 +103,13 @@ const extraAttributes = {
 	placeholder: "Value here...",
 };
 
+const propertiesSchema = z.object({
+	label: z.string().min(2).max(50),
+	helperText: z.string().max(200),
+	required: z.boolean().default(false),
+	placeholder: z.string().max(50),
+});
+
 type CustomInstance = FormElementInstance & {
 	extraAttributes: typeof extraAttributes;
 };
@@ -124,7 +130,16 @@ export const TextFieldFormElement: FormElement = {
 	formComponent: FormComponent,
 	propertiesComponent: PropertiesComponent,
 
-	validate: () => true,
+	validate: (
+		formElement: FormElementInstance,
+		currentValue: string
+	): boolean => {
+		const element = formElement as CustomInstance;
+		if (element.extraAttributes?.required) {
+			return currentValue.length > 0;
+		}
+		return true;
+	},
 };
 
 function DesignerComponent({
@@ -206,7 +221,7 @@ function FormComponent({
 	);
 }
 
-type textFieldSchemaType = z.infer<typeof TextFieldSchema>;
+type propertiesSchemaType = z.infer<typeof propertiesSchema>;
 function PropertiesComponent({
 	elementInstance,
 }: {
@@ -215,8 +230,8 @@ function PropertiesComponent({
 	const element = elementInstance as CustomInstance;
 
 	const { updateElement } = useDesigner();
-	const form = useForm<textFieldSchemaType>({
-		resolver: zodResolver(TextFieldSchema),
+	const form = useForm<propertiesSchemaType>({
+		resolver: zodResolver(propertiesSchema),
 		mode: "onBlur",
 		defaultValues: {
 			label: element.extraAttributes.label,
@@ -230,7 +245,7 @@ function PropertiesComponent({
 		form.reset(element.extraAttributes);
 	}, [element, form]);
 
-	function applyChanges(values: textFieldSchemaType) {
+	function applyChanges(values: propertiesSchemaType) {
 		const { helperText, label, placeholder, required } = values;
 		updateElement(element.id, {
 			...element,
