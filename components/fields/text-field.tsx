@@ -189,7 +189,7 @@ function FormComponent({
 		<div className="flex flex-col gap-2 w-full">
 			<Label className={cn(error && "text-red-500")}>
 				{label}
-				{required && ""}
+				{required && "*"}
 			</Label>
 			<Input
 				className={cn(error && "border-red-500")}
@@ -303,7 +303,7 @@ function PropertiesComponent({
 									}}
 								/>
 							</FormControl>
-							<FormDescription>The field placeholder.</FormDescription>
+
 							<FormMessage />
 						</FormItem>
 					)}
@@ -323,7 +323,6 @@ function PropertiesComponent({
 								/>
 							</FormControl>
 							<FormDescription>
-								The field helper text. <br />
 								displayed below the field.
 							</FormDescription>
 							<FormMessage />
@@ -338,10 +337,6 @@ function PropertiesComponent({
 						<FormItem className="flex items-center justify-between rounded-lg border p-3 shadow-sm">
 							<div className="space-y-0.5">
 								<FormLabel>Required</FormLabel>
-								<FormDescription>
-									The helper text of the field. <br />
-									It will be displayed below the field.
-								</FormDescription>
 							</div>
 							<FormControl>
 								<Switch
