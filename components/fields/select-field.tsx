@@ -102,7 +102,7 @@ import {
 } from "../ui/select";
 import { Separator } from "../ui/separator";
 import { Button } from "../ui/button";
-import { PlusCircle, X } from "lucide-react";
+import { Plus, PlusCircle, X } from "lucide-react";
 import { toast } from "../ui/use-toast";
 
 const type: ElementType = "SelectField";
@@ -363,6 +363,7 @@ function PropertiesComponent({
 								<FormLabel>Options</FormLabel>
 								<Button
 									variant={"outline"}
+									size="icon"
 									className="gap-2"
 									onClick={(e) => {
 										e.preventDefault();
@@ -372,7 +373,7 @@ function PropertiesComponent({
 										);
 									}}
 								>
-									<PlusCircle className="h-4 w-4" />
+									<Plus className="h-4 w-4" />
 								</Button>
 							</div>
 							<div className="flex flex-col gap-2">
@@ -402,10 +403,6 @@ function PropertiesComponent({
 								))}
 							</div>
 
-							<FormDescription>
-								The field helper text. <br />
-								displayed below the field.
-							</FormDescription>
 							<FormMessage />
 						</FormItem>
 					)}

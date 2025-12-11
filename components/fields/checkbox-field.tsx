@@ -66,7 +66,7 @@ import {
 	FormElementInstance,
 	SubmitFunction,
 } from "@/components/form-elements";
-import { CheckboxIcon, HeadingIcon } from "@radix-ui/react-icons";
+import { CheckboxIcon } from "@radix-ui/react-icons";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 
@@ -91,7 +91,7 @@ import { cn } from "@/lib/utils";
 const type: ElementType = "CheckboxField";
 
 const extraAttributes = {
-	label: "Checkbox ",
+	label: "Checkbox field",
 	helperText: "Helper Text",
 	required: false,
 };
