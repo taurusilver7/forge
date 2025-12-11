@@ -115,16 +115,7 @@ export const TitleFieldFormElement: FormElement = {
 	formComponent: FormComponent,
 	propertiesComponent: PropertiesComponent,
 
-	validate: (
-		formElement: FormElementInstance,
-		currentValue: string
-	): boolean => {
-		const element = formElement as CustomInstance;
-		if (element.extraAttributes?.required) {
-			return currentValue.length > 0;
-		}
-		return true;
-	},
+	validate: () => true,
 };
 
 function DesignerComponent({
@@ -170,7 +161,7 @@ function PropertiesComponent({
 		resolver: zodResolver(propertiesSchema),
 		mode: "onBlur",
 		defaultValues: {
-			title: element.extraAttributes.label,
+			title: element.extraAttributes.title,
 		},
 	});
 
