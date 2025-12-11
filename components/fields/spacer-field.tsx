@@ -82,6 +82,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LuSeparatorHorizontal } from "react-icons/lu";
 import { Slider } from "../ui/slider";
+import { SpaceBetweenVerticallyIcon } from "@radix-ui/react-icons";
 
 const type: ElementType = "SpacerField";
 
@@ -105,7 +106,7 @@ export const SpacerFieldFormElement: FormElement = {
 		extraAttributes,
 	}),
 	designerBtnElement: {
-		icon: LuSeparatorHorizontal,
+		icon: SpaceBetweenVerticallyIcon,
 		label: "Spacer Field",
 	},
 	designerComponent: DesignerComponent,
