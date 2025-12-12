@@ -174,9 +174,9 @@ const Designer = () => {
 		},
 	});
 	return (
-		<div className="h-full w-full flex p-1">
+		<div className="h-full w-full flex p-1 min-h-0">
 			<div
-				className="p-2 w-full"
+				className="p-2 w-full h-full"
 				onClick={() => {
 					if (selectedElement) setSelectedElement(null);
 				}}
