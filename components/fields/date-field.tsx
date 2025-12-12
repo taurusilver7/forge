@@ -197,12 +197,17 @@ function FormComponent({
 	}, [isInvalid]);
 
 	const handleDateSelect = (selectedDate: Date | undefined) => {
-		console.log("Calendar onSelect triggered:", selectedDate);
+		console.log("🔥 handleDateSelect called with:", selectedDate);
+		console.log("Current date state before:", date);
 		setDate(selectedDate);
 		setIsOpen(false);
 
-		if (!submitValue || !selectedDate) return;
+		if (!submitValue || !selectedDate) {
+			console.log("⚠️ submitValue missing or date undefined");
+			return;
+		}
 		const value = selectedDate.toUTCString();
+		console.log("✅ Submitting value:", value);
 		const valid = DateFieldFormElement.validate(element, value);
 		setError(!valid);
 		submitValue(element.id, value);
@@ -229,17 +234,14 @@ function FormComponent({
 						{date ? format(date, "PPP") : <span>Pick a date</span>}
 					</Button>
 				</PopoverTrigger>
-				<PopoverContent className="w-auto p-0" align="start">
-					<div onClick={(e) => {
-						e.stopPropagation();
-					}}>
-						<Calendar
-							mode="single"
-							selected={date}
-							onSelect={handleDateSelect}
-							className="rounded-lg"
-						/>
-					</div>
+				<PopoverContent className="w-auto p-0 overflow-hidden" align="start">
+					<Calendar
+						mode="single"
+						selected={date}
+						onSelect={handleDateSelect}
+						className="rounded-lg"
+						captionLayout="dropdown"
+					/>
 				</PopoverContent>
 			</Popover>
 
