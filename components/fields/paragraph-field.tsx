@@ -90,7 +90,7 @@ const extraAttributes = {
 };
 
 const propertiesSchema = z.object({
-	text: z.string().min(2).max(50),
+	text: z.string().min(2).max(150),
 });
 
 type CustomInstance = FormElementInstance & {
