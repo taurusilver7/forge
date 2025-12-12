@@ -78,7 +78,7 @@ import { CalendarIcon } from "@radix-ui/react-icons";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { z } from "zod";
 import useDesigner from "@/hooks/useDesigner";
 import {
@@ -190,19 +190,32 @@ function FormComponent({
 		defaultValue ? new Date(defaultValue) : undefined
 	);
 	const [error, setError] = useState(false);
+	const [isOpen, setIsOpen] = useState(false);
 
 	useEffect(() => {
 		setError(isInvalid === true);
 	}, [isInvalid]);
+
+	const handleDateSelect = (selectedDate: Date | undefined) => {
+		console.log("Calendar onSelect triggered:", selectedDate);
+		setDate(selectedDate);
+		setIsOpen(false);
+
+		if (!submitValue || !selectedDate) return;
+		const value = selectedDate.toUTCString();
+		const valid = DateFieldFormElement.validate(element, value);
+		setError(!valid);
+		submitValue(element.id, value);
+	};
 
 	const { label, required, helperText } = element.extraAttributes;
 	return (
 		<div className="flex flex-col gap-2 w-full">
 			<Label className={cn(error && "text-red-500")}>
 				{label}
-				{required && ""}
+				{required && "*"}
 			</Label>
-			<Popover>
+			<Popover open={isOpen} onOpenChange={setIsOpen}>
 				<PopoverTrigger asChild>
 					<Button
 						variant={"outline"}
@@ -217,23 +230,16 @@ function FormComponent({
 					</Button>
 				</PopoverTrigger>
 				<PopoverContent className="w-auto p-0" align="start">
-					<Calendar
-						defaultMonth={date}
-						selected={date}
-						onSelect={(date: Date) => {
-							setDate(date);
-
-							if (!submitValue) return;
-							const value = date?.toUTCString() || "";
-							const valid = DateFieldFormElement.validate(
-								element,
-								value
-							);
-							setError(!valid);
-							submitValue(element.id, value);
-						}}
-						className="rounded-lg border shadow-sm"
-					/>
+					<div onClick={(e) => {
+						e.stopPropagation();
+					}}>
+						<Calendar
+							mode="single"
+							selected={date}
+							onSelect={handleDateSelect}
+							className="rounded-lg"
+						/>
+					</div>
 				</PopoverContent>
 			</Popover>
 
@@ -317,7 +323,6 @@ function PropertiesComponent({
 					)}
 				/>
 
-			
 				<FormField
 					control={form.control}
 					name="helperText"
