@@ -14,7 +14,9 @@ const DashboardLayout = ({ children }: { children: ReactNode }) => {
 				</div>
 			</nav>
 
-			<main className="flex w-full flex-grow">{children}</main>
+			<main className="flex w-full flex-grow">
+				{children}
+			</main>
 		</div>
 	);
 };
