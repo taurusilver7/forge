@@ -303,7 +303,7 @@ function DesignerElementWrapper({ element }: { element: FormElementInstance }) {
 								removeElement(element.id);
 							}}
 						>
-							<BiSolidTrash className="h-6 w-6" />
+							<BiSolidTrash className="h-8 w-8" />
 						</Button>
 					</div>
 				</>
