@@ -78,7 +78,7 @@ import { CalendarIcon } from "@radix-ui/react-icons";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { z } from "zod";
 import useDesigner from "@/hooks/useDesigner";
 import {
@@ -89,14 +89,18 @@ import {
 	FormItem,
 	FormLabel,
 	FormMessage,
-} from "../ui/form";
+} from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Switch } from "../ui/switch";
-import { Button } from "../ui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { Switch } from "@/components/ui/switch";
+import { Button } from "@/components/ui/button";
+import {
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+} from "@/components/ui/popover";
 import { format } from "date-fns";
-import { Calendar } from "../ui/calendar";
+import { Calendar } from "@/components/ui/calendar";
 
 const type: ElementType = "DateField";
 
@@ -234,7 +238,10 @@ function FormComponent({
 						{date ? format(date, "PPP") : <span>Pick a date</span>}
 					</Button>
 				</PopoverTrigger>
-				<PopoverContent className="w-auto p-0 overflow-hidden" align="start">
+				<PopoverContent
+					className="w-auto p-0 overflow-hidden"
+					align="start"
+				>
 					<Calendar
 						mode="single"
 						selected={date}
