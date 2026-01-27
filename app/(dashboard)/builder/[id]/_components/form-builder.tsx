@@ -89,7 +89,7 @@ const FormBuilder = ({ form }: { form: Form }) => {
 		const readyTimeout = setTimeout(() => setIsReady(true), 500);
 
 		return () => clearTimeout(readyTimeout);
-	}, [form, setElements, setSelectedElement]);
+	}, [form, setElements, setSelectedElement, isReady]);
 
 	// render delay spinner
 	if (!isReady) {

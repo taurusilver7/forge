@@ -145,7 +145,7 @@ export const SelectFieldFormElement: FormElement = {
 
 	validate: (
 		formElement: FormElementInstance,
-		currentValue: string
+		currentValue: string,
 	): boolean => {
 		const element = formElement as CustomInstance;
 		if (element.extraAttributes?.required) {
@@ -235,7 +235,7 @@ function FormComponent({
 				<p
 					className={cn(
 						"text-muted-foreground text-sm",
-						error && "text-red-500"
+						error && "text-red-500",
 					)}
 				>
 					{helperText}
@@ -369,7 +369,7 @@ function PropertiesComponent({
 										e.preventDefault();
 										form.setValue(
 											"options",
-											field.value.concat("New option")
+											field.value.concat("New option"),
 										);
 									}}
 								>
@@ -378,7 +378,10 @@ function PropertiesComponent({
 							</div>
 							<div className="flex flex-col gap-2">
 								{form.watch("options").map((option, index) => (
-									<div className="flex items-center justify-between gap-1">
+									<div
+										key={index}
+										className="flex items-center justify-between gap-1"
+									>
 										<Input
 											placeholder=""
 											value={option}
