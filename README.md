@@ -49,7 +49,6 @@ npx prisma migrate
 # name the migration database
 npx prisma studio
 # view the database modelling in UI
-
 ```
 
 ## Prerequisites
