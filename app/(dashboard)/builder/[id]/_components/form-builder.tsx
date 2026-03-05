@@ -159,8 +159,8 @@ const FormBuilder = ({ form }: { form: Form }) => {
 		<DndContext sensors={sensors}>
 			<main className="flex flex-col w-full">
 				{!isNavMinimized && (
-					<nav className="flex justify-between border-b-2 p-4 gap-3 items-center relative">
-						<div className="flex items-center gap-2">
+					<nav className="flex flex-col md:flex-row justify-between border-b-2 p-4 gap-3 items-start md:items-center relative">
+						<div className="flex items-center gap-2 order-2 md:order-1 w-full md:w-auto">
 							<Button
 								variant="ghost"
 								size="sm"
@@ -177,7 +177,7 @@ const FormBuilder = ({ form }: { form: Form }) => {
 							</h2>
 						</div>
 
-						<div className="flex items-center gap-2">
+						<div className="flex items-center gap-2 order-1 md:order-2 w-full md:w-auto">
 							<Preview />
 
 							{!form.published && (
