@@ -177,7 +177,7 @@ const FormBuilder = ({ form }: { form: Form }) => {
 							</h2>
 						</div>
 
-						<div className="flex items-center gap-2 order-1 md:order-2 w-full md:w-auto">
+						<div className="flex justify-between items-center gap-2 order-1 md:order-2 w-full md:w-auto">
 							<Preview />
 
 							{!form.published && (
