@@ -2,13 +2,13 @@
 
 import db from "@/lib/prisma";
 import { formSchema, formSchemaType } from "@/lib/schema";
-import { currentUser } from "@clerk/nextjs";
+import { useUser } from "@clerk/nextjs";
 import { redirect } from "next/navigation";
 
 class UserNotFoundErr extends Error {}
 
 export async function GetFormStats() {
-	const user = await currentUser();
+	const {user} = await useUser();
 	if (!user) {
 		throw new UserNotFoundErr();
 		// redirect("/sign-in");
@@ -49,7 +49,7 @@ export async function CreateForm(data: formSchemaType) {
 		throw new Error("form invalid");
 	}
 	// console.log("NAME ON SERVER", data.name);
-	const user = await currentUser();
+	const {user} = await useUser();
 	if (!user) {
 		redirect("/sign-in");
 
@@ -73,7 +73,7 @@ export async function CreateForm(data: formSchemaType) {
 }
 
 export async function GetForms() {
-	const user = await currentUser();
+	const {user} = await useUser();
 
 	if (!user) {
 		redirect("/sign-in");
@@ -94,7 +94,7 @@ export async function GetForms() {
 }
 
 export async function GetFormById(id: string) {
-	const user = await currentUser();
+	const { user } = await useUser();
 
 	if (!user) {
 		redirect("/sign-in");
@@ -111,7 +111,7 @@ export async function GetFormById(id: string) {
 }
 
 export async function UpdateFormContent(id: string, jsonContent: string) {
-	const user = await currentUser();
+const { user } = await useUser();
 	if (!user) {
 		redirect("/sign-in");
 	}
@@ -129,7 +129,7 @@ export async function UpdateFormContent(id: string, jsonContent: string) {
 }
 
 export async function PublishForm(id: string) {
-	const user = await currentUser();
+	const { user } = await useUser();
 	if (!user) {
 		redirect("/sign-in");
 	}
@@ -148,7 +148,7 @@ export async function PublishForm(id: string) {
 }
 
 export async function GetFormWithSubmissions(id: string) {
-	const user = await currentUser();
+	const { user } = await useUser();
 	if (!user) {
 		redirect("/sign-in");
 	}
