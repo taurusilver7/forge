@@ -11,8 +11,8 @@ import VisitBtn from "./_components/visit";
 import FormLinkShare from "./_components/form-link";
 import SubmissionsTable from "./_components/submission-table";
 
-const FormDetails = async ({ params }: { params: { id: string } }) => {
-	const { id } = params;
+const FormDetails = async ({ params }: { params: Promise<{ id: string }> }) => {
+	const { id } = await params;
 	const form = await GetFormById(id);
 
 	if (!form) {
@@ -45,7 +45,7 @@ const FormDetails = async ({ params }: { params: { id: string } }) => {
 					helperText="All time vists"
 					value={visits.toLocaleString() || ""}
 					loading={false}
-					className="shadow-md shadow-blue-600"
+					className="shadow-[0_12px_36px_rgba(53,68,135,0.35)]"
 				/>
 				<StatsCard
 					title="Total Submissions"
@@ -53,7 +53,7 @@ const FormDetails = async ({ params }: { params: { id: string } }) => {
 					helperText="All time submissions."
 					value={submissions.toLocaleString() || ""}
 					loading={false}
-					className="shadow-md shadow-yellow-600"
+					className="shadow-[0_12px_32px_rgba(198,214,84,0.35)]"
 				/>
 				<StatsCard
 					title="Submissions rate"
@@ -61,7 +61,7 @@ const FormDetails = async ({ params }: { params: { id: string } }) => {
 					helperText="visits that submitted form."
 					value={submissionRate.toLocaleString() + "%" || ""}
 					loading={false}
-					className="shadow-md shadow-green-600"
+					className="shadow-[0_12px_36px_rgba(63,187,45,0.35)]"
 				/>
 				<StatsCard
 					title="Bounce rate"
@@ -69,7 +69,7 @@ const FormDetails = async ({ params }: { params: { id: string } }) => {
 					helperText="Visits that leave without interacting."
 					value={bounceRate.toLocaleString() + "%" || ""}
 					loading={false}
-					className="shadow-md shadow-rose-600"
+					className="shadow-[0_12px_36px_rgba(189,38,77,0.35)]"
 				/>
 			</div>
 

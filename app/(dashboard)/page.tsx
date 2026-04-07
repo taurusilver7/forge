@@ -61,7 +61,7 @@ function StatCards(props: StatCardsProps) {
 				helperText="All time vists"
 				value={data?.visits.toLocaleString() || ""}
 				loading={loading}
-				className="shadow-md shadow-blue-600"
+				className="shadow-[0_12px_36px_rgba(53,68,135,0.35)]"
 			/>
 			<StatsCard
 				title="Total Submissions"
@@ -69,7 +69,7 @@ function StatCards(props: StatCardsProps) {
 				helperText="All time submissions."
 				value={data?.submissions.toLocaleString() || ""}
 				loading={loading}
-				className="shadow-md shadow-yellow-600"
+				className="shadow-[0_12px_32px_rgba(198,214,84,0.35)]"
 			/>
 			<StatsCard
 				title="Submissions rate"
@@ -77,7 +77,7 @@ function StatCards(props: StatCardsProps) {
 				helperText="visits that submitted form."
 				value={data?.submissionRate.toLocaleString() + "%" || ""}
 				loading={loading}
-				className="shadow-md shadow-green-600"
+				className="shadow-[0_12px_36px_rgba(63,187,45,0.35)]"
 			/>
 			<StatsCard
 				title="Bounce rate"
@@ -85,7 +85,7 @@ function StatCards(props: StatCardsProps) {
 				helperText="Visits that leave without interacting."
 				value={data?.bounceRate.toLocaleString() + "%" || ""}
 				loading={loading}
-				className="shadow-md shadow-rose-600"
+				className="shadow-[0_12px_36px_rgba(189,38,77,0.35)]"
 			/>
 		</div>
 	);
