@@ -157,9 +157,9 @@ const FormBuilder = ({ form }: { form: Form }) => {
 
 	return (
 		<DndContext sensors={sensors}>
-			<main className="flex flex-col w-full">
+			<main className="flex flex-col w-full h-screen min-h-0 overflow-hidden">
 				{!isNavMinimized && (
-					<nav className="flex flex-col md:flex-row justify-between border-b-2 p-4 gap-3 items-start md:items-center relative">
+					<nav className="shrink-0 flex flex-col md:flex-row justify-between border-b-2 p-4 gap-3 items-start md:items-center relative">
 						<div className="flex items-center gap-2 order-2 md:order-1 w-full md:w-auto">
 							<Button
 								variant="ghost"
@@ -203,7 +203,7 @@ const FormBuilder = ({ form }: { form: Form }) => {
 					</div>
 				)}
 
-				<div className="relative overflow-y-auto h-auto flex-grow w-full items-center justify-center bg-accent bg-[url(/paper.svg)] dark:bg-[url(/paper-dark.svg)]">
+				<div className="relative flex-1 min-h-0  overflow-hidden w-full items-center justify-center bg-accent bg-[url(/paper.svg)] dark:bg-[url(/paper-dark.svg)]">
 					{/* Form Editor */}
 					<Designer />
 				</div>

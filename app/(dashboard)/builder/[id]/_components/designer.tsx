@@ -174,9 +174,9 @@ const Designer = () => {
 		},
 	});
 	return (
-		<div className="h-full w-full flex p-1 min-h-0">
+		<div className="h-full w-full flex p-1 min-h-0 overflow-hidden">
 			<div
-				className="p-2 w-full h-full"
+				className="p-2 w-full h-full min-h-0"
 				onClick={() => {
 					if (selectedElement) setSelectedElement(null);
 				}}
@@ -184,7 +184,7 @@ const Designer = () => {
 				<div
 					ref={droppable.setNodeRef}
 					className={cn(
-						"bg-background max-w-5xl lg:max-w-6xl mx-auto h-full rounded-xl flex flex-col flex-grow items-center justify-start flex-1 overflow-y-auto",
+						"bg-background max-w-5xl lg:max-w-6xl mx-auto h-full rounded-xl flex flex-col flex-grow items-center justify-start flex-1 overflow-y-auto scrollbar-hide",
 						droppable.isOver && "ring-3 ring-primary ring-inset"
 					)}
 				>

@@ -5,7 +5,7 @@ import { Separator } from "./ui/separator";
 
 const FormElementSidebar = () => {
 	return (
-		<div>
+		<div className="">
 			<p className="text-sm text-foreground/20">Drag & Drop Elements</p>
 			<Separator className="my-2" />
 			<div className="grid grid-cols-1 md:grid-cols-2 gap-2 place-items-center">
@@ -27,6 +27,9 @@ const FormElementSidebar = () => {
 				<SidebarElement formElement={FormElements.DateField} />
 				<SidebarElement formElement={FormElements.CheckboxField} />
 				<SidebarElement formElement={FormElements.SelectField} />
+				<SidebarElement formElement={FormElements.EmailField} />
+				<SidebarElement formElement={FormElements.PhoneField} />
+				<SidebarElement formElement={FormElements.RatingField} />
 			</div>
 		</div>
 	);
