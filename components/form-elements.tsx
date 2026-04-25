@@ -75,6 +75,10 @@ import { TextAreaFieldFormElement } from "./fields/textarea-field";
 import { DateFieldFormElement } from "./fields/date-field";
 import { CheckboxFieldFormElement } from "./fields/checkbox-field";
 import { SelectFieldFormElement } from "./fields/select-field";
+import { EmailFieldFormElement } from "./fields/email-field";
+import { PhoneFieldFormElement } from "./fields/phone-field";
+import { RatingFieldFormElement } from "./fields/star-rating";
+import { SliderFieldFormElement } from "./fields/slider-field";
 
 export type ElementType =
 	| "TextField"
@@ -86,7 +90,13 @@ export type ElementType =
 	| "NumberField"
 	| "TextAreaField"
 	| "DateField"
-	| "CheckboxField" | "SelectField";
+	| "CheckboxField"
+	| "SelectField"
+	// Phase 2
+	| "EmailField"
+	| "PhoneField"
+	| "RatingField"
+	| "SliderField";
 
 export type FormElementInstance = {
 	id: string;
@@ -117,7 +127,7 @@ export type FormElement = {
 	}>;
 	validate: (
 		formElement: FormElementInstance,
-		currentValue: string
+		currentValue: string,
 	) => boolean;
 };
 
@@ -136,7 +146,12 @@ export const FormElements: FormElementType = {
 	TextAreaField: TextAreaFieldFormElement,
 	DateField: DateFieldFormElement,
 	CheckboxField: CheckboxFieldFormElement,
-	SelectField: SelectFieldFormElement
+	SelectField: SelectFieldFormElement,
+	//* Phase TWO
+	EmailField: EmailFieldFormElement,
+	PhoneField: PhoneFieldFormElement,
+	RatingField: RatingFieldFormElement,
+	SliderField: SliderFieldFormElement,
 };
 
 export type SubmitFunction = (key: string, value: string) => void;
