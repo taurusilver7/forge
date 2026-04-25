@@ -1,69 +1,43 @@
 /**
- * TextField Component - Text Input Form Field
+ * SelectField Component — Dropdown Single-Select
  *
  * PURPOSE:
- * Defines a complete text input field for the form builder system.
- * Implements all three required contexts: Designer (visual builder), Form (runtime), and Properties (editor).
+ * A dropdown menu that lets the user pick one option from a configured list.
+ * Suitable for country selectors, category pickers, job title dropdowns, or
+ * any form element where the set of valid values is finite and known in advance.
+ * Use CheckboxField for boolean choices; use SelectField for 3+ mutually
+ * exclusive options.
  *
  * STRUCTURE:
- * This file exports TextFieldFormElement, which is a FormElement implementation containing:
+ * Exports `SelectFieldFormElement`, a FormElement implementation containing:
  *
  * 1. METADATA & CONFIGURATION
- *    - type: "TextField" - Unique identifier for this field type
- *    - extraAttributes: Default configuration (label, placeholder, required, helperText)
- *    - construct(): Factory function that creates new TextField instances
+ *    - type: "SelectField"
+ *    - extraAttributes: label, helperText, required, placeholder, options (string[])
+ *    - construct(): Factory — clones extraAttributes to prevent shared-reference mutation
  *
  * 2. DESIGNER COMPONENT (DesignerComponent)
- *    - Renders in the form builder canvas
- *    - Shows: Label + disabled preview input + helper text
- *    - Displays required indicator (*) when applicable
- *    - Read-only preview (user cannot interact in builder)
- *    - Used to visualize the field during form design
+ *    - Renders a disabled <Select> showing the placeholder
+ *    - Lists the number of options configured below the control
  *
  * 3. FORM COMPONENT (FormComponent)
- *    - Renders in published forms and previews
- *    - Interactive input that accepts user data
- *    - Features:
- *      - State management (value, error)
- *      - Real-time validation on blur event
- *      - Error display (red border + red text)
- *      - Placeholder and helper text support
- *      - Calls submitValue() on successful validation
- *    - Used by end-users filling out the form
+ *    - Interactive shadcn <Select> with all configured options
+ *    - Calls submitValue() on selection change
+ *    - Validates that a non-placeholder option is selected when required = true
  *
  * 4. PROPERTIES COMPONENT (PropertiesComponent)
- *    - Renders in the properties sidebar when field is selected
- *    - React Hook Form for state management
- *    - Zod validation for schema enforcement
- *    - Features:
- *      - Edit label, placeholder, helper text, required flag
- *      - Changes sync back to designer canvas in real-time
- *      - Form reset on element selection change
- *    - Used by form builders customizing field settings
+ *    - Editable: label, helperText, required, placeholder, options list
+ *    - Options list supports add / remove / reorder via drag-and-drop or +/− controls
  *
  * 5. VALIDATION LOGIC
- *    - validate(): Checks if field meets constraints
- *    - Returns true if: field is not required OR has non-empty value
- *    - Used by FormComponent on blur and PropertiesComponent schema validation
- *
- * 6. TYPE SAFETY
- *    - CustomInstance: Extends FormElementInstance with typed extraAttributes
- *    - TextFieldSchema: Zod schema (defined in @/lib/schema) validates all properties
- *
- * DATA FLOW:
- * 1. User drags TextField from sidebar -> construct() creates instance
- * 2. Instance renders via DesignerComponent in canvas
- * 3. User clicks field -> PropertiesComponent appears in sidebar
- * 4. User edits properties -> updateElement() updates context
- * 5. DesignerComponent re-renders with new config
- * 6. On form publish -> FormComponent replaces DesignerComponent
- * 7. End-user fills form -> FormComponent validates and calls submitValue()
+ *    - validate(): returns false when required + value is empty or equals placeholder
  *
  * ATTRIBUTE SCHEMA:
- * - label: Display label for the field
- * - placeholder: Hint text inside input
- * - required: Boolean - field must have value before submit
- * - helperText: Additional description below input
+ * - label: string (2–50) — field label displayed above the dropdown
+ * - helperText: string (max 200) — description below the dropdown
+ * - required: boolean — whether a selection is mandatory
+ * - placeholder: string (max 50) — default "choose an option" text
+ * - options: string[] — list of selectable values (max 50 items)
  */
 
 "use client";

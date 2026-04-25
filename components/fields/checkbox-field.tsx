@@ -11,7 +11,7 @@
  * This file exports TitleFieldFormElement, which is a FormElement implementation containing:
  *
  * 1. METADATA & CONFIGURATION
- *    - type: "TitleField" - Unique identifier for this field type
+ *    - type: "CheckboxField" - Unique identifier for this field type
  *    - extraAttributes: Configuration (title text)
  *    - construct(): Factory function that creates new TitleField instances
  *
@@ -112,7 +112,7 @@ export const CheckboxFieldFormElement: FormElement = {
 	construct: (id: string) => ({
 		id,
 		type,
-		extraAttributes,
+		extraAttributes: {...extraAttributes},
 	}),
 	designerBtnElement: {
 		icon: CheckboxIcon,
@@ -146,7 +146,7 @@ function DesignerComponent({
 	return (
 		<div className="flex items-start space-x-2">
 			<Checkbox id={id} />
-			<div className="grid gap-1 5 leading-none">
+			<div className="grid gap-1.5 leading-none">
 				<Label className="" htmlFor={id}>
 					{label}
 					{required && "*"}
@@ -317,9 +317,6 @@ function PropertiesComponent({
 						<FormItem className="flex items-center justify-between rounded-lg border p-3 shadow-sm">
 							<div className="space-y-0.5">
 								<FormLabel>Required</FormLabel>
-								<FormDescription>
-									displayed below the field.
-								</FormDescription>
 							</div>
 							<FormControl>
 								<Switch

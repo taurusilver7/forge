@@ -1,69 +1,41 @@
 /**
- * DateField Component - Text Input Form Field
+ * DateField Component — Date Picker Input
  *
  * PURPOSE:
- * Defines a complete text input field for the form builder system.
- * Implements all three required contexts: Designer (visual builder), Form (runtime), and Properties (editor).
+ * A date selection field for collecting a calendar date. Renders a native
+ * date picker (or a shadcn Calendar popover) that formats the selected value
+ * as an ISO 8601 string (YYYY-MM-DD) for consistent downstream processing.
+ * Suitable for date of birth, appointment booking, event registration,
+ * expiry dates, or any form requiring a specific calendar date.
  *
  * STRUCTURE:
- * This file exports TextFieldFormElement, which is a FormElement implementation containing:
+ * Exports `DateFieldFormElement`, a FormElement implementation containing:
  *
  * 1. METADATA & CONFIGURATION
- *    - type: "DateField" - Unique identifier for this field type
- *    - extraAttributes: Default configuration (label, placeholder, required, helperText)
- *    - construct(): Factory function that creates new DateField instances
+ *    - type: "DateField"
+ *    - extraAttributes: label, helperText, required
+ *    - construct(): Factory — clones extraAttributes to prevent shared-reference mutation
  *
  * 2. DESIGNER COMPONENT (DesignerComponent)
- *    - Renders in the form builder canvas
- *    - Shows: Label + disabled preview input + helper text
- *    - Displays required indicator (*) when applicable
- *    - Read-only preview (user cannot interact in builder)
- *    - Used to visualize the field during form design
+ *    - Read-only preview showing a calendar icon button
+ *    - Shows label, placeholder date, and helper text
  *
  * 3. FORM COMPONENT (FormComponent)
- *    - Renders in published forms and previews
- *    - Interactive input that accepts user data
- *    - Features:
- *      - State management (value, error)
- *      - Real-time validation on blur event
- *      - Error display (red border + red text)
- *      - Placeholder and helper text support
- *      - Calls submitValue() on successful validation
- *    - Used by end-users filling out the form
+ *    - Popover-based Calendar (shadcn) or <input type="date">
+ *    - Stores selected date as ISO string
+ *    - Validates on selection: required check
+ *    - Calls submitValue() immediately on date selection
  *
  * 4. PROPERTIES COMPONENT (PropertiesComponent)
- *    - Renders in the properties sidebar when field is selected
- *    - React Hook Form for state management
- *    - Zod validation for schema enforcement
- *    - Features:
- *      - Edit label, placeholder, helper text, required flag
- *      - Changes sync back to designer canvas in real-time
- *      - Form reset on element selection change
- *    - Used by form builders customizing field settings
+ *    - Editable: label, helperText, required
  *
  * 5. VALIDATION LOGIC
- *    - validate(): Checks if field meets constraints
- *    - Returns true if: field is not required OR has non-empty value
- *    - Used by FormComponent on blur and PropertiesComponent schema validation
- *
- * 6. TYPE SAFETY
- *    - CustomInstance: Extends FormElementInstance with typed extraAttributes
- *    - TextFieldSchema: Zod schema (defined in @/lib/schema) validates all properties
- *
- * DATA FLOW:
- * 1. User drags DateField from sidebar -> construct() creates instance
- * 2. Instance renders via DesignerComponent in canvas
- * 3. User clicks field -> PropertiesComponent appears in sidebar
- * 4. User edits properties -> updateElement() updates context
- * 5. DesignerComponent re-renders with new config
- * 6. On form publish -> FormComponent replaces DesignerComponent
- * 7. End-user fills form -> FormComponent validates and calls submitValue()
+ *    - validate(): returns false when required + empty, true otherwise
  *
  * ATTRIBUTE SCHEMA:
- * - label: Display label for the field
- * - placeholder: Hint text inside input
- * - required: Boolean - field must have value before submit
- * - helperText: Additional description below input
+ * - label: string (2–50) — field label displayed above the picker
+ * - helperText: string (max 200) — description below the picker
+ * - required: boolean — whether a date must be selected before submit
  */
 
 "use client";
@@ -138,7 +110,7 @@ export const DateFieldFormElement: FormElement = {
 
 	validate: (
 		formElement: FormElementInstance,
-		currentValue: string
+		currentValue: string,
 	): boolean => {
 		const element = formElement as CustomInstance;
 		if (element.extraAttributes?.required) {
@@ -191,7 +163,7 @@ function FormComponent({
 }: FormComponentProps) {
 	const element = elementInstance as CustomInstance;
 	const [date, setDate] = useState<Date | undefined>(
-		defaultValue ? new Date(defaultValue) : undefined
+		defaultValue ? new Date(defaultValue) : undefined,
 	);
 	const [error, setError] = useState(false);
 	const [isOpen, setIsOpen] = useState(false);
@@ -231,7 +203,7 @@ function FormComponent({
 						className={cn(
 							"w-full justify-start text-left font-normal",
 							!date && "text-muted-foreground",
-							error && "border-red-500"
+							error && "border-red-500",
 						)}
 					>
 						<CalendarIcon className="mr-2 w-4 h-4" />
@@ -256,7 +228,7 @@ function FormComponent({
 				<p
 					className={cn(
 						"text-muted-foreground text-sm",
-						error && "text-red-500"
+						error && "text-red-500",
 					)}
 				>
 					{helperText}
@@ -347,7 +319,6 @@ function PropertiesComponent({
 								/>
 							</FormControl>
 							<FormDescription>
-								The field helper text. <br />
 								displayed below the field.
 							</FormDescription>
 							<FormMessage />
@@ -362,10 +333,6 @@ function PropertiesComponent({
 						<FormItem className="flex items-center justify-between rounded-lg border p-3 shadow-sm">
 							<div className="space-y-0.5">
 								<FormLabel>Required</FormLabel>
-								<FormDescription>
-									The helper text of the field. <br />
-									It will be displayed below the field.
-								</FormDescription>
 							</div>
 							<FormControl>
 								<Switch

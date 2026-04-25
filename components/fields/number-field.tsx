@@ -53,6 +53,9 @@
  * - placeholder: string (max 50) - Hint shown inside the numeric input
  * - helperText: string (max 200) - Small description shown below the field
  * - required: boolean - If true, field must contain a value before submit
+ * - min: number | undefined — optional lower bound (inclusive)
+ * - max: number | undefined — optional upper bound (inclusive)
+ * - allowDecimals: boolean — whether decimal values are accepted
  */
 
 "use client";
@@ -91,6 +94,9 @@ const extraAttributes = {
 	helperText: "Helper Text",
 	required: false,
 	placeholder: "0",
+	min: undefined as number | undefined,
+	max: undefined as number | undefined,
+	allowedDecimals: false,
 };
 
 type CustomInstance = FormElementInstance & {
@@ -102,6 +108,9 @@ const propertiesSchema = z.object({
 	helperText: z.string().max(200),
 	required: z.boolean().default(false),
 	placeholder: z.string().max(50),
+	min: z.union([z.number(), z.nan()]).optional(),
+	max: z.union([z.number(), z.nan()]).optional(),
+	allowDecimals: z.boolean().default(false),
 });
 
 export const NumberFieldFormElement: FormElement = {
@@ -110,7 +119,7 @@ export const NumberFieldFormElement: FormElement = {
 	construct: (id: string) => ({
 		id,
 		type,
-		extraAttributes,
+		extraAttributes: { ...extraAttributes },
 	}),
 	designerBtnElement: {
 		icon: Bs123,
@@ -122,12 +131,21 @@ export const NumberFieldFormElement: FormElement = {
 
 	validate: (
 		formElement: FormElementInstance,
-		currentValue: string
+		currentValue: string,
 	): boolean => {
 		const element = formElement as CustomInstance;
-		if (element.extraAttributes?.required) {
-			return currentValue.length > 0;
-		}
+		const { allowedDecimals, required, min, max } = element.extraAttributes;
+
+		if (required && currentValue.trim().length === 0) return false;
+		if (currentValue.trim().length === 0) return true;
+
+		const pattern = allowedDecimals ? /^-?\d+(\.\d+)?$/ : /^-?\d+$/;
+		if (!pattern.test(currentValue.trim())) return false;
+
+		const num = parseFloat(currentValue);
+		if (min !== undefined && !isNaN(min) && num < min) return false;
+		if (max !== undefined && !isNaN(max) && num > max) return false;
+
 		return true;
 	},
 };
@@ -145,7 +163,12 @@ function DesignerComponent({
 				{label}
 				{required && "*"}
 			</Label>
-			<Input type="number" readOnly disabled placeholder={placeholder} />
+			<Input
+				inputMode="numeric"
+				readOnly
+				disabled
+				placeholder={placeholder}
+			/>
 			{helperText && (
 				<p className="text-muted-foreground text-xs">{helperText}</p>
 			)}
@@ -174,26 +197,37 @@ function FormComponent({
 		setError(isInvalid === true);
 	}, [isInvalid]);
 
-	const { label, required, helperText, placeholder } = element.extraAttributes;
+	const { label, required, helperText, placeholder, allowedDecimals } =
+		element.extraAttributes;
+
+	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const raw = e.target.value;
+
+		const cleaned = allowedDecimals
+			? raw.replace(/[^0-9.-]/g, "")
+			: raw.replace(/[^0-9-]/g, "");
+		setValue(cleaned);
+	};
 	return (
 		<div className="flex flex-col gap-2 w-full">
 			<Label className={cn(error && "text-red-500")}>
 				{label}
-				{required && ""}
+				{required && "*"}
 			</Label>
 			<Input
-				type="number"
+				type="text"
+				inputMode="numeric"
+				pattern="[0-9]*"
 				className={cn(error && "border-red-500")}
 				placeholder={placeholder}
-				onChange={(e) => setValue(e.target.value)}
+				onChange={handleChange}
 				onBlur={(e) => {
-					if (!submitValue) return;
 					const valid = NumberFieldFormElement.validate(
 						element,
-						e.target.value
+						e.target.value,
 					);
 					setError(!valid);
-					if (!valid) return;
+					if (!valid || !submitValue) return;
 					submitValue(element.id, e.target.value);
 				}}
 				value={value}
@@ -202,7 +236,7 @@ function FormComponent({
 				<p
 					className={cn(
 						"text-muted-foreground text-sm",
-						error && "text-red-500"
+						error && "text-red-500",
 					)}
 				>
 					{helperText}
@@ -229,6 +263,9 @@ function PropertiesComponent({
 			helperText: element.extraAttributes.helperText,
 			required: element.extraAttributes.required,
 			placeholder: element.extraAttributes.placeholder,
+			allowDecimals: element.extraAttributes.allowedDecimals,
+			min: element.extraAttributes.min,
+			max: element.extraAttributes.max,
 		},
 	});
 
@@ -237,14 +274,11 @@ function PropertiesComponent({
 	}, [element, form]);
 
 	function applyChanges(values: propertiesSchemaType) {
-		const { helperText, label, placeholder, required } = values;
 		updateElement(element.id, {
 			...element,
 			extraAttributes: {
-				label,
-				helperText,
-				placeholder,
-				required,
+				...element.extraAttributes,
+				...values,
 			},
 		});
 	}
@@ -294,11 +328,99 @@ function PropertiesComponent({
 									}}
 								/>
 							</FormControl>
-							<FormDescription>The field placeholder.</FormDescription>
+							<FormDescription>
+								The field placeholder text.
+							</FormDescription>
 							<FormMessage />
 						</FormItem>
 					)}
 				/>
+				<div className="flex gap-3">
+					<FormField
+						control={form.control}
+						name="min"
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel>Min Value</FormLabel>
+								<FormControl>
+									<Input
+										type="text"
+										inputMode="numeric"
+										placeholder="None"
+										value={
+											field.value === undefined ||
+											isNaN(field.value as number)
+												? ""
+												: String(field.value)
+										}
+										onChange={(e) =>
+											field.onChange(
+												e.target.value === ""
+													? undefined
+													: Number(e.target.value),
+											)
+										}
+										onBlur={field.onBlur}
+									/>
+								</FormControl>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+					<FormField
+						control={form.control}
+						name="max"
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel>Max Value</FormLabel>
+								<FormControl>
+									<Input
+										type="text"
+										inputMode="numeric"
+										placeholder="None"
+										value={
+											field.value === undefined ||
+											isNaN(field.value as number)
+												? ""
+												: String(field.value)
+										}
+										onChange={(e) =>
+											field.onChange(
+												e.target.value === ""
+													? undefined
+													: Number(e.target.value),
+											)
+										}
+										onBlur={field.onBlur}
+									/>
+								</FormControl>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+				</div>
+
+				<FormField
+					control={form.control}
+					name="allowDecimals"
+					render={({ field }) => (
+						<FormItem className="flex items-center justify-between rounded-lg border p-3 shadow-sm">
+							<div className="space-y-0.5">
+								<FormLabel>Allow decimals</FormLabel>
+								<FormDescription>
+									Permit decimal point values (e.g. 3.14).
+								</FormDescription>
+							</div>
+							<FormControl>
+								<Switch
+									checked={field.value}
+									onCheckedChange={field.onChange}
+								/>
+							</FormControl>
+						</FormItem>
+					)}
+				/>
+
 				<FormField
 					control={form.control}
 					name="helperText"
@@ -314,7 +436,6 @@ function PropertiesComponent({
 								/>
 							</FormControl>
 							<FormDescription>
-								The field helper text. <br />
 								displayed below the field.
 							</FormDescription>
 							<FormMessage />
@@ -329,10 +450,6 @@ function PropertiesComponent({
 						<FormItem className="flex items-center justify-between rounded-lg border p-3 shadow-sm">
 							<div className="space-y-0.5">
 								<FormLabel>Required</FormLabel>
-								<FormDescription>
-									The helper text of the field. <br />
-									It will be displayed below the field.
-								</FormDescription>
 							</div>
 							<FormControl>
 								<Switch

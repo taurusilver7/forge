@@ -282,7 +282,7 @@ function PropertiesComponent({
 								/>
 							</FormControl>
 							<FormDescription>
-								The field label <br /> Displayed above the field
+								The field label<br />Displayed above the field
 							</FormDescription>
 							<FormMessage />
 						</FormItem>
