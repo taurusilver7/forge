@@ -18,6 +18,7 @@ model Form {
   name        String
   description String @default("")
   content     String @default("[]")
+  pages       String @default("[{\"id\":\"page_0\",\"label\":\"Page 1\"}]")
 
   visits      Int @default(0)
   submissions Int @default(0)
@@ -27,7 +28,6 @@ model Form {
 
   createdAt DateTime @default(now())
 
-  @@unique([name, userId])
 }
 
 model FormSubmission {
@@ -37,4 +37,17 @@ model FormSubmission {
   content String
 
   createdAt DateTime @default(now())
+}
+
+model FormTemplate {
+  id          String   @id @default(uuid())
+  userId      String
+  name        String
+  description String   @default("")
+  category    String   @default("Custom")
+  content     String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([userId])
 }
