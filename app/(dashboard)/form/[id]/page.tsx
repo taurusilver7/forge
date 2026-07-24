@@ -6,10 +6,10 @@ import {
 	EyeOpenIcon,
 	MixerVerticalIcon,
 } from "@radix-ui/react-icons";
-import React from "react";
 import VisitBtn from "./_components/visit";
 import FormLinkShare from "./_components/form-link";
 import SubmissionsTable from "./_components/submission-table";
+import { SaveTemplate } from "./_components/save-template";
 
 const FormDetails = async ({ params }: { params: Promise<{ id: string }> }) => {
 	const { id } = await params;
@@ -33,9 +33,12 @@ const FormDetails = async ({ params }: { params: Promise<{ id: string }> }) => {
 					<VisitBtn shareUrl={form.shareURL} />
 				</div>
 			</div>
-			<div className="py-4 border-b border-muted">
-				<div className="container flex gap-2 items-center justify-between">
+			<div className="py-6 border-b border-muted">
+				<div className="container space-y-4">
 					<FormLinkShare shareUrl={form.shareURL} />
+					<div className="flex justify-end">
+						<SaveTemplate formName={form.name} formContent={form.content} />
+					</div>
 				</div>
 			</div>
 			<div className="w-full pt-8 gap-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 container">
