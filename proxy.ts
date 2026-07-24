@@ -1,17 +1,15 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
-import { NextResponse } from "next/server";
 
-// protected routes that require authentication
-const isProtectedRoute = createRouteMatcher([]);
+const isPublicRoute = createRouteMatcher([
+	"/sign-in(.*)",
+	"/sign-up(.*)",
+	"/submit/(.*)",
+]);
 
-export default clerkMiddleware(async (auth, req) => {
-	const { userId, redirectToSignIn } = await auth();
-
-	if (!userId && isProtectedRoute(req)) {
-		return redirectToSignIn();
+export default clerkMiddleware(async (auth, request) => {
+	if (!isPublicRoute(request)) {
+		await auth.protect();
 	}
-
-	return NextResponse.next();
 });
 
 // export default createMiddleware(aj, clerk);
@@ -24,5 +22,3 @@ export const config = {
 		"/(api|trpc)(.*)",
 	],
 };
-
-// export default clerkMiddleware();
