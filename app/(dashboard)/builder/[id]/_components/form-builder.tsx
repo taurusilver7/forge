@@ -33,13 +33,14 @@
  * - DnD errors handled by underlying dnd-kit library
  */
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { Form } from "@prisma/client";
 import Publish from "./publish";
 import Preview from "./preview";
 import Designer from "./designer";
+import PageSidebar from "./page-sidebar";
 import {
 	DndContext,
 	useSensors,
@@ -52,32 +53,24 @@ import useDesigner from "@/hooks/useDesigner";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/use-toast";
-import { UpdateFormContent } from "@/actions/form";
+import { UpdateForm } from "@/actions/form";
 import {
 	ArrowLeftIcon,
 	ArrowRightIcon,
 	ChevronUpIcon,
 	ChevronDownIcon,
 } from "@radix-ui/react-icons";
-import { Loader2 } from "lucide-react";
-import { getUniquePages } from "@/lib/pages";
-import { idGenerator } from "@/lib/id-generator";
+import { Loader2, Save } from "lucide-react";
 
 const Confetti = dynamic(() => import("react-confetti"), { ssr: false });
 
 const FormBuilder = ({ form }: { form: Form }) => {
-	const { elements, setElements, setSelectedElement, undo, redo } =
+	const { elements, setElements, setSelectedElement, undo, redo, pages, setPages, currentPage, setCurrentPage } =
 		useDesigner();
 	const [isReady, setIsReady] = useState<boolean>(false);
 	const [isNavMinimized, setIsNavMinimized] = useState<boolean>(false);
 	const [lastSaved, setLastSaved] = useState<Date>(new Date());
-	const [currentPage, setCurrentPage] = useState("page_0");
-	const [manualPages, setManualPages] = useState<Set<string>>(new Set());
-	const displayedPages = useMemo(() => {
-		const set = new Set(getUniquePages(elements));
-		manualPages.forEach((p) => set.add(p));
-		return Array.from(set);
-	}, [elements, manualPages]);
+	const [saving, setSaving] = useState(false);
 
 	// sensors for dnd-kit (drag-drop) to monitor I/O events (mouse-clicks)
 	const mouseSensor = useSensor(MouseSensor, {
@@ -99,22 +92,26 @@ const FormBuilder = ({ form }: { form: Form }) => {
 		const elements = JSON.parse(form.content);
 		setElements(elements);
 		setSelectedElement(null);
+		if (form.pages) {
+			setPages(JSON.parse(form.pages));
+			const parsed = JSON.parse(form.pages);
+			setCurrentPage(parsed[0]?.id || "page_0");
+		}
 		setIsReady(true);
-	}, [form, setElements, setSelectedElement, isReady]);
+	}, [form, setElements, setSelectedElement, setPages, setCurrentPage, isReady]);
 
-	useEffect(() => {
-		if (!isReady) return;
-		const timer = setTimeout(async () => {
-			const jsonElements = JSON.stringify(elements);
-			try {
-				await UpdateFormContent(form.id, jsonElements);
-				setLastSaved(new Date());
-			} catch {
-				toast({ title: "Auto-save failed", variant: "destructive" });
-			}
-		}, 5000);
-		return () => clearTimeout(timer);
-	}, [elements, isReady, form.id]);
+	const handleSave = async () => {
+		setSaving(true);
+		try {
+			await UpdateForm(form.id, JSON.stringify(elements), JSON.stringify(pages));
+			setLastSaved(new Date());
+			toast({ title: "Saved", description: "Form saved successfully." });
+		} catch {
+			toast({ title: "Save failed", variant: "destructive" });
+		} finally {
+			setSaving(false);
+		}
+	};
 
 	useEffect(() => {
 		const handler = (e: KeyboardEvent) => {
@@ -125,6 +122,7 @@ const FormBuilder = ({ form }: { form: Form }) => {
 			}
 			if ((e.ctrlKey || e.metaKey) && e.key === "s") {
 				e.preventDefault();
+				handleSave();
 			}
 		};
 		window.addEventListener("keydown", handler);
@@ -227,6 +225,10 @@ const FormBuilder = ({ form }: { form: Form }) => {
 
 							{!form.published && (
 								<>
+									<Button variant="secondary" size="sm" onClick={handleSave} disabled={saving}>
+										<Save className="h-4 w-4 mr-1" />
+										{saving ? "Saving..." : "Save"}
+									</Button>
 									<Publish id={form.id} />
 								</>
 							)}
@@ -247,88 +249,11 @@ const FormBuilder = ({ form }: { form: Form }) => {
 					</div>
 				)}
 
-				{/* Display pages tabs */}
-				<div className="flex items-center gap-1 px-4 py-1 border-b bg-muted/30 overflow-x-auto shrink-0">
-					{displayedPages.map((pageId, i) => {
-						const hasElements = getUniquePages(elements).includes(pageId);
-						return (
-							<div key={pageId} className="flex items-center gap-0.5">
-								<Button
-									variant={
-										currentPage === pageId ? "default" : "ghost"
-									}
-									size="sm"
-									onClick={() => setCurrentPage(pageId)}
-									className="whitespace-nowrap"
-								>
-									Page {i + 1}
-								</Button>
-								{displayedPages.length > 1 && (
-									<Button
-										variant="ghost"
-										size="sm"
-										className="h-7 w-7 p-0 text-muted-foreground hover:text-destructive"
-										onClick={() => {
-											if (hasElements) {
-												const idx = displayedPages.indexOf(pageId);
-												const targetPage =
-													idx > 0
-														? displayedPages[idx - 1]
-														: displayedPages[1];
-												setElements((prev) =>
-													prev.map((el) => {
-														if (
-															(el.extraAttributes as any)
-																?.pageId === pageId
-														) {
-															return {
-																...el,
-																extraAttributes: {
-																	...el.extraAttributes,
-																	pageId: targetPage,
-																},
-															};
-														}
-														return el;
-													}),
-												);
-												setCurrentPage(targetPage);
-											} else {
-												setManualPages((prev) => {
-													const next = new Set(prev);
-													next.delete(pageId);
-													return next;
-												});
-												const nextPage =
-													displayedPages.find(
-														(p) => p !== pageId,
-													) || "page_0";
-												setCurrentPage(nextPage);
-											}
-										}}
-									>
-										X
-									</Button>
-								)}
-							</div>
-						);
-					})}
-					<Button
-						variant="ghost"
-						size="sm"
-						onClick={() => {
-							const newId = idGenerator();
-							setManualPages((prev) => new Set([...prev, newId]));
-							setCurrentPage(newId);
-						}}
-					>
-						+ Add Page
-					</Button>
-				</div>
-
-				<div className="relative flex-1 min-h-0  overflow-hidden w-full items-center justify-center bg-accent bg-[url(/paper.svg)] dark:bg-[url(/paper-dark.svg)]">
-					{/* Form Editor */}
-					<Designer currentPage={currentPage} />
+				<div className="flex flex-1 min-h-0 overflow-hidden">
+					<PageSidebar />
+					<div className="relative flex-1 min-h-0 overflow-hidden items-center justify-center bg-accent bg-[url(/paper.svg)] dark:bg-[url(/paper-dark.svg)]">
+						<Designer currentPage={currentPage} />
+					</div>
 				</div>
 			</main>
 			<DragOverlayWrapper />
