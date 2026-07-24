@@ -121,6 +121,19 @@ export async function UpdateFormContent(id: string, jsonContent: string) {
 	return response;
 }
 
+export async function UpdateForm(id: string, content: string, pages: string) {
+	const { userId } = await auth();
+	if (!userId) redirect("/sign-in");
+
+	const response = await db.form.updateMany({
+		where: { id, userId },
+		data: { content, pages },
+	});
+
+	if (response.count === 0) throw new Error("Form not found!");
+	return response;
+}
+
 export async function PublishForm(id: string) {
 	const { userId } = await auth();
 	if (!userId) {
