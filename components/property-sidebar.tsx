@@ -4,6 +4,7 @@ import { FormElements } from "./form-elements";
 import { Button } from "./ui/button";
 import { Cross1Icon } from "@radix-ui/react-icons";
 import { Separator } from "./ui/separator";
+import { ConditionEditor } from "./condition-editor";
 
 const PropertyFormSidebar = () => {
 	const { selectedElement, setSelectedElement } = useDesigner();
@@ -28,6 +29,8 @@ const PropertyFormSidebar = () => {
 			</div>
 			<Separator className="mb-4" />
 			<PropertiesForm elementInstance={selectedElement} />
+			<Separator className="my-4" />
+			<ConditionEditor element={selectedElement} />
 		</div>
 	);
 };

@@ -79,6 +79,7 @@ import { EmailFieldFormElement } from "./fields/email-field";
 import { PhoneFieldFormElement } from "./fields/phone-field";
 import { RatingFieldFormElement } from "./fields/star-rating";
 import { SliderFieldFormElement } from "./fields/slider-field";
+import { ChoiceFieldFormElement } from "./fields/choice-field";
 
 export type ElementType =
 	| "TextField"
@@ -96,7 +97,8 @@ export type ElementType =
 	| "EmailField"
 	| "PhoneField"
 	| "RatingField"
-	| "SliderField";
+	| "SliderField"
+	| "ChoiceField";
 
 export type FormElementInstance = {
 	id: string;
@@ -152,6 +154,14 @@ export const FormElements: FormElementType = {
 	PhoneField: PhoneFieldFormElement,
 	RatingField: RatingFieldFormElement,
 	SliderField: SliderFieldFormElement,
+	ChoiceField: ChoiceFieldFormElement,
+};
+
+export type Condition = {
+	fieldId: string;
+	operator: "equals" | "not_equals" | "contains" | "empty" | "not_empty";
+	value: string;
+	action: "show" | "hide";
 };
 
 export type SubmitFunction = (key: string, value: string) => void;
