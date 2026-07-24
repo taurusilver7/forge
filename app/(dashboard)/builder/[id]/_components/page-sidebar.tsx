@@ -40,7 +40,7 @@ export default function PageSidebar() {
   if (pages.length === 0) return null;
 
   return (
-    <div className="flex flex-col gap-0.5 w-auto min-w-[120px] max-w-[200px] border-r bg-muted/20 p-2 overflow-y-auto shrink-0">
+    <div className="flex flex-col gap-0.5 w-auto min-w-32 max-w-[200px] border-r bg-muted/20 p-2 overflow-y-auto shrink-0">
       {pages.map((page, i) => (
         <div
           key={page.id}
