@@ -8,11 +8,15 @@ import {
 	DialogTrigger,
 } from "@/components/ui/dialog";
 import useDesigner from "@/hooks/useDesigner";
+import { getUniquePages, getPageElements } from "@/lib/pages";
 import { TableIcon } from "@radix-ui/react-icons";
-import React from "react";
+import React, { useState } from "react";
 
 const Preview = () => {
 	const { elements } = useDesigner();
+	const [pageIndex, setPageIndex] = useState(0);
+	const pages = getUniquePages(elements);
+	const currentPageElements = getPageElements(elements, pages[pageIndex]);
 	return (
 		<Dialog>
 			<DialogTrigger asChild>
@@ -33,7 +37,15 @@ const Preview = () => {
 				<div className="overflow-y-auto flex flex-col p-4 flex-grow items-center justify-center bg-accent bg-[url(/paper.svg)] dark:bg-[url(/paper-dark.svg)]">
 					{/* form preview */}
 					<div className="flex flex-col flex-grow max-w-2xl mx-auto gap-4 bg-background h-full w-full rounded-2xl overflow-y-auto p-8">
-						{elements.map((element) => {
+						{pages.length > 1 && (
+							<div className="w-full bg-secondary h-2 rounded-full">
+								<div
+									className="bg-primary h-2 rounded-full transition-all"
+									style={{ width: `${((pageIndex + 1) / pages.length) * 100}%` }}
+								/>
+							</div>
+						)}
+						{currentPageElements.map((element) => {
 							const FormComponent =
 								FormElements[element.type].formComponent;
 							return (
@@ -43,6 +55,21 @@ const Preview = () => {
 								/>
 							);
 						})}
+						{pages.length > 1 && (
+							<div className="flex justify-between mt-8">
+								{pageIndex > 0 && (
+									<Button variant="outline" onClick={() => setPageIndex(i => i - 1)}>
+										Back
+									</Button>
+								)}
+								<div className="flex-1" />
+								{pageIndex < pages.length - 1 && (
+									<Button onClick={() => setPageIndex(i => i + 1)}>
+										Next
+									</Button>
+								)}
+							</div>
+						)}
 					</div>
 				</div>
 			</DialogContent>

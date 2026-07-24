@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { RocketIcon, UploadIcon } from "@radix-ui/react-icons";
+import { RocketIcon } from "@radix-ui/react-icons";
 import React, { useTransition } from "react";
 import {
 	AlertDialog,
@@ -12,17 +12,21 @@ import {
 	AlertDialogTitle,
 	AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { FaSpinner } from "react-icons/fa";
+import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { PublishForm } from "@/actions/form";
+import { PublishForm, UpdateFormContent } from "@/actions/form";
+import useDesigner from "@/hooks/useDesigner";
 import { toast } from "@/components/ui/use-toast";
 
 const Publish = ({ id }: { id: string }) => {
 	const [loading, startTransition] = useTransition();
 	const router = useRouter();
+	const { elements } = useDesigner();
 
 	const publishForm = async () => {
 		try {
+			const jsonElements = JSON.stringify(elements);
+			await UpdateFormContent(id, jsonElements);
 			await PublishForm(id);
 			toast({
 				title: "Form Published",
@@ -70,7 +74,7 @@ const Publish = ({ id }: { id: string }) => {
 						}}
 					>
 						Publish
-						{loading && <FaSpinner className="animate-spin" />}
+						{loading && <Loader2 className="animate-spin" />}
 					</AlertDialogAction>
 				</AlertDialogFooter>
 			</AlertDialogContent>
