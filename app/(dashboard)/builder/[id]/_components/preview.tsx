@@ -1,5 +1,8 @@
 "use client";
 
+import { useState } from "react";
+
+import { Monitor, Smartphone, TableIcon } from "lucide-react";
 import { FormElements } from "@/components/form-elements";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,8 +14,6 @@ import {
 } from "@/components/ui/dialog";
 import useDesigner from "@/hooks/useDesigner";
 import { getPageElements } from "@/lib/pages";
-import { Monitor, Smartphone, TableIcon } from "lucide-react";
-import React, { useState } from "react";
 
 type ViewMode = "desktop" | "mobile";
 
@@ -61,7 +62,7 @@ const Preview = () => {
         </Button>
       </DialogTrigger>
       <DialogContent className="w-screen h-screen max-h-screen max-w-full flex flex-col flex-grow p-0 gap-0">
-        <div className="flex items-center px-4 py-2 border-b shrink-0">
+        <div className="flex items-center px-8 py-2 border-b shrink-0">
           <div className="flex-1">
             <DialogTitle className="text-lg font-bold text-muted-foreground">
               Form preview
@@ -112,4 +113,5 @@ const Preview = () => {
 };
 
 export default Preview;
+
 // ponytail: view toggle via state + CSS frames; no separate mobile/desktop components
