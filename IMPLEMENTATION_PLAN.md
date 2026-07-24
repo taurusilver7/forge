@@ -22,33 +22,59 @@ avoid. If a task says "one line", do not add more.
 
 > Fix the 7 bugs that make the existing 15% unreliable. No new features.
 
-### 0.1 — Fix middleware filename
+### 0.1 — Fix proxy.ts route matcher + auth pattern
 
-**Problem:** Next.js requires `middleware.ts` at root. File is named `proxy.ts`.
-Next.js ignores it. Auth relies entirely on server-action redirects (non-standard,
-bypassable).
+**Problem:** `proxy.ts:5` has `createRouteMatcher([])` — empty array, matches
+nothing. No route is protected at the proxy level. Auth relies entirely on
+server-action redirects inside each action. Additionally uses
+`redirectToSignIn()` (Clerk v6 pattern) instead of `await auth.protect()`
+(Clerk v7).
 
-**Change:** Rename `proxy.ts` → `middleware.ts`
+**Important:** On Next.js 16+, the network-boundary file is `proxy.ts`,
+not `middleware.ts`. Next.js 16 deprecated `middleware.ts` in favor of
+`proxy.ts` (see: https://nextjs.org/docs/messages/middleware-to-proxy).
+Clerk v7 docs confirm: *"Name the middleware file by the `next` version:
+`proxy.ts` on Next.js 16+, `middleware.ts` on 15 and below."*
+(https://clerk.com/docs/nextjs/getting-started/quickstart)
 
-```
-F:\JAVASCRIPT\JS\prisma\forge\proxy.ts  →  F:\JAVASCRIPT\JS\prisma\forge\middleware.ts
-```
+Do NOT rename the file. Fix the content instead.
 
-**Pitfall:** After rename, the empty `createRouteMatcher([])` means middleware runs
-but protects nothing. Fix the matcher in the same change:
+**Change** — replace entire `proxy.ts` content:
 
 ```ts
-// middleware.ts:5  —  replace empty matcher
-const isProtectedRoute = createRouteMatcher([
-  "/(.*)",                // protect everything
-  "!/sign-in(.*)",        // except sign-in
-  "!/sign-up(.*)",        // except sign-up
-  "!/submit/(.*)",        // except public form submission
+import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+
+const isPublicRoute = createRouteMatcher([
+  "/sign-in(.*)",
+  "/sign-up(.*)",
+  "/submit/(.*)",
 ]);
+
+export default clerkMiddleware(async (auth, request) => {
+  if (!isPublicRoute(request)) {
+    await auth.protect();
+  }
+});
+
+export const config = {
+  matcher: [
+    "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
+    "/(api|trpc)(.*)",
+  ],
+};
 ```
 
-**One file, 2-line change.** Test by visiting `/` unauthenticated — should redirect
-to `/sign-in`.
+**What changed:**
+- `createRouteMatcher([])` → `createRouteMatcher(["/sign-in(.*)", "/sign-up(.*)", "/submit/(.*)"])` with public routes whitelisted
+- `redirectToSignIn()` + manual userId check → `await auth.protect()` (Clerk v7 pattern)
+- Removed dead commented-out exports
+
+**One file.** Test by visiting `/` unauthenticated — should redirect to `/sign-in`.
+
+**Pitfall:** `NEXT_PUBLIC_CLERK_SIGN_IN_URL` must be set correctly or
+`auth.protect()` can't find the sign-in page. In monorepo setups, env vars
+may not propagate to the proxy runtime — verify with a quick test.
+See https://github.com/clerk/javascript/issues/8302
 
 ### 0.2 — Increment form.submissions on submit
 
@@ -177,6 +203,99 @@ import { SliderFieldFormElement } from "@/components/fields/slider-field";
 ```
 
 **2 lines.** Match the existing pattern of other field entries.
+
+---
+
+## Database Schema — What to change (across all phases)
+
+> Ponytail principle: don't touch the DB unless forced. JSON `content` field
+> already stores everything (conditions, pageId, tracking). Only 2 changes
+> needed across all 6 phases.
+
+### Current schema
+
+```prisma
+model Form {
+  id            String           @id @default(uuid())
+  userId        String
+  published     Boolean          @default(false)
+  name          String
+  description   String           @default("")
+  content       String           @default("[]")
+  visits        Int              @default(0)
+  submissions   Int              @default(0)
+  shareURL      String           @unique @default(uuid())
+  FormSubmission FormSubmission[]
+  createdAt     DateTime         @default(now())
+  @@unique([name, userId])
+}
+
+model FormSubmission {
+  id        String   @id @default(uuid())
+  formId    String
+  form      Form     @relation(fields: [formId], references: [id])
+  content   String
+  createdAt DateTime @default(now())
+}
+```
+
+### Change A — Remove `@@unique([name, userId])`
+
+```diff
+- @@unique([name, userId])
+```
+
+**Why:** When a user creates two forms with the same name, Prisma throws a raw
+unique constraint error with no user-facing message. The app never catches it.
+Users see a generic "Something went wrong" toast. Removing the constraint is
+safe — duplicate names don't break anything and users can rename later.
+
+`ponytail: remove constraint over duplicate-name UX dialog; add client-side
+name dedup if users actually hit this.`
+
+### Change B — Optional `lastPageReached` on FormSubmission (Phase 5)
+
+```diff
+model FormSubmission {
+   id        String   @id @default(uuid())
+   formId    String
+   form      Form     @relation(fields: [formId], references: [id])
+   content   String
++  lastPageReached Int  @default(0)
+   createdAt DateTime @default(now())
+}
+```
+
+**Ponytail says:** Defer this. Store `lastPageReached` inside the `content`
+JSON blob instead (`{ ...formValues, lastPageReached: 3 }`). Only add the
+DB column when you need to query it across thousands of submissions and JSON
+extraction becomes a bottleneck.
+
+`ponytail: lastPageReached in content JSON; DB column once you query it
+separately from form values.`
+
+### What about templates? (Phase 4)
+
+Static JSON file only. No DB model:
+
+```ts
+// lib/templates.ts — static, no migration, no Prisma
+// Each entry: { id, name, description, category, elements }
+```
+
+`ponytail: static JSON; FormTemplate model when users contribute templates.`
+
+### Schema change summary
+
+| Phase | Change | Required? | Lines |
+|-------|--------|-----------|-------|
+| 0 | Remove `@@unique([name, userId])` | Yes — prevents silent 500s | 1 delete |
+| 0 | Fix `proxy.ts` logic (not filename) | Yes — auth broken | ~15 lines |
+| 1-4 | None | N/A | 0 |
+| 5 | `lastPageReached` column | Defer to JSON blob | 0 for now |
+| 6 | None | N/A | 0 |
+
+**Total required schema changes: 1 line deleted.** Everything else fits in JSON.
 
 ---
 
@@ -347,7 +466,8 @@ In `components/form-submit.tsx:89-100`, before rendering each element:
 
 ```tsx
 {content.map((element) => {
-  const cond = (element.extraAttributes as any)?.condition;
+  const cond = (element.extraAttributes as any)?.c
+  ondition;
   if (cond) {
     const depValue = formValues.current[cond.fieldId] || "";
     const depField = content.find((f) => f.id === cond.fieldId);
@@ -843,9 +963,12 @@ recharts, any CSS framework beyond Tailwind.
    `"use client"` and not rendered on the server. `idGenerator` is only used
    in client components — verified safe.
 
-8. **`proxy.ts` vs `middleware.ts`** — Next.js ONLY reads `middleware.ts` (or
-   `.js`/`.mjs`) from the project root. Any other name is silently ignored.
-   This is not documented as configurable.
+8. **`proxy.ts` vs `middleware.ts`** — Next.js 16+ renamed the file convention
+   from `middleware.ts` to `proxy.ts` (https://nextjs.org/docs/messages/middleware-to-proxy).
+   Clerk v7 follows this: *"proxy.ts on Next.js 16+, middleware.ts on 15 and below."*
+   On Next.js 16, `proxy.ts` is the only recognized name. Do NOT rename it to
+   `middleware.ts` — that would be silently ignored. The current `proxy.ts`
+   filename is correct; only the route matcher logic inside it needs fixing.
 
 ## Appendix D: After Implementation Checklist
 
