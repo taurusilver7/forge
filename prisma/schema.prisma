@@ -23,6 +23,13 @@ model Form {
   visits      Int @default(0)
   submissions Int @default(0)
 
+  passwordHash              String?
+  thankYouMessage           String?
+  redirectUrl               String?
+  closeDate                 DateTime?
+  submissionLimit           Int?
+  hasDuplicateProtection    Boolean   @default(false)
+
   shareURL       String           @unique @default(uuid())
   FormSubmission FormSubmission[]
 
