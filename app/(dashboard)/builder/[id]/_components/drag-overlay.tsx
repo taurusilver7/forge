@@ -44,7 +44,7 @@ const DragOverlayWrapper = () => {
 
 	useDndMonitor({
 		onDragStart: (event) => {
-			// console.log("Drag ITEM", event);
+
 			setDraggedItem(event.active);
 		},
 		onDragEnd: () => {
@@ -70,9 +70,7 @@ const DragOverlayWrapper = () => {
 	const isDesignerElement: boolean =
 		draggedItem?.data?.current?.isDesignerElement;
 
-	// console.log("draggedItem", draggedItem);
-	// console.log("isSidebarElement", isSidebarElement);
-	// console.log("isDesignerElement", isDesignerElement);
+
 
 	if (isDesignerElement) {
 		const elementId = draggedItem?.data?.current?.elementId;
