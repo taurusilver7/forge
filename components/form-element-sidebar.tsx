@@ -8,7 +8,7 @@ const FormElementSidebar = () => {
 		<div className="">
 			<p className="text-sm text-foreground/20">Drag & Drop Elements</p>
 			<Separator className="my-2" />
-			<div className="grid grid-cols-1 md:grid-cols-2 gap-2 place-items-center">
+			<div className="grid grid-cols-1 gap-1">
 				<p className="text-sm text-muted-foreground col-span-1 md:col-span-2 my-2 place-self-start">
 					Layout Elements
 				</p>
@@ -30,6 +30,8 @@ const FormElementSidebar = () => {
 				<SidebarElement formElement={FormElements.EmailField} />
 				<SidebarElement formElement={FormElements.PhoneField} />
 				<SidebarElement formElement={FormElements.RatingField} />
+				<SidebarElement formElement={FormElements.SliderField} />
+				<SidebarElement formElement={FormElements.ChoiceField} />
 			</div>
 		</div>
 	);

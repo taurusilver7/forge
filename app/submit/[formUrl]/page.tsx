@@ -1,7 +1,13 @@
+import { Metadata } from 'next';
 import { GetFormContentByUrl } from '@/actions/form';
 import { FormElementInstance } from '@/components/form-elements';
 import FormSubmit from '@/components/form-submit';
-import React from 'react'
+
+export async function generateMetadata({ params }: { params: Promise<{ formUrl: string }> }): Promise<Metadata> {
+	const { formUrl } = await params;
+	const form = await GetFormContentByUrl(formUrl);
+	return { title: form?.name || "Submit Form" };
+}
 
 const SubmitPage = async ({ params }: { params: Promise<{ formUrl: string }> }) => {
   const {formUrl} = await params;
@@ -12,7 +18,7 @@ const SubmitPage = async ({ params }: { params: Promise<{ formUrl: string }> }) 
 	}
 
 	const formContent = JSON.parse(form?.content) as FormElementInstance[];
-	return <FormSubmit formUrl={formUrl} content={formContent} />;
+	return <FormSubmit formUrl={formUrl} formName={form.name} content={formContent} />;
 };
 
 export default SubmitPage

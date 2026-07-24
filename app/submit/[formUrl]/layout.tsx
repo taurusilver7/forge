@@ -1,30 +1,13 @@
 import React from "react";
-import Logo from "@/components/logo";
 import ThemeSwitcher from "@/components/theme-switcher";
-import { Metadata } from "next";
-
-export const metadata: Metadata = {
-	title: "Submit | Forge",
-	description: "A full-stack form building SaaS",
-	icons: {
-		icon: [
-			{
-				href: "/logo.svg",
-				url: "/logo.svg",
-			},
-		],
-	},
-};
 
 const SubmitLayout = ({ children }: { children: React.ReactNode }) => {
 	return (
-		<div className="flex flex-col  min-h-screen min-w-full bg-background max-h-screen h-screen">
-			<nav className="flex justify-between items-center border-b border-border h-[60px] px-4 py-2">
-				<Logo />
-
+		<div className="min-h-screen min-w-full bg-muted/30">
+			<div className="fixed top-4 right-4 z-50">
 				<ThemeSwitcher />
-			</nav>
-			<main className="flex w-full flex-grow">{children}</main>
+			</div>
+			<main className="flex justify-center w-full">{children}</main>
 		</div>
 	);
 };
