@@ -96,10 +96,10 @@ type CustomInstance = FormElementInstance & {
 };
 
 const propertiesSchema = z.object({
-	label: z.string().min(2).max(50),
+	label: z.string().min(2).max(250),
 	helperText: z.string().max(200),
 	required: z.boolean().default(false),
-	placeholder: z.string().max(50),
+	placeholder: z.string().max(150),
 	minDigits: z.union([z.number().int().min(1), z.nan()]).optional(),
 	maxDigits: z.union([z.number().int().min(1), z.nan()]).optional(),
 });

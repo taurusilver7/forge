@@ -80,7 +80,7 @@ import {
 } from "../ui/form";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { LuSeparatorHorizontal } from "react-icons/lu";
+import { SeparatorHorizontal } from "lucide-react";
 import { Slider } from "../ui/slider";
 import { SpaceBetweenVerticallyIcon } from "@radix-ui/react-icons";
 
@@ -103,7 +103,7 @@ export const SpacerFieldFormElement: FormElement = {
 	construct: (id: string) => ({
 		id,
 		type,
-		extraAttributes,
+		extraAttributes: { ...extraAttributes },
 	}),
 	designerBtnElement: {
 		icon: SpaceBetweenVerticallyIcon,
@@ -128,7 +128,7 @@ function DesignerComponent({
 			<Label className="flex flex-col gap-2 w-full">
 				Spacing: {height}px
 			</Label>
-			<LuSeparatorHorizontal className="h-8 w-8" />
+			<SeparatorHorizontal className="h-8 w-8" />
 		</div>
 	);
 }
@@ -169,11 +169,11 @@ function PropertiesComponent({
 	}, [element, form]);
 
 	function applyChanges(values: propertiesSchemaType) {
-		const { height } = values;
 		updateElement(element.id, {
 			...element,
 			extraAttributes: {
-				height,
+				...element.extraAttributes,
+				...values,
 			},
 		});
 	}

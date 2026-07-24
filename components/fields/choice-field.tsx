@@ -1,45 +1,3 @@
-/**
- * SelectField Component — Dropdown Single-Select
- *
- * PURPOSE:
- * A dropdown menu that lets the user pick one option from a configured list.
- * Suitable for country selectors, category pickers, job title dropdowns, or
- * any form element where the set of valid values is finite and known in advance.
- * Use CheckboxField for boolean choices; use SelectField for 3+ mutually
- * exclusive options.
- *
- * STRUCTURE:
- * Exports `SelectFieldFormElement`, a FormElement implementation containing:
- *
- * 1. METADATA & CONFIGURATION
- *    - type: "SelectField"
- *    - extraAttributes: label, helperText, required, placeholder, options (string[])
- *    - construct(): Factory — clones extraAttributes to prevent shared-reference mutation
- *
- * 2. DESIGNER COMPONENT (DesignerComponent)
- *    - Renders a disabled <Select> showing the placeholder
- *    - Lists the number of options configured below the control
- *
- * 3. FORM COMPONENT (FormComponent)
- *    - Interactive shadcn <Select> with all configured options
- *    - Calls submitValue() on selection change
- *    - Validates that a non-placeholder option is selected when required = true
- *
- * 4. PROPERTIES COMPONENT (PropertiesComponent)
- *    - Editable: label, helperText, required, placeholder, options list
- *    - Options list supports add / remove / reorder via drag-and-drop or +/− controls
- *
- * 5. VALIDATION LOGIC
- *    - validate(): returns false when required + value is empty or equals placeholder
- *
- * ATTRIBUTE SCHEMA:
- * - label: string (2–50) — field label displayed above the dropdown
- * - helperText: string (max 200) — description below the dropdown
- * - required: boolean — whether a selection is mandatory
- * - placeholder: string (max 50) — default "choose an option" text
- * - options: string[] — list of selectable values (max 50 items)
- */
-
 "use client";
 
 import {
@@ -48,7 +6,7 @@ import {
 	FormElementInstance,
 	SubmitFunction,
 } from "@/components/form-elements";
-import { DropdownMenuIcon, TextIcon } from "@radix-ui/react-icons";
+import { ListOrdered } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -67,26 +25,19 @@ import {
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Switch } from "../ui/switch";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "../ui/select";
 import { Separator } from "../ui/separator";
 import { Button } from "../ui/button";
 import { Plus, X } from "lucide-react";
-import { toast } from "../ui/use-toast";
 
-const type: ElementType = "SelectField";
+const type: ElementType = "ChoiceField";
 
 const extraAttributes = {
-	label: "Select Field",
+	label: "Choice Field",
 	helperText: "Helper Text",
 	required: false,
-	placeholder: "Value here...",
-	options: [],
+	placeholder: "Type your answer",
+	options: [] as string[],
+	allowOther: false,
 };
 
 const propertiesSchema = z.object({
@@ -95,23 +46,26 @@ const propertiesSchema = z.object({
 	required: z.boolean().default(false),
 	placeholder: z.string().max(150),
 	options: z.array(z.string()).default([]),
+	allowOther: z.boolean().default(false),
 });
 
 type CustomInstance = FormElementInstance & {
 	extraAttributes: typeof extraAttributes;
 };
 
-export const SelectFieldFormElement: FormElement = {
+const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+export const ChoiceFieldFormElement: FormElement = {
 	type,
 
 	construct: (id: string) => ({
 		id,
 		type,
-		extraAttributes: { ...extraAttributes },
+		extraAttributes: { ...extraAttributes, options: [] },
 	}),
 	designerBtnElement: {
-		icon: DropdownMenuIcon,
-		label: "Select Field",
+		icon: ListOrdered,
+		label: "Choice Field",
 	},
 	designerComponent: DesignerComponent,
 	formComponent: FormComponent,
@@ -135,18 +89,37 @@ function DesignerComponent({
 	elementInstance: FormElementInstance;
 }) {
 	const element = elementInstance as CustomInstance;
-	const { label, placeholder, required, helperText } = element.extraAttributes;
+	const { label, required, helperText, options, allowOther } = element.extraAttributes;
 	return (
 		<div className="flex flex-col gap-2 w-full">
 			<Label>
 				{label}
 				{required && "*"}
 			</Label>
-			<Select>
-				<SelectTrigger className="w-full">
-					<SelectValue placeholder={placeholder} />
-				</SelectTrigger>
-			</Select>
+			<div className="flex flex-col gap-1.5">
+				{options.map((opt, i) => (
+					<div
+						key={i}
+						className="flex items-center gap-2 px-3 py-2 rounded-md border border-border bg-background text-sm"
+					>
+						<span className="text-muted-foreground text-xs font-semibold w-5 shrink-0">
+							{letters[i % 26]}.
+						</span>
+						{opt}
+					</div>
+				))}
+				{allowOther && (
+					<div className="flex items-center gap-2 px-3 py-2 rounded-md border border-border bg-background text-sm text-muted-foreground">
+						<span className="text-xs font-semibold w-5 shrink-0">
+							{letters[options.length % 26]}.
+						</span>
+						Other
+					</div>
+				)}
+				{options.length === 0 && !allowOther && (
+					<p className="text-xs text-muted-foreground">No options configured</p>
+				)}
+			</div>
 			{helperText && (
 				<p className="text-muted-foreground text-xs">{helperText}</p>
 			)}
@@ -168,43 +141,110 @@ function FormComponent({
 	defaultValue,
 }: FormComponentProps) {
 	const element = elementInstance as CustomInstance;
-	const [value, setValue] = useState<string>(defaultValue || "");
+	const [selected, setSelected] = useState<string>(defaultValue || "");
+	const [otherText, setOtherText] = useState("");
 	const [error, setError] = useState(false);
 
 	useEffect(() => {
 		setError(isInvalid === true);
 	}, [isInvalid]);
 
-	const { label, required, helperText, placeholder, options } =
+	const { label, required, helperText, placeholder, options, allowOther } =
 		element.extraAttributes;
+
+	const isOtherSelected = allowOther && selected === "__other__";
+
+	const emitValue = (val: string) => {
+		if (!submitValue) return;
+		const valid = ChoiceFieldFormElement.validate(element, val);
+		setError(!valid);
+		submitValue(element.id, val);
+	};
+
+	const handleSelect = (opt: string) => {
+		setSelected(opt);
+		setError(false);
+		if (opt !== "__other__") {
+			emitValue(opt);
+		} else {
+			emitValue(otherText || "");
+		}
+	};
+
+	const handleOtherChange = (val: string) => {
+		setOtherText(val);
+		setError(false);
+		emitValue(val);
+	};
+
 	return (
 		<div className="flex flex-col gap-2 w-full">
 			<Label className={cn(error && "text-red-500")}>
 				{label}
 				{required && "*"}
 			</Label>
-			<Select
-				defaultValue={value}
-				onValueChange={(value) => {
-					setValue(value);
-					if (!submitValue) return;
-
-					const valid = SelectFieldFormElement.validate(element, value);
-					setError(!valid);
-					submitValue(element.id, value);
-				}}
-			>
-				<SelectTrigger className={cn("w-full", error && "border-red-500")}>
-					<SelectValue placeholder={placeholder} />
-				</SelectTrigger>
-				<SelectContent>
-					{options?.map((option) => (
-						<SelectItem key={option} value={option}>
-							{option}
-						</SelectItem>
-					))}
-				</SelectContent>
-			</Select>
+			<div className="flex flex-col gap-1.5">
+				{options.map((opt, i) => {
+					const isActive = selected === opt;
+					return (
+						<button
+							key={i}
+							type="button"
+							onClick={() => handleSelect(opt)}
+							className={cn(
+								"flex items-center gap-2 px-3 py-2 rounded-md border text-sm text-left transition-colors cursor-pointer",
+								isActive
+									? "border-primary bg-primary/10 text-primary"
+									: "border-border bg-background hover:border-primary/50",
+								error && "border-red-500",
+							)}
+						>
+							<span
+								className={cn(
+									"text-xs font-semibold w-5 shrink-0",
+									isActive ? "text-primary" : "text-muted-foreground",
+								)}
+							>
+								{letters[i % 26]}.
+							</span>
+							{opt}
+						</button>
+					);
+				})}
+				{allowOther && (
+					<>
+						<button
+							type="button"
+							onClick={() => handleSelect("__other__")}
+							className={cn(
+								"flex items-center gap-2 px-3 py-2 rounded-md border text-sm text-left transition-colors cursor-pointer",
+								isOtherSelected
+									? "border-primary bg-primary/10 text-primary"
+									: "border-border bg-background hover:border-primary/50",
+							)}
+						>
+							<span
+								className={cn(
+									"text-xs font-semibold w-5 shrink-0",
+									isOtherSelected ? "text-primary" : "text-muted-foreground",
+								)}
+							>
+								{letters[options.length % 26]}.
+							</span>
+							Other
+						</button>
+						{isOtherSelected && (
+							<Input
+								placeholder={placeholder}
+								value={otherText}
+								onChange={(e) => handleOtherChange(e.target.value)}
+								className={cn(error && "border-red-500")}
+								autoFocus
+							/>
+						)}
+					</>
+				)}
+			</div>
 			{helperText && (
 				<p
 					className={cn(
@@ -227,16 +267,17 @@ function PropertiesComponent({
 }) {
 	const element = elementInstance as CustomInstance;
 
-	const { updateElement, setSelectedElement } = useDesigner();
+	const { updateElement } = useDesigner();
 	const form = useForm<propertiesSchemaType>({
 		resolver: zodResolver(propertiesSchema),
-		mode: "onSubmit",
+		mode: "onBlur",
 		defaultValues: {
 			label: element.extraAttributes.label,
 			helperText: element.extraAttributes.helperText,
 			required: element.extraAttributes.required,
 			placeholder: element.extraAttributes.placeholder,
 			options: element.extraAttributes.options,
+			allowOther: element.extraAttributes.allowOther,
 		},
 	});
 
@@ -252,17 +293,17 @@ function PropertiesComponent({
 				...values,
 			},
 		});
-
-		toast({
-			title: "success",
-			description: "Properties saved successfully",
-		});
-		setSelectedElement(null);
 	}
 
 	return (
 		<Form {...form}>
-			<form className="space-y-3" onSubmit={form.handleSubmit(applyChanges)}>
+			<form
+				className="space-y-3"
+				onBlur={form.handleSubmit(applyChanges)}
+				onSubmit={(e) => {
+					e.preventDefault();
+				}}
+			>
 				<FormField
 					control={form.control}
 					name="label"
@@ -299,7 +340,9 @@ function PropertiesComponent({
 									}}
 								/>
 							</FormControl>
-
+							<FormDescription>
+								Placeholder for the "Other" input
+							</FormDescription>
 							<FormMessage />
 						</FormItem>
 					)}
@@ -319,6 +362,27 @@ function PropertiesComponent({
 								/>
 							</FormControl>
 
+							<FormMessage />
+						</FormItem>
+					)}
+				/>
+				<FormField
+					control={form.control}
+					name="allowOther"
+					render={({ field }) => (
+						<FormItem className="flex items-center justify-between rounded-lg border p-3 shadow-sm">
+							<div className="space-y-0.5">
+								<FormLabel>Allow "Other"</FormLabel>
+								<FormDescription>
+									Adds an "Other" option with a custom text input
+								</FormDescription>
+							</div>
+							<FormControl>
+								<Switch
+									checked={field.value}
+									onCheckedChange={field.onChange}
+								/>
+							</FormControl>
 							<FormMessage />
 						</FormItem>
 					)}
@@ -388,10 +452,6 @@ function PropertiesComponent({
 						<FormItem className="flex items-center justify-between rounded-lg border p-3 shadow-sm">
 							<div className="space-y-0.5">
 								<FormLabel>Required</FormLabel>
-								<FormDescription>
-									The helper text of the field. <br />
-									It will be displayed below the field.
-								</FormDescription>
 							</div>
 							<FormControl>
 								<Switch
@@ -403,11 +463,8 @@ function PropertiesComponent({
 						</FormItem>
 					)}
 				/>
-				<Separator />
-				<Button className="w-full" type="submit">
-					Save
-				</Button>
 			</form>
 		</Form>
 	);
 }
+// ponytail: letters array caps at 26 options; extend if >26 needed

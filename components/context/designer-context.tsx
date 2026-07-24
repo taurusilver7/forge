@@ -29,7 +29,7 @@
  * - updateElement safely finds element by ID before updating (prevents crashes on invalid IDs)
  */
 
-import { createContext, useState, Dispatch, SetStateAction } from "react";
+import { createContext, useState, useCallback, Dispatch, SetStateAction } from "react";
 import { FormElementInstance } from "../form-elements";
 
 type DesignerContextType = {
@@ -42,6 +42,8 @@ type DesignerContextType = {
 	setSelectedElement: Dispatch<SetStateAction<FormElementInstance | null>>;
 
 	updateElement: (id: string, element: FormElementInstance) => void;
+	undo: () => void;
+	redo: () => void;
 };
 
 export const DesignerContext = createContext<DesignerContextType | null>(null);
@@ -54,45 +56,49 @@ export default function DesignerContextProvider({
 	const [elements, setElements] = useState<FormElementInstance[]>([]);
 	const [selectedElement, setSelectedElement] =
 		useState<FormElementInstance | null>(null);
+	const [history, setHistory] = useState<FormElementInstance[][]>([]);
+	const [historyIndex, setHistoryIndex] = useState(-1);
 
-	const addElement = (index: number, element: FormElementInstance) => {
+	const pushHistory = useCallback((prevElements: FormElementInstance[]) => {
+		setHistory((h) => [...h.slice(0, historyIndex + 1), prevElements]);
+		setHistoryIndex((i) => i + 1);
+	}, [historyIndex]);
+
+	const addElement = useCallback((index: number, element: FormElementInstance) => {
+		pushHistory(elements);
 		setElements((prev) => {
 			const newElements = [...prev];
 			newElements.splice(index, 0, element);
 			return newElements;
 		});
-	};
+	}, [elements, pushHistory]);
 
-	const removeElement = (id: string) => {
-		// console.log("Removing element", id);
-		setElements(
-			(prev) => prev.filter((element) => element.id !== id)
+	const removeElement = useCallback((id: string) => {
+		pushHistory(elements);
+		setElements((prev) => prev.filter((element) => element.id !== id));
+	}, [elements, pushHistory]);
 
-			/*
-			Alternate method to filter out tte selected element to remove.
-				{
-				const newElements = [...prev];
-				const index = newElements.findIndex((e) => e.id === id);
-
-				if (index !== -1) {
-					newElements.splice(index, 1);
-				}
-
-				return newElements;
-			}
-			*/
-		);
-	};
-
-	// designed for the properties field form
-	const updateElement = (id: string, element: FormElementInstance) => {
+	const updateElement = useCallback((id: string, element: FormElementInstance) => {
+		pushHistory(elements);
 		setElements((prev) => {
 			const newElements = [...prev];
 			const index = newElements.findIndex((el) => el.id === id);
 			newElements[index] = element;
 			return newElements;
 		});
-	};
+	}, [elements, pushHistory]);
+
+	const undo = useCallback(() => {
+		if (historyIndex < 0) return;
+		setElements(history[historyIndex]);
+		setHistoryIndex((i) => i - 1);
+	}, [history, historyIndex]);
+
+	const redo = useCallback(() => {
+		if (historyIndex >= history.length - 1) return;
+		setHistoryIndex((i) => i + 1);
+		setElements(history[historyIndex + 1]);
+	}, [history, historyIndex]);
 
 	return (
 		<DesignerContext.Provider
@@ -105,6 +111,8 @@ export default function DesignerContextProvider({
 				selectedElement,
 				setSelectedElement,
 				updateElement,
+				undo,
+				redo,
 			}}
 		>
 			{children}

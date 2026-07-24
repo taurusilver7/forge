@@ -83,7 +83,7 @@ const extraAttributes = {
 };
 
 const propertiesSchema = z.object({
-	label: z.string().min(2).max(50),
+	label: z.string().min(2).max(250),
 	helperText: z.string().max(200),
 	required: z.boolean().default(false),
 });
@@ -98,7 +98,7 @@ export const DateFieldFormElement: FormElement = {
 	construct: (id: string) => ({
 		id,
 		type,
-		extraAttributes,
+		extraAttributes: { ...extraAttributes },
 	}),
 	designerBtnElement: {
 		icon: CalendarIcon,
@@ -173,17 +173,12 @@ function FormComponent({
 	}, [isInvalid]);
 
 	const handleDateSelect = (selectedDate: Date | undefined) => {
-		console.log("🔥 handleDateSelect called with:", selectedDate);
-		console.log("Current date state before:", date);
 		setDate(selectedDate);
 		setIsOpen(false);
 
-		if (!submitValue || !selectedDate) {
-			console.log("⚠️ submitValue missing or date undefined");
-			return;
-		}
+		if (!submitValue || !selectedDate) return;
+
 		const value = selectedDate.toUTCString();
-		console.log("✅ Submitting value:", value);
 		const valid = DateFieldFormElement.validate(element, value);
 		setError(!valid);
 		submitValue(element.id, value);
@@ -262,13 +257,11 @@ function PropertiesComponent({
 	}, [element, form]);
 
 	function applyChanges(values: propertiesSchemaType) {
-		const { helperText, label, required } = values;
 		updateElement(element.id, {
 			...element,
 			extraAttributes: {
-				label,
-				helperText,
-				required,
+				...element.extraAttributes,
+				...values,
 			},
 		});
 	}

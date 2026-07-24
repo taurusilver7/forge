@@ -97,7 +97,7 @@ const extraAttributes = {
 };
 
 const propertiesSchema = z.object({
-	label: z.string().min(2).max(50),
+	label: z.string().min(2).max(250),
 	helperText: z.string().max(200),
 	required: z.boolean().default(false),
 });
@@ -251,13 +251,11 @@ function PropertiesComponent({
 	}, [element, form]);
 
 	function applyChanges(values: titleFieldSchemaType) {
-		const { helperText, label, required } = values;
 		updateElement(element.id, {
 			...element,
 			extraAttributes: {
-				helperText,
-				required,
-				label,
+				...element.extraAttributes,
+				...values,
 			},
 		});
 	}

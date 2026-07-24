@@ -104,10 +104,10 @@ const extraAttributes = {
 };
 
 const propertiesSchema = z.object({
-	label: z.string().min(2).max(50),
+	label: z.string().min(2).max(250),
 	helperText: z.string().max(200),
 	required: z.boolean().default(false),
-	placeholder: z.string().max(50),
+	placeholder: z.string().max(150),
 });
 
 type CustomInstance = FormElementInstance & {
@@ -120,7 +120,7 @@ export const TextFieldFormElement: FormElement = {
 	construct: (id: string) => ({
 		id,
 		type,
-		extraAttributes,
+		extraAttributes: { ...extraAttributes },
 	}),
 	designerBtnElement: {
 		icon: TextIcon,
@@ -246,14 +246,11 @@ function PropertiesComponent({
 	}, [element, form]);
 
 	function applyChanges(values: propertiesSchemaType) {
-		const { helperText, label, placeholder, required } = values;
 		updateElement(element.id, {
 			...element,
 			extraAttributes: {
-				label,
-				helperText,
-				placeholder,
-				required,
+				...element.extraAttributes,
+				...values,
 			},
 		});
 	}

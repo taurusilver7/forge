@@ -80,7 +80,7 @@ import {
 } from "../ui/form";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { BsTextParagraph } from "react-icons/bs";
+import { Text } from "lucide-react";
 import { Textarea } from "../ui/textarea";
 
 const type: ElementType = "ParagraphField";
@@ -90,7 +90,7 @@ const extraAttributes = {
 };
 
 const propertiesSchema = z.object({
-	text: z.string().min(2).max(150),
+	text: z.string().min(2).max(500),
 });
 
 type CustomInstance = FormElementInstance & {
@@ -102,10 +102,10 @@ export const ParagraphFieldFormElement: FormElement = {
 	construct: (id: string) => ({
 		id,
 		type,
-		extraAttributes,
+		extraAttributes: { ...extraAttributes },
 	}),
 	designerBtnElement: {
-		icon: BsTextParagraph,
+		icon: Text,
 		label: "Paragraph Field",
 	},
 	designerComponent: DesignerComponent,
@@ -167,11 +167,11 @@ function PropertiesComponent({
 	}, [element, form]);
 
 	function applyChanges(values: propertiesSchemaType) {
-		const { text } = values;
 		updateElement(element.id, {
 			...element,
 			extraAttributes: {
-				text,
+				...element.extraAttributes,
+				...values,
 			},
 		});
 	}

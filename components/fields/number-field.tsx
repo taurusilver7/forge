@@ -85,7 +85,7 @@ import {
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Switch } from "../ui/switch";
-import { Bs123 } from "react-icons/bs";
+import { Hash } from "lucide-react";
 
 const type: ElementType = "NumberField";
 
@@ -104,10 +104,10 @@ type CustomInstance = FormElementInstance & {
 };
 
 const propertiesSchema = z.object({
-	label: z.string().min(2).max(50),
+	label: z.string().min(2).max(250),
 	helperText: z.string().max(200),
 	required: z.boolean().default(false),
-	placeholder: z.string().max(50),
+	placeholder: z.string().max(150),
 	min: z.union([z.number(), z.nan()]).optional(),
 	max: z.union([z.number(), z.nan()]).optional(),
 	allowDecimals: z.boolean().default(false),
@@ -122,7 +122,7 @@ export const NumberFieldFormElement: FormElement = {
 		extraAttributes: { ...extraAttributes },
 	}),
 	designerBtnElement: {
-		icon: Bs123,
+		icon: Hash,
 		label: "Number Field",
 	},
 	designerComponent: DesignerComponent,

@@ -66,7 +66,7 @@ import {
 	FormElementInstance,
 	SubmitFunction,
 } from "@/components/form-elements";
-import { LuHeading2 } from "react-icons/lu";
+import { Heading2 } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { useEffect } from "react";
@@ -90,7 +90,7 @@ const extraAttributes = {
 };
 
 const propertiesSchema = z.object({
-	title: z.string().min(2).max(50),
+	title: z.string().min(2).max(250),
 });
 
 type CustomInstance = FormElementInstance & {
@@ -103,10 +103,10 @@ export const SubTitleFieldFormElement: FormElement = {
 	construct: (id: string) => ({
 		id,
 		type,
-		extraAttributes,
+		extraAttributes: { ...extraAttributes },
 	}),
 	designerBtnElement: {
-		icon: LuHeading2,
+		icon: Heading2,
 		label: "Subtitle Field",
 	},
 	designerComponent: DesignerComponent,
@@ -168,11 +168,11 @@ function PropertiesComponent({
 	}, [element, form]);
 
 	function applyChanges(values: titleFieldSchemaType) {
-		const { title } = values;
 		updateElement(element.id, {
 			...element,
 			extraAttributes: {
-				title,
+				...element.extraAttributes,
+				...values,
 			},
 		});
 	}

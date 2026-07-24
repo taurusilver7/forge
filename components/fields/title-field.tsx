@@ -92,7 +92,7 @@ const extraAttributes = {
 };
 
 const propertiesSchema = z.object({
-	title: z.string().min(2).max(50),
+	title: z.string().min(2).max(250),
 });
 
 type CustomInstance = FormElementInstance & {
@@ -105,7 +105,7 @@ export const TitleFieldFormElement: FormElement = {
 	construct: (id: string) => ({
 		id,
 		type,
-		extraAttributes,
+		extraAttributes: { ...extraAttributes },
 	}),
 	designerBtnElement: {
 		icon: HeadingIcon,
@@ -170,11 +170,11 @@ function PropertiesComponent({
 	}, [element, form]);
 
 	function applyChanges(values: titleFieldSchemaType) {
-		const { title } = values;
 		updateElement(element.id, {
 			...element,
 			extraAttributes: {
-				title,
+				...element.extraAttributes,
+				...values,
 			},
 		});
 	}

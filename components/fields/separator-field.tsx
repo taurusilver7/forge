@@ -39,7 +39,7 @@ import {
 	FormElementInstance,
 } from "@/components/form-elements";
 import { Label } from "@/components/ui/label";
-import { RiSeparator } from "react-icons/ri";
+import { SeparatorHorizontal } from "lucide-react";
 import { Separator } from "../ui/separator";
 
 const type: ElementType = "SeparatorField";
@@ -51,7 +51,7 @@ export const SeparatorFieldFormElement: FormElement = {
 		type,
 	}),
 	designerBtnElement: {
-		icon: RiSeparator,
+		icon: SeparatorHorizontal,
 		label: "Separator Field",
 	},
 	designerComponent: DesignerComponent,
