@@ -200,7 +200,7 @@ const FormSubmit = ({
 	}
 
 	return (
-		<div className="w-full py-12 px-4">
+		<div className="w-full py-4 px-4">
 			<div
 				key={renderKey}
 				className="max-w-2xl mx-auto flex flex-col gap-4 bg-background p-8 rounded-xl shadow-sm"
