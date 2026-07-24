@@ -10,7 +10,7 @@ import {
 	DashboardIcon,
 	MixerVerticalIcon,
 } from "@radix-ui/react-icons";
-import React, { ReactNode, Suspense } from "react";
+import { ReactNode, Suspense } from "react";
 
 interface StatCardsProps {
 	data?: Awaited<ReturnType<typeof GetFormStats>>;
