@@ -10,15 +10,26 @@ export async function generateMetadata({ params }: { params: Promise<{ formUrl: 
 }
 
 const SubmitPage = async ({ params }: { params: Promise<{ formUrl: string }> }) => {
-  const {formUrl} = await params;
+	const { formUrl } = await params;
 	const form = await GetFormContentByUrl(formUrl);
 
-	if (!form) {
-		throw new Error("form not found");
-	}
+	if (!form) throw new Error("form not found");
 
-	const formContent = JSON.parse(form?.content) as FormElementInstance[];
-	return <FormSubmit formUrl={formUrl} formName={form.name} content={formContent} />;
+	const formContent = JSON.parse(form.content) as FormElementInstance[];
+	return (
+		<FormSubmit
+			formUrl={formUrl}
+			formName={form.name}
+			content={formContent}
+			passwordHash={form.passwordHash}
+			thankYouMessage={form.thankYouMessage}
+			redirectUrl={form.redirectUrl}
+			closeDate={form.closeDate?.toISOString() ?? null}
+			submissionLimit={form.submissionLimit}
+			submissions={form.submissions}
+			hasDuplicateProtection={form.hasDuplicateProtection}
+		/>
+	);
 };
 
 export default SubmitPage
