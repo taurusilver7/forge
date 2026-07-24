@@ -54,10 +54,10 @@ import {
 } from "@/components/form-elements";
 import DesignerSidebar from "./designer-sidebar";
 import { Button } from "@/components/ui/button";
-import { BiSolidTrash } from "react-icons/bi";
+import { Trash2 } from "lucide-react";
 import useDesigner from "@/hooks/useDesigner";
 
-const Designer = () => {
+const Designer = ({ currentPage }: { currentPage: string }) => {
 	// Add element from sidebar to the designer in builder.
 	const {
 		elements,
@@ -66,14 +66,15 @@ const Designer = () => {
 		selectedElement,
 		setSelectedElement,
 	} = useDesigner();
+	const filteredElements = elements.filter(
+		(e) => ((e.extraAttributes as any)?.pageId ?? "page_0") === currentPage
+	);
 	const droppable = useDroppable({
 		id: "designer-drop-area",
 		data: {
 			isDesignerDropArea: true,
 		},
 	});
-
-	// console.log("Droppable", droppable);
 
 	useDndMonitor({
 		onDragEnd: (event: DragEndEvent) => {
@@ -96,6 +97,7 @@ const Designer = () => {
 				const newElement = FormElements[type as ElementType].construct(
 					idGenerator()
 				);
+				newElement.extraAttributes = { ...newElement.extraAttributes, pageId: currentPage };
 				addElement(elements.length, newElement);
 				// add new element at the bottom instead of top; b/c of element.length
 				return;
@@ -120,6 +122,7 @@ const Designer = () => {
 				const newElement = FormElements[type as ElementType].construct(
 					idGenerator()
 				);
+				newElement.extraAttributes = { ...newElement.extraAttributes, pageId: currentPage };
 				// check where we're dropping the element
 				const overId = over?.data?.current?.elementId;
 				const overElementIndex = elements.findIndex(
@@ -189,20 +192,20 @@ const Designer = () => {
 					)}
 				>
 					{/* drop position overlay in UI only for top element */}
-					{droppable.isOver && elements.length === 0 && (
+					{droppable.isOver && filteredElements.length === 0 && (
 						<div className="w-full p-4">
 							<div className="bg-primary/20 h-32 rounded-md" />
 						</div>
 					)}
-					{!droppable.isOver && elements.length === 0 && (
+					{!droppable.isOver && filteredElements.length === 0 && (
 						<p className="text-3xl text-muted-foreground flex flex-grow items-center font-bold">
 							Drop here
 						</p>
 					)}
 
-					{elements.length > 0 && (
+					{filteredElements.length > 0 && (
 						<div className="p-4 w-full gap-2 flex flex-col">
-							{elements.map((element) => (
+							{filteredElements.map((element) => (
 								<DesignerElementWrapper
 									key={element.id}
 									element={element}
@@ -254,8 +257,6 @@ function DesignerElementWrapper({ element }: { element: FormElementInstance }) {
 	if (draggable?.isDragging) return null;
 
 	const DesignerElement = FormElements[element.type].designerComponent;
-	// console.log("SELECTED ELEMENT", selectedElement);
-
 	return (
 		<div
 			className="relative h-32 flex flex-col text-foreground hover:cursor-pointer rounded-md ring-1 ring-accent ring-inset"
@@ -303,7 +304,7 @@ function DesignerElementWrapper({ element }: { element: FormElementInstance }) {
 								removeElement(element.id);
 							}}
 						>
-							<BiSolidTrash className="h-8 w-8" />
+							<Trash2 className="h-8 w-8" />
 						</Button>
 					</div>
 				</>
@@ -320,6 +321,13 @@ function DesignerElementWrapper({ element }: { element: FormElementInstance }) {
 			>
 				<DesignerElement elementInstance={element} />
 			</div>
+			{(element.extraAttributes as any)?.condition && (
+				<div className="absolute top-1 right-1 z-50">
+					<span className="text-[10px] bg-muted text-muted-foreground px-1.5 py-0.5 rounded-sm">
+						{(element.extraAttributes as any).condition.action === "hide" ? "Hidden" : "Shown"} when rule
+					</span>
+				</div>
+			)}
 			{bottomHalf.isOver && (
 				<div className="absolute bottom-0 w-full rounded-md h-1 bg-primary rounded-t-none" />
 			)}
