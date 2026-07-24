@@ -5,7 +5,6 @@ import "./globals.css";
 
 import { ClerkProvider } from "@clerk/nextjs";
 import { ThemeProvider } from "@/components/providers/theme";
-import DesignerContextProvider from "@/components/context/designer-context";
 import { Analytics } from "@vercel/analytics/react";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -32,18 +31,16 @@ export default function RootLayout({
 		<ClerkProvider>
 			<html lang="en" suppressHydrationWarning>
 				<body className={inter.className}>
-					<DesignerContextProvider>
-						<ThemeProvider
-							attribute="class"
-							defaultTheme="dark"
-							enableSystem
-							disableTransitionOnChange
-						>
-							{children}
-							<Analytics />
-							<Toaster />
-						</ThemeProvider>
-					</DesignerContextProvider>
+					<ThemeProvider
+						attribute="class"
+						defaultTheme="dark"
+						enableSystem
+						disableTransitionOnChange
+					>
+						{children}
+						<Analytics />
+						<Toaster />
+					</ThemeProvider>
 				</body>
 			</html>
 		</ClerkProvider>
