@@ -3,7 +3,7 @@
 import React, { useEffect } from "react";
 
 import { Button } from "@/components/ui/button";
-import Image from "next/image";
+import { AlertCircle } from "lucide-react";
 import Link from "next/link";
 
 const Error = ({ error }: { error: Error }) => {
@@ -12,25 +12,9 @@ const Error = ({ error }: { error: Error }) => {
   }, [error]);
   return (
     <div className="h-full w-full flex flex-col items-center justify-center space-y-4">
-      <Image
-        src="/error.png"
-        alt="empty"
-        height="400"
-        width="400"
-        className="dark:hidden"
-      />
-      <Image
-        src="/error-dark.png"
-        alt="empty"
-        height="400"
-        width="400"
-        className="dark:block hidden"
-        priority
-      />
+      <AlertCircle className="h-24 w-24 text-muted-foreground" />
       <h2 className="text-xl font-medium text-center">
-        Oops! Looks like you&apos;re lost here!
-        <br />
-        <span className="">No worries!</span>
+        Oops! Something went wrong.
       </h2>
       <Button asChild>
         <Link href="/">Go back</Link>
