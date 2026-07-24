@@ -1,16 +1,15 @@
-"use client";
-
-import React, { ReactNode } from "react";
+import { ReactNode } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "./ui/skeleton";
+import { cn } from "@/lib/utils";
 
 interface StatsCardProps {
 	title: string;
-	value: string;
-	helperText: string;
+	value: ReactNode;
+	helperText?: string;
 	loading: boolean;
 	icon: ReactNode;
-	className: string;
+	className?: string;
 }
 
 const StatsCard = ({
@@ -20,26 +19,21 @@ const StatsCard = ({
 	helperText,
 	loading,
 	className,
-}: StatsCardProps) => {
-	return (
-		<Card className={className}>
-			<CardHeader className="flex flex-row items-center justify-between pb-2">
-				<CardTitle className="text-sm font-medium">{title}</CardTitle>
-				{icon}
-			</CardHeader>
-			<CardContent>
-				<div className="text-2xl font-bold">
-					{loading && (
-						<Skeleton>
-							<span className="opacity-50">{value}</span>
-						</Skeleton>
-					)}
-					{!loading && value}
-				</div>
+}: StatsCardProps) => (
+	<Card className={cn("transition-shadow hover:shadow-md", className)}>
+		<CardHeader className="flex flex-row items-center justify-between pb-2">
+			<CardTitle className="text-sm font-medium">{title}</CardTitle>
+			{icon}
+		</CardHeader>
+		<CardContent>
+			<div className="text-2xl font-bold">
+				{loading ? <Skeleton className="h-8 w-20" /> : value}
+			</div>
+			{helperText && (
 				<p className="text-xs text-muted-foreground pt-1">{helperText}</p>
-			</CardContent>
-		</Card>
-	);
-};
+			)}
+		</CardContent>
+	</Card>
+);
 
 export default StatsCard;
