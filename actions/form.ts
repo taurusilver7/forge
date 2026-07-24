@@ -200,6 +200,15 @@ function hashPassword(password: string): string {
 	return `${salt}:${hash}`;
 }
 
+export async function DeleteForm(id: string) {
+	const { userId } = await auth();
+	if (!userId) redirect("/sign-in");
+
+	await db.formSubmission.deleteMany({ where: { formId: id } });
+	await db.form.delete({ where: { id, userId } });
+}
+// ponytail: deleteMany submissions first — no schema cascade needed
+
 export async function VerifyFormPassword(formUrl: string, password: string): Promise<boolean> {
 	const form = await db.form.findUnique({
 		where: { shareURL: formUrl },
