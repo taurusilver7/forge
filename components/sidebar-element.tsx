@@ -22,12 +22,12 @@ const SidebarElement = ({ formElement }: { formElement: FormElement }) => {
 			{...draggable.attributes}
 			variant="outline"
 			className={cn(
-				"flex flex-col gap-2 h-32 w-32 cursor-grab",
+				"flex gap-2 w-full cursor-grab justify-start px-3",
 				draggable.isDragging && "ring-2 ring-primary"
 			)}
 		>
-			<Icon className="h-8 w-8 text-primary cursor-grab" />
-			<p className="text-xs">{label}</p>
+			<Icon className="size-4 text-primary cursor-grab shrink-0" />
+			<p className="text-xs truncate">{label}</p>
 		</Button>
 	);
 };
@@ -42,10 +42,10 @@ export const SidebarElementDragOverlay = ({
 	return (
 		<Button
 			variant="outline"
-			className={cn("flex flex-col gap-2 h-32 w-32 cursor-grab")}
+			className={cn("flex gap-2 w-full cursor-grab justify-start px-3")}
 		>
-			<Icon className="h-8 w-8 text-primary cursor-grab" />
-			<p className="text-xs">{label}</p>
+			<Icon className="size-4 text-primary cursor-grab shrink-0" />
+			<p className="text-xs truncate">{label}</p>
 		</Button>
 	);
 };
