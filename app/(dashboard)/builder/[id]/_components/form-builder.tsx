@@ -127,7 +127,7 @@ const FormBuilder = ({ form }: { form: Form }) => {
 		};
 		window.addEventListener("keydown", handler);
 		return () => window.removeEventListener("keydown", handler);
-	}, [undo, redo]);
+	}, [undo, redo, handleSave]);
 
 	// render delay spinner
 	if (!isReady) {
