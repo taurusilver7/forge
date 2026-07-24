@@ -47,20 +47,18 @@ export async function CreateForm(data: formSchemaType) {
 	if (!validation.success) {
 		throw new Error("form invalid");
 	}
-	// console.log("NAME ON SERVER", data.name);
 	const { userId } = await auth();
 	if (!userId) {
 		redirect("/sign-in");
-
-		// throw new UserNotFoundErr();
 	}
 
-	const { name, description } = data;
+	const { name, description, content } = data;
 	const form = await db.form.create({
 		data: {
 			userId,
 			name,
 			description,
+			content: content || "[]",
 		},
 	});
 
@@ -76,8 +74,6 @@ export async function GetForms() {
 
 	if (!userId) {
 		redirect("/sign-in");
-
-		// throw new UserNotFoundErr();
 	}
 
 	const forms = await db.form.findMany({
@@ -113,28 +109,15 @@ export async function UpdateFormContent(id: string, jsonContent: string) {
 		redirect("/sign-in");
 	}
 
-	const form = await db.form.findFirst({
-		where: {
-			id,
-			userId,
-		},
-		select: {
-			id: true,
-		},
+	const response = await db.form.updateMany({
+		where: { id, userId },
+		data: { content: jsonContent },
 	});
 
-	if (!form) {
+	if (response.count === 0) {
 		throw new Error("Form not found!");
 	}
 
-	const response = await db.form.update({
-		where: {
-			id: form.id,
-		},
-		data: {
-			content: jsonContent,
-		},
-	});
 	return response;
 }
 
@@ -144,28 +127,14 @@ export async function PublishForm(id: string) {
 		redirect("/sign-in");
 	}
 
-	const form = await db.form.findFirst({
-		where: {
-			id,
-			userId,
-		},
-		select: {
-			id: true,
-		},
+	const response = await db.form.updateMany({
+		where: { id, userId },
+		data: { published: true },
 	});
 
-	if (!form) {
+	if (response.count === 0) {
 		throw new Error("Form not found!");
 	}
-
-	const response = await db.form.update({
-		where: {
-			id: form.id,
-		},
-		data: {
-			published: true,
-		},
-	});
 
 	return response;
 }
@@ -193,9 +162,11 @@ export async function GetFormContentByUrl(formUrl: string) {
 	const response = await db.form.update({
 		where: {
 			shareURL: formUrl,
+			published: true,
 		},
 		select: {
 			content: true,
+			name: true,
 		},
 		data: {
 			visits: {
@@ -222,10 +193,16 @@ export async function SubmitForm(formUrl: string, content: string) {
 		throw new Error("Form not found!");
 	}
 
-	const response = await db.formSubmission.create({
-		data: {
-			formId: form.id,
-			content,
-		},
-	});
+	const [response] = await Promise.all([
+		db.formSubmission.create({
+			data: {
+				formId: form.id,
+				content,
+			},
+		}),
+		db.form.update({
+			where: { id: form.id },
+			data: { submissions: { increment: 1 } },
+		}),
+	]);
 }
