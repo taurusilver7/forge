@@ -4,13 +4,11 @@ import db from "@/lib/prisma";
 import { formSchema, formSchemaType } from "@/lib/schema";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-
+import { scryptSync, randomBytes, timingSafeEqual } from "crypto";
 
 export async function GetFormStats() {
 	const { userId } = await auth();
-	if (!userId) {
-		redirect("/sign-in");
-	}
+	if (!userId) redirect("/sign-in");
 
 	const [stats, submissions] = await Promise.all([
 		db.form.aggregate({
@@ -19,38 +17,24 @@ export async function GetFormStats() {
 		}),
 		db.formSubmission.count({
 			where: {
-				form: {
-					userId,
-				},
+				form: { userId },
 			},
 		}),
 	]);
 
 	const visits = stats._sum.visits ?? 0;
-	const totalSubmissions = submissions ?? 0;
-
-	const submissionRate = visits > 0 ? (totalSubmissions / visits) * 100 : 0;
-
+	const submissionRate = visits > 0 ? (submissions / visits) * 100 : 0;
 	const bounceRate = visits > 0 ? 100 - submissionRate : 0;
 
-	return {
-		visits,
-		submissions,
-		submissionRate,
-		bounceRate,
-	};
+	return { visits, submissions, submissionRate, bounceRate };
 }
 
 export async function CreateForm(data: formSchemaType) {
 	const validation = formSchema.safeParse(data);
+	if (!validation.success) throw new Error("form invalid");
 
-	if (!validation.success) {
-		throw new Error("form invalid");
-	}
 	const { userId } = await auth();
-	if (!userId) {
-		redirect("/sign-in");
-	}
+	if (!userId) redirect("/sign-in");
 
 	const { name, description, content } = data;
 	const form = await db.form.create({
@@ -62,62 +46,39 @@ export async function CreateForm(data: formSchemaType) {
 		},
 	});
 
-	if (!form) {
-		throw new Error("something went wrong!");
-	}
-
+	if (!form) throw new Error("something went wrong!");
 	return form.id;
 }
 
 export async function GetForms() {
 	const { userId } = await auth();
+	if (!userId) redirect("/sign-in");
 
-	if (!userId) {
-		redirect("/sign-in");
-	}
-
-	const forms = await db.form.findMany({
-		where: {
-			userId: userId,
-		},
-		orderBy: {
-			createdAt: "desc",
-		},
+	return await db.form.findMany({
+		where: { userId },
+		orderBy: { createdAt: "desc" },
 	});
-
-	return forms;
 }
 
 export async function GetFormById(id: string) {
 	const { userId } = await auth();
-
-	if (!userId) {
-		redirect("/sign-in");
-	}
+	if (!userId) redirect("/sign-in");
 
 	return await db.form.findFirst({
-		where: {
-			userId,
-			id,
-		},
+		where: { userId, id },
 	});
 }
 
 export async function UpdateFormContent(id: string, jsonContent: string) {
 	const { userId } = await auth();
-	if (!userId) {
-		redirect("/sign-in");
-	}
+	if (!userId) redirect("/sign-in");
 
 	const response = await db.form.updateMany({
 		where: { id, userId },
 		data: { content: jsonContent },
 	});
 
-	if (response.count === 0) {
-		throw new Error("Form not found!");
-	}
-
+	if (response.count === 0) throw new Error("Form not found!");
 	return response;
 }
 
@@ -136,56 +97,43 @@ export async function UpdateForm(id: string, content: string, pages: string) {
 
 export async function PublishForm(id: string) {
 	const { userId } = await auth();
-	if (!userId) {
-		redirect("/sign-in");
-	}
+	if (!userId) redirect("/sign-in");
 
 	const response = await db.form.updateMany({
 		where: { id, userId },
 		data: { published: true },
 	});
 
-	if (response.count === 0) {
-		throw new Error("Form not found!");
-	}
-
+	if (response.count === 0) throw new Error("Form not found!");
 	return response;
 }
 
 export async function GetFormWithSubmissions(id: string) {
 	const { userId } = await auth();
-	if (!userId) {
-		redirect("/sign-in");
-	}
+	if (!userId) redirect("/sign-in");
 
-	const response = await db.form.findFirst({
-		where: {
-			userId,
-			id,
-		},
-		include: {
-			FormSubmission: true,
-		},
+	return await db.form.findFirst({
+		where: { userId, id },
+		include: { FormSubmission: true },
 	});
-
-	return response;
 }
 
 export async function GetFormContentByUrl(formUrl: string) {
 	const response = await db.form.update({
-		where: {
-			shareURL: formUrl,
-			published: true,
-		},
+		where: { shareURL: formUrl, published: true },
 		select: {
+			id: true,
 			content: true,
 			name: true,
+			passwordHash: true,
+			thankYouMessage: true,
+			redirectUrl: true,
+			closeDate: true,
+			submissionLimit: true,
+			submissions: true,
+			hasDuplicateProtection: true,
 		},
-		data: {
-			visits: {
-				increment: 1,
-			},
-		},
+		data: { visits: { increment: 1 } },
 	});
 
 	return response;
@@ -193,29 +141,77 @@ export async function GetFormContentByUrl(formUrl: string) {
 
 export async function SubmitForm(formUrl: string, content: string) {
 	const form = await db.form.findFirst({
-		where: {
-			shareURL: formUrl,
-			published: true,
-		},
-		select: {
-			id: true,
-		},
+		where: { shareURL: formUrl, published: true },
+		select: { id: true, closeDate: true, submissionLimit: true, submissions: true },
 	});
 
-	if (!form) {
-		throw new Error("Form not found!");
+	if (!form) throw new Error("Form not found!");
+	if (form.closeDate && new Date() > form.closeDate) throw new Error("FORM_CLOSED");
+	if (form.submissionLimit !== null && form.submissions >= form.submissionLimit)
+		throw new Error("FORM_CLOSED");
+
+	const response = await db.formSubmission.create({
+		data: { formId: form.id, content },
+	});
+
+	await db.form.update({
+		where: { id: form.id },
+		data: { submissions: { increment: 1 } },
+	});
+}
+
+export async function UpdateFormSettings(
+	id: string,
+	data: {
+		password?: string;
+		thankYouMessage?: string;
+		redirectUrl?: string;
+		closeDate?: string | null;
+		submissionLimit?: number | null;
+		hasDuplicateProtection?: boolean;
+	}
+) {
+	const { userId } = await auth();
+	if (!userId) redirect("/sign-in");
+
+	const updateData: any = {};
+	if (data.thankYouMessage !== undefined) updateData.thankYouMessage = data.thankYouMessage;
+	if (data.redirectUrl !== undefined) updateData.redirectUrl = data.redirectUrl;
+	if (data.closeDate !== undefined) updateData.closeDate = data.closeDate;
+	if (data.submissionLimit !== undefined) updateData.submissionLimit = data.submissionLimit;
+	if (data.hasDuplicateProtection !== undefined) updateData.hasDuplicateProtection = data.hasDuplicateProtection;
+	if (data.password !== undefined) {
+		updateData.passwordHash = data.password
+			? hashPassword(data.password)
+			: null;
 	}
 
-	const [response] = await Promise.all([
-		db.formSubmission.create({
-			data: {
-				formId: form.id,
-				content,
-			},
-		}),
-		db.form.update({
-			where: { id: form.id },
-			data: { submissions: { increment: 1 } },
-		}),
-	]);
+	const response = await db.form.updateMany({
+		where: { id, userId },
+		data: updateData,
+	});
+
+	if (response.count === 0) throw new Error("Form not found!");
 }
+
+function hashPassword(password: string): string {
+	const salt = randomBytes(16).toString("hex");
+	const hash = scryptSync(password, salt, 64).toString("hex");
+	return `${salt}:${hash}`;
+}
+
+export async function VerifyFormPassword(formUrl: string, password: string): Promise<boolean> {
+	const form = await db.form.findUnique({
+		where: { shareURL: formUrl },
+		select: { passwordHash: true },
+	});
+	if (!form?.passwordHash) return false;
+	const [salt, hash] = form.passwordHash.split(":");
+	try {
+		const verifyHash = scryptSync(password, salt, 64).toString("hex");
+		return timingSafeEqual(Buffer.from(hash), Buffer.from(verifyHash));
+	} catch {
+		return false;
+	}
+}
+// ponytail: crypto scrypt for password hashing — no bcrypt dep needed
