@@ -48,7 +48,7 @@ const FormLinkShare = ({ shareUrl }: { shareUrl: string }) => {
 						Embed iframe
 					</Label>
 					<div className="flex gap-2">
-						<Textarea value={iframeCode} readOnly rows={2} className="text-xs font-mono resize-none" />
+						<Textarea value={iframeCode} readOnly rows={6} className="text-xs font-mono resize-none" />
 						<Button
 							variant="outline"
 							size="sm"
