@@ -59,7 +59,7 @@ export default function FormSettings({ form }: { form: FormSettingsData }) {
 	};
 
 	return (
-		<div className="container pt-10 space-y-6 max-w-2xl">
+		<div className="container py-10 space-y-6 max-w-2xl">
 			<h2 className="text-2xl font-bold">Form Settings</h2>
 
 			<div className="space-y-2">
