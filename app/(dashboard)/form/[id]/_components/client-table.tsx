@@ -10,7 +10,6 @@ import {
 	TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import * as XLSX from "xlsx";
 import { format, formatDistance } from "date-fns";
 import { ElementType } from "@/components/form-elements";
 import { Badge } from "@/components/ui/badge";
@@ -25,6 +24,8 @@ type Column = {
 
 type Row = { [key: string]: string } & {
 	submittedAt: Date;
+	_fields: number;
+	_lastPage: number | null;
 };
 
 export default function SubmissionsTableClient({
@@ -36,46 +37,35 @@ export default function SubmissionsTableClient({
 	columns: Column[];
 	rows: Row[];
 }) {
-	// -----------------------------------------------------
-	// 1. Transform the table rows into XLSX-compatible rows
-	// -----------------------------------------------------
-	function prepareExcelData() {
-		return rows.map((row) => {
-			const output: Record<string, any> = {};
-
-			columns.forEach((col) => {
-				output[col.label] = row[col.id] ?? "";
-			});
-
-			output["Submitted At"] = new Date(row.submittedAt).toISOString();
-			return output;
-		});
-	}
-
-	// -----------------------------
-	// 2. Generate and download XLSX
-	// -----------------------------
-	function downloadExcel() {
-		const normalized = prepareExcelData();
-
-		const worksheet = XLSX.utils.json_to_sheet(normalized);
-		const workbook = XLSX.utils.book_new();
-
-		XLSX.utils.book_append_sheet(workbook, worksheet, "Submissions");
-
-		const fileName = `${formName.replace(/\s+/g, "_")}_submissions.xlsx`;
-
-		XLSX.writeFile(workbook, fileName);
+	function downloadCSV() {
+		const hasPages = rows.some((r) => r._lastPage !== null);
+		const headers = [...columns.map((c) => c.label), "Fields", ...(hasPages ? ["Last Page"] : []), "Submitted At"];
+		const data = rows.map((row) => [
+			...columns.map((col) => row[col.id] ?? ""),
+			String(row._fields),
+			...(hasPages ? [row._lastPage !== null ? String(row._lastPage) : ""] : []),
+			new Date(row.submittedAt).toISOString(),
+		]);
+		const csv = [headers.join(","), ...data.map((r) => r.join(","))].join("\n");
+		const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+		const url = URL.createObjectURL(blob);
+		const a = document.createElement("a");
+		a.href = url;
+		a.download = `${formName.replace(/\s+/g, "_")}_submissions.csv`;
+		a.click();
+		URL.revokeObjectURL(url);
 	}
 
 	// -------------------------------------------------
 	// 3. Render the table + a “Download Excel” button
 	// -------------------------------------------------
+	const hasPages = rows.some((r) => r._lastPage !== null);
+
 	return (
-		<div className="space-y-4">
+		<div className="space-y-4 mb-32">
 			<div className="flex justify-between items-center">
 				<h2 className="font-semibold text-xl">{formName} – Submissions</h2>
-				<Button onClick={downloadExcel}>Download</Button>
+				<Button onClick={downloadCSV}>Download CSV</Button>
 			</div>
 
 			<Table>
@@ -86,6 +76,8 @@ export default function SubmissionsTableClient({
 								{col.label}
 							</TableHead>
 						))}
+						<TableHead className="uppercase text-center w-16">Fields</TableHead>
+						{hasPages && <TableHead className="uppercase text-center w-24">Last Page</TableHead>}
 						<TableHead className="text-muted-foreground text-right uppercase">
 							Submitted at
 						</TableHead>
@@ -102,6 +94,8 @@ export default function SubmissionsTableClient({
 									key={col.id}
 								/>
 							))}
+							<TableCell className="text-center">{row._fields}</TableCell>
+							{hasPages && <TableCell className="text-center">{row._lastPage || "—"}</TableCell>}
 							<TableCell className="text-muted-foreground text-right">
 								{formatDistance(row.submittedAt, new Date(), {
 									addSuffix: true,
