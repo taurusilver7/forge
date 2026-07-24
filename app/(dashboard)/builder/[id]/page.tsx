@@ -9,8 +9,6 @@ const BuilderPage = async ({ params }: { params: Promise<{ id: string }> }) => {
 		throw new Error("Form not found!");
 	}
 
-	// console.log(form);
-
 	return <FormBuilder form={form} />;
 };
 

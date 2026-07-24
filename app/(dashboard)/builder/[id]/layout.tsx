@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import React, { ReactNode } from "react";
+import DesignerContextProvider from "@/components/context/designer-context";
 
 export const metadata: Metadata = {
 	title: "Builder | Forge",
@@ -19,5 +19,11 @@ export default function BuilderLayout({
 }: {
 	children: React.ReactNode;
 }) {
-	return <div className="flex w-full h-screen overflow-hidden mx-auto">{children}</div>;
+	return (
+		<DesignerContextProvider>
+			<div className="flex w-full max-h-full overflow-hidden mx-auto">
+				{children}
+			</div>
+		</DesignerContextProvider>
+	);
 }
