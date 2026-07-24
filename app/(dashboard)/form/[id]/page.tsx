@@ -10,21 +10,18 @@ import VisitBtn from "./_components/visit";
 import FormLinkShare from "./_components/form-link";
 import SubmissionsTable from "./_components/submission-table";
 import { SaveTemplate } from "./_components/save-template";
+import FormSettings from "@/components/form-settings";
 
 const FormDetails = async ({ params }: { params: Promise<{ id: string }> }) => {
 	const { id } = await params;
 	const form = await GetFormById(id);
 
-	if (!form) {
-		throw new Error("form not found");
-	}
+	if (!form) throw new Error("form not found");
 
 	const { visits, submissions } = form;
-	let submissionRate = 0;
-	if (visits > 0) {
-		submissionRate = (submissions / visits) * 100;
-	}
+	const submissionRate = visits > 0 ? (submissions / visits) * 100 : 0;
 	const bounceRate = 100 - submissionRate;
+
 	return (
 		<>
 			<div className="py-10 border-b border-muted">
@@ -78,6 +75,20 @@ const FormDetails = async ({ params }: { params: Promise<{ id: string }> }) => {
 
 			<div className="container pt-10">
 				<SubmissionsTable id={form.id} />
+			</div>
+
+			<div className="border-t border-muted mt-10">
+				<FormSettings
+					form={{
+						id: form.id,
+						passwordHash: form.passwordHash,
+						thankYouMessage: form.thankYouMessage,
+						redirectUrl: form.redirectUrl,
+						closeDate: form.closeDate?.toISOString() ?? null,
+						submissionLimit: form.submissionLimit,
+						hasDuplicateProtection: form.hasDuplicateProtection,
+					}}
+				/>
 			</div>
 		</>
 	);
