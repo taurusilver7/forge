@@ -14,6 +14,7 @@ model Form {
   id        String  @id @default(uuid())
   userId    String
   published Boolean @default(false)
+  isFavorite Boolean @default(false)
 
   name        String
   description String @default("")
