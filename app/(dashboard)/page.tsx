@@ -23,7 +23,7 @@ interface StatCardsProps {
 
 const DashboardPage = () => {
 	return (
-		<div className="container pt-4">
+		<div className="container pt-4 mb-10">
 			<Suspense fallback={<StatCards loading={true} />}>
 				<CardStatsWrapper />
 			</Suspense>
