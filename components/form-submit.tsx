@@ -24,6 +24,8 @@ function setDuplicateCookie(formUrl: string) {
 const FormSubmit = ({
 	formUrl,
 	formName,
+	accent,
+	logo,
 	content,
 	passwordHash,
 	thankYouMessage,
@@ -35,6 +37,8 @@ const FormSubmit = ({
 }: {
 	formUrl: string;
 	formName: string;
+	accent: string;
+	logo: string | null;
 	content: FormElementInstance[];
 	passwordHash: string | null;
 	thankYouMessage: string | null;
@@ -205,7 +209,22 @@ const FormSubmit = ({
 				key={renderKey}
 				className="max-w-2xl mx-auto flex flex-col gap-4 bg-background p-8 rounded-xl shadow-sm"
 			>
-				<h1 className="text-2xl font-semibold mb-2">{formName}</h1>
+				{accent && (
+					<div
+						className="flex items-center gap-2 rounded-md px-4 py-3 text-white"
+						style={{ backgroundColor: accent }}
+					>
+						{logo ? (
+							// eslint-disable-next-line @next/next/no-img-element
+							<img
+								src={logo}
+								alt=""
+								className="h-8 w-8 rounded-md bg-white object-cover"
+							/>
+						) : null}
+						<span className="font-semibold">{formName}</span>
+					</div>
+				)}
 				{pages.length > 1 && (
 					<div className="w-full bg-secondary h-2 rounded-full">
 						<div
