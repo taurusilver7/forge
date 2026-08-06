@@ -26,6 +26,8 @@ type DesignerContextType = {
 
 export const DesignerContext = createContext<DesignerContextType | null>(null);
 
+const HISTORY_LIMIT = 100;
+
 export default function DesignerContextProvider({
   children,
 }: {
@@ -40,8 +42,13 @@ export default function DesignerContextProvider({
   const [currentPage, setCurrentPage] = useState("page_0");
 
   const pushHistory = useCallback((prevElements: FormElementInstance[]) => {
-    setHistory((h) => [...h.slice(0, historyIndex + 1), prevElements]);
-    setHistoryIndex((i) => i + 1);
+    setHistory((h) => {
+      const next = [...h.slice(0, historyIndex + 1), prevElements];
+      return next.length > HISTORY_LIMIT
+        ? next.slice(next.length - HISTORY_LIMIT)
+        : next;
+    });
+    setHistoryIndex((i) => (i + 1 > HISTORY_LIMIT - 1 ? HISTORY_LIMIT - 1 : i + 1));
   }, [historyIndex]);
 
   const addElement = useCallback((index: number, element: FormElementInstance) => {
