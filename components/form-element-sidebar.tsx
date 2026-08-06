@@ -8,8 +8,8 @@ const FormElementSidebar = () => {
 		<div className="">
 			<p className="text-sm text-foreground/20">Drag & Drop Elements</p>
 			<Separator className="my-2" />
-			<div className="grid grid-cols-1 gap-1">
-				<p className="text-sm text-muted-foreground col-span-1 md:col-span-2 my-2 place-self-start">
+			<div className="flex flex-col gap-1">
+				<p className="text-sm text-muted-foreground my-2">
 					Layout Elements
 				</p>
 				<SidebarElement formElement={FormElements.TitleField} />
@@ -18,7 +18,7 @@ const FormElementSidebar = () => {
 				<SidebarElement formElement={FormElements.SeparatorField} />
 				<SidebarElement formElement={FormElements.SpacerField} />
 
-				<p className="text-sm text-muted-foreground col-span-1 md:col-span-2 my-2 place-self-start">
+				<p className="text-sm text-muted-foreground my-2">
 					Form Elements
 				</p>
 				<SidebarElement formElement={FormElements.TextField} />
