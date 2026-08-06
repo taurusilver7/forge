@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { Form } from "@prisma/client";
@@ -38,6 +38,9 @@ const FormBuilder = ({ form }: { form: Form }) => {
 	const [isNavMinimized, setIsNavMinimized] = useState<boolean>(false);
 	const [lastSaved, setLastSaved] = useState<Date>(new Date());
 	const [saving, setSaving] = useState(false);
+	const [name, setName] = useState(form.name);
+	const [isDirty, setIsDirty] = useState(false);
+	const hydratedRef = useRef(false);
 
 	// sensors for dnd-kit (drag-drop) to monitor I/O events (mouse-clicks)
 	const mouseSensor = useSensor(MouseSensor, {
@@ -64,14 +67,26 @@ const FormBuilder = ({ form }: { form: Form }) => {
 			const parsed = JSON.parse(form.pages);
 			setCurrentPage(parsed[0]?.id || "page_0");
 		}
+		hydratedRef.current = true;
 		setIsReady(true);
 	}, [form, setElements, setSelectedElement, setPages, setCurrentPage, isReady]);
+
+	useEffect(() => {
+		if (!hydratedRef.current) return;
+		setIsDirty(true);
+	}, [elements, pages, name]);
 
 	const handleSave = async () => {
 		setSaving(true);
 		try {
-			await UpdateForm(form.id, JSON.stringify(elements), JSON.stringify(pages));
+			await UpdateForm(
+				form.id,
+				JSON.stringify(elements),
+				JSON.stringify(pages),
+				name,
+			);
 			setLastSaved(new Date());
+			setIsDirty(false);
 			toast({ title: "Saved", description: "Form saved successfully." });
 		} catch {
 			toast({ title: "Save failed", variant: "destructive" });
@@ -176,15 +191,29 @@ const FormBuilder = ({ form }: { form: Form }) => {
 							>
 								<ChevronUpIcon className="h-4 w-4" />
 							</Button>
-							<h2 className="truncate font-medium">
-								<span className="text-muted-foreground mr-2">
+							<div className="flex items-center gap-2">
+								<span className="text-muted-foreground mr-1 text-sm">
 									Form:
 								</span>
-								{form.name}
-							</h2>
-							<span className="text-xs text-muted-foreground ml-2">
-								Saved
-							</span>
+								<Input
+									value={name}
+									onChange={(e) => setName(e.target.value)}
+									className="font-medium h-8 w-56 border-transparent hover:border-input focus:border-input"
+								/>
+								{saving ? (
+									<span className="text-xs text-muted-foreground shrink-0">
+										Saving…
+									</span>
+								) : isDirty ? (
+									<span className="text-xs text-amber-600 shrink-0">
+										Unsaved
+									</span>
+								) : (
+									<span className="text-xs text-green-600 shrink-0">
+										Saved ✓
+									</span>
+								)}
+							</div>
 						</div>
 
 						<div className="flex justify-between items-center gap-2 order-1 md:order-2 w-full md:w-auto">
