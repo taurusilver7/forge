@@ -2,6 +2,7 @@
 
 import { createContext, useState, useCallback, Dispatch, SetStateAction } from "react";
 import { FormElementInstance } from "../form-elements";
+import { idGenerator } from "@/lib/id-generator";
 
 export type Page = { id: string; label: string };
 
@@ -10,6 +11,7 @@ type DesignerContextType = {
   setElements: Dispatch<SetStateAction<FormElementInstance[]>>;
   addElement: (index: number, element: FormElementInstance) => void;
   removeElement: (id: string) => void;
+  duplicateElement: (id: string) => void;
 
   selectedElement: FormElementInstance | null;
   setSelectedElement: Dispatch<SetStateAction<FormElementInstance | null>>;
@@ -65,6 +67,21 @@ export default function DesignerContextProvider({
     setElements((prev) => prev.filter((element) => element.id !== id));
   }, [elements, pushHistory]);
 
+  const duplicateElement = useCallback(
+    (id: string) => {
+      pushHistory(elements);
+      setElements((prev) => {
+        const index = prev.findIndex((el) => el.id === id);
+        if (index === -1) return prev;
+        const copy = { ...prev[index], id: idGenerator() };
+        const next = [...prev];
+        next.splice(index + 1, 0, copy);
+        return next;
+      });
+    },
+    [elements, pushHistory],
+  );
+
   const updateElement = useCallback((id: string, element: FormElementInstance) => {
     pushHistory(elements);
     setElements((prev) => {
@@ -93,6 +110,7 @@ export default function DesignerContextProvider({
         elements,
         addElement,
         removeElement,
+        duplicateElement,
         setElements,
 
         selectedElement,
