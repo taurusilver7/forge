@@ -15,6 +15,8 @@ import { PhoneFieldFormElement } from "./fields/phone-field";
 import { RatingFieldFormElement } from "./fields/star-rating";
 import { SliderFieldFormElement } from "./fields/slider-field";
 import { ChoiceFieldFormElement } from "./fields/choice-field";
+import { YesNoFieldFormElement } from "./fields/yesno-field";
+import { FileFieldFormElement } from "./fields/file-field";
 
 export type ElementType =
 	| "TextField"
@@ -33,7 +35,9 @@ export type ElementType =
 	| "PhoneField"
 	| "RatingField"
 	| "SliderField"
-	| "ChoiceField";
+	| "ChoiceField"
+	| "YesNoField"
+	| "FileField";
 
 export type FormElementInstance = {
 	id: string;
@@ -90,6 +94,8 @@ export const FormElements: FormElementType = {
 	RatingField: RatingFieldFormElement,
 	SliderField: SliderFieldFormElement,
 	ChoiceField: ChoiceFieldFormElement,
+	YesNoField: YesNoFieldFormElement,
+	FileField: FileFieldFormElement,
 };
 
 export type Condition = {
