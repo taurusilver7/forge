@@ -209,6 +209,38 @@ export async function DeleteForm(id: string) {
 }
 // ponytail: deleteMany submissions first — no schema cascade needed
 
+export async function ToggleFavorite(id: string) {
+	const { userId } = await auth();
+	if (!userId) redirect("/sign-in");
+
+	await db.form.updateMany({
+		where: { id, userId },
+		data: { isFavorite: { toggle: true } },
+	});
+}
+
+export async function DuplicateForm(id: string) {
+	const { userId } = await auth();
+	if (!userId) redirect("/sign-in");
+
+	const source = await db.form.findFirst({ where: { id, userId } });
+	if (!source) throw new Error("Form not found!");
+
+	const copy = await db.form.create({
+		data: {
+			userId,
+			name: `${source.name} (copy)`,
+			description: source.description,
+			content: source.content,
+			pages: source.pages,
+			published: false,
+			isFavorite: false,
+		},
+	});
+
+	return copy.id;
+}
+
 export async function VerifyFormPassword(formUrl: string, password: string): Promise<boolean> {
 	const form = await db.form.findUnique({
 		where: { shareURL: formUrl },
