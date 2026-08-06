@@ -82,13 +82,22 @@ export async function UpdateFormContent(id: string, jsonContent: string) {
 	return response;
 }
 
-export async function UpdateForm(id: string, content: string, pages: string) {
+export async function UpdateForm(
+	id: string,
+	content: string,
+	pages: string,
+	name?: string,
+) {
 	const { userId } = await auth();
 	if (!userId) redirect("/sign-in");
 
 	const response = await db.form.updateMany({
 		where: { id, userId },
-		data: { content, pages },
+		data: {
+			content,
+			pages,
+			...(name !== undefined ? { name } : {}),
+		},
 	});
 
 	if (response.count === 0) throw new Error("Form not found!");
@@ -213,9 +222,24 @@ export async function ToggleFavorite(id: string) {
 	const { userId } = await auth();
 	if (!userId) redirect("/sign-in");
 
+	const form = await db.form.findFirst({
+		where: { id, userId },
+		select: { isFavorite: true },
+	});
+	if (!form) return;
+
 	await db.form.updateMany({
 		where: { id, userId },
-		data: { isFavorite: { toggle: true } },
+		data: { isFavorite: { set: !form.isFavorite } },
+	});
+}
+
+export async function DeleteSubmission(id: string) {
+	const { userId } = await auth();
+	if (!userId) redirect("/sign-in");
+
+	await db.formSubmission.deleteMany({
+		where: { id, form: { userId } },
 	});
 }
 
