@@ -1,5 +1,6 @@
-import { GetFormById } from "@/actions/form";
+import { GetFormById, GetFormAnalytics } from "@/actions/form";
 import StatsCard from "@/components/stats-card";
+import { SubmissionChart, FunnelChart } from "@/lib/charts";
 import {
 	CursorArrowIcon,
 	DashboardIcon,
@@ -18,6 +19,8 @@ const FormDetails = async ({ params }: { params: Promise<{ id: string }> }) => {
 	const form = await GetFormById(id);
 
 	if (!form) throw new Error("form not found");
+
+	const analytics = await GetFormAnalytics(id);
 
 	const { visits, submissions } = form;
 	const submissionRate = visits > 0 ? (submissions / visits) * 100 : 0;
@@ -38,37 +41,51 @@ const FormDetails = async ({ params }: { params: Promise<{ id: string }> }) => {
 			<StatsCard
 				title="Total Visits"
 				icon={<EyeOpenIcon className="text-blue-600 h-6 w-6" />}
-				helperText="All time vists"
 				value={visits.toLocaleString() || ""}
-				loading={false}
 			/>
 			<StatsCard
 				title="Total Submissions"
 				icon={<DashboardIcon className="text-yellow-600 w-6 h-6" />}
-				helperText="All time submissions."
 				value={submissions.toLocaleString() || ""}
-				loading={false}
 			/>
 			<StatsCard
 				title="Submissions rate"
 				icon={<CursorArrowIcon className="text-green-600 w-6 h-6" />}
-				helperText="visits that submitted form."
 				value={submissionRate.toLocaleString() + "%" || ""}
-				loading={false}
 			/>
 			<StatsCard
 				title="Bounce rate"
 				icon={<MixerVerticalIcon className="text-rose-600 h-6 w-6" />}
-				helperText="Visits that leave without interacting."
 				value={bounceRate.toLocaleString() + "%" || ""}
-				loading={false}
 			/>
+			<StatsCard
+				title="Submission trend"
+				value={`${analytics.trend.submissions} in 7 days`}
+				className="col-span-3"
+			>
+				<SubmissionChart points={analytics.chart} />
+			</StatsCard>
+			<StatsCard title="Funnel" value={`${analytics.submissionCount} total`}>
+				<FunnelChart
+					data={[
+						{ label: "Views", value: analytics.funnel.views },
+						{ label: "Started", value: analytics.funnel.started },
+						{ label: "Submitted", value: analytics.funnel.submitted },
+					]}
+				/>
+			</StatsCard>
 			</div>
 
 			<div className="border-y border-muted py-6 mt-8">
 				<div className="container flex flex-col md:flex-row gap-6">
 					<div className="space-y-4 flex-1">
-						<FormLinkShare shareUrl={form.shareURL} />
+						<FormLinkShare
+							shareUrl={form.shareURL}
+							formId={form.id}
+							accent={form.accent}
+							logo={form.logo}
+							name={form.name}
+						/>
 						<div className="flex justify-end">
 							<SaveTemplate formName={form.name} formContent={form.content} />
 						</div>
