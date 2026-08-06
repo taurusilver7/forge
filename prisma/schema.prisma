@@ -11,9 +11,9 @@ datasource db {
 }
 
 model Form {
-  id        String  @id @default(uuid())
-  userId    String
-  published Boolean @default(false)
+  id         String  @id @default(uuid())
+  userId     String
+  published  Boolean @default(false)
   isFavorite Boolean @default(false)
 
   name        String
@@ -24,18 +24,21 @@ model Form {
   visits      Int @default(0)
   submissions Int @default(0)
 
-  passwordHash              String?
-  thankYouMessage           String?
-  redirectUrl               String?
-  closeDate                 DateTime?
-  submissionLimit           Int?
-  hasDuplicateProtection    Boolean   @default(false)
+  passwordHash           String?
+  thankYouMessage        String?
+  redirectUrl            String?
+  closeDate              DateTime?
+  submissionLimit        Int?
+  hasDuplicateProtection Boolean   @default(false)
+
+  accent String        @default("#2563eb")
+  logo   String?
 
   shareURL       String           @unique @default(uuid())
   FormSubmission FormSubmission[]
+  inboxes        FormInbox[]
 
   createdAt DateTime @default(now())
-
 }
 
 model FormSubmission {
@@ -45,6 +48,31 @@ model FormSubmission {
   content String
 
   createdAt DateTime @default(now())
+
+  inboxes FormInbox[]
+}
+
+model Inbox {
+  id          String       @id @default(cuid())
+  userId      String       @unique
+  submissions FormInbox[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model FormInbox {
+  id           String         @id @default(cuid())
+  inboxId      String
+  formId       String
+  submissionId String
+  answeredAt   DateTime       @default(now())
+  form         Form           @relation(fields: [formId], references: [id], onDelete: Cascade)
+  inbox        Inbox          @relation(fields: [inboxId], references: [id], onDelete: Cascade)
+  submission   FormSubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+
+  @@unique([inboxId, submissionId])
+  @@index([formId])
+  @@index([submissionId])
 }
 
 model FormTemplate {
