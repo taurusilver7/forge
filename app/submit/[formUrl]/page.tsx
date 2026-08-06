@@ -20,6 +20,8 @@ const SubmitPage = async ({ params }: { params: Promise<{ formUrl: string }> }) 
 		<FormSubmit
 			formUrl={formUrl}
 			formName={form.name}
+			accent={form.accent}
+			logo={form.logo}
 			content={formContent}
 			passwordHash={form.passwordHash}
 			thankYouMessage={form.thankYouMessage}
