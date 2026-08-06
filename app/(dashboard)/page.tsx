@@ -1,7 +1,6 @@
-import { GetFormStats } from "@/actions/form";
-import CreateFormButton from "@/components/create-form-btn";
-import FormCards, { FormCardSkeleton } from "@/components/form-cards";
+import { GetFormStats, GetForms } from "@/actions/form";
 import StatsCard from "@/components/stats-card";
+import FormsBrowser, { FormsBrowserSkeleton } from "@/components/forms-browser";
 import { Separator } from "@/components/ui/separator";
 import {
 	EyeOpenIcon,
@@ -26,23 +25,19 @@ const DashboardPage = () => {
 			<Separator className="my-6" />
 			<h2 className="text-3xl font-bold col-span-2">Your forms</h2>
 			<Separator className="my-6" />
-			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-				<CreateFormButton />
-
-				<Suspense
-					fallback={[1, 2, 3, 4].map((el) => (
-						<FormCardSkeleton key={el} />
-					))}
-				>
-					{/* form cards */}
-					<FormCards />
-				</Suspense>
-			</div>
+			<Suspense fallback={<FormsBrowserSkeleton />}>
+				<FormsBrowserWrapper />
+			</Suspense>
 		</div>
 	);
 };
 
 export default DashboardPage;
+
+async function FormsBrowserWrapper() {
+	const forms = (await GetForms()) ?? [];
+	return <FormsBrowser forms={forms} />;
+}
 
 async function CardStatsWrapper() {
 	const stats = await GetFormStats();
