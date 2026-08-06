@@ -238,7 +238,7 @@ In `prisma/schema.prisma`, add after the `published` line of `model Form`:
 
 - [ ] **Step 2: Migrate**
 
-Run: `npm run database`
+Run: `npm run migrate dev`
 Expected: Prisma pushes the column and regenerates the client.
 
 - [ ] **Step 3: Add server actions to `actions/form.ts`**
