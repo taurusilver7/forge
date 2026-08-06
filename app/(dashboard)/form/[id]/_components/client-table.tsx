@@ -14,6 +14,7 @@ import { format, formatDistance } from "date-fns";
 import { ElementType } from "@/components/form-elements";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
+import { toCsv } from "@/lib/csv";
 
 type Column = {
 	id: string;
@@ -39,14 +40,21 @@ export default function SubmissionsTableClient({
 }) {
 	function downloadCSV() {
 		const hasPages = rows.some((r) => r._lastPage !== null);
-		const headers = [...columns.map((c) => c.label), "Fields", ...(hasPages ? ["Last Page"] : []), "Submitted At"];
+		const headers = [
+			"ID",
+			...columns.map((c) => c.label),
+			"Fields",
+			...(hasPages ? ["Last Page"] : []),
+			"Submitted At",
+		];
 		const data = rows.map((row) => [
+			row.id,
 			...columns.map((col) => row[col.id] ?? ""),
 			String(row._fields),
 			...(hasPages ? [row._lastPage !== null ? String(row._lastPage) : ""] : []),
 			new Date(row.submittedAt).toISOString(),
 		]);
-		const csv = [headers.join(","), ...data.map((r) => r.join(","))].join("\n");
+		const csv = toCsv([headers, ...data]);
 		const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
 		const url = URL.createObjectURL(blob);
 		const a = document.createElement("a");

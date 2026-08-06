@@ -4,6 +4,7 @@ import { ElementType, FormElementInstance } from "@/components/form-elements";
 import SubmissionsTableClient from "./client-table";
 
 type Row = { [key: string]: string } & {
+	id: string;
 	submittedAt: Date;
 	_fields: number;
 	_lastPage: number | null;
@@ -59,6 +60,7 @@ async function SubmissionsTable({ id }: { id: string }) {
 		delete content["_lastPageReached"];
 		rows.push({
 			...content,
+			id: submission.id,
 			submittedAt: submission.createdAt,
 			_fields: fields,
 			_lastPage: lastPage,
