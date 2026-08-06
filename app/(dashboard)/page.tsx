@@ -1,15 +1,14 @@
 import { GetFormStats, GetForms } from "@/actions/form";
+import { FormsBrowser, FormsBrowserSkeleton } from "@/components/forms-browser";
 import StatsCard from "@/components/stats-card";
-import FormsBrowser, { FormsBrowserSkeleton } from "@/components/forms-browser";
 import { Separator } from "@/components/ui/separator";
 import {
 	EyeOpenIcon,
 	CursorArrowIcon,
-	ViewVerticalIcon,
 	DashboardIcon,
 	MixerVerticalIcon,
 } from "@radix-ui/react-icons";
-import { ReactNode, Suspense } from "react";
+import { Suspense } from "react";
 
 interface StatCardsProps {
 	data?: Awaited<ReturnType<typeof GetFormStats>>;
