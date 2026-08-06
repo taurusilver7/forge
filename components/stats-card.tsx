@@ -1,39 +1,32 @@
 import { ReactNode } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Skeleton } from "./ui/skeleton";
 import { cn } from "@/lib/utils";
 
-interface StatsCardProps {
+export default function StatsCard({
+	title,
+	value,
+	icon,
+	children,
+	className,
+}: {
 	title: string;
 	value: ReactNode;
-	helperText?: string;
-	loading: boolean;
-	icon: ReactNode;
+	icon?: ReactNode;
+	children?: ReactNode;
 	className?: string;
-}
-
-const StatsCard = ({
-	title,
-	value = "0",
-	icon,
-	helperText,
-	loading,
-	className,
-}: StatsCardProps) => (
-	<Card className={cn("transition-shadow hover:shadow-md", className)}>
-		<CardHeader className="flex flex-row items-center justify-between pb-2">
-			<CardTitle className="text-sm font-medium">{title}</CardTitle>
-			{icon}
-		</CardHeader>
-		<CardContent>
-			<div className="text-2xl font-bold">
-				{loading ? <Skeleton className="h-8 w-20" /> : value}
-			</div>
-			{helperText && (
-				<p className="text-xs text-muted-foreground pt-1">{helperText}</p>
+}) {
+	return (
+		<div
+			className={cn(
+				"bg-background w-full shadow-sm border p-4 rounded-md",
+				className,
 			)}
-		</CardContent>
-	</Card>
-);
-
-export default StatsCard;
+		>
+			<div className="flex items-center justify-between mb-2">
+				<span className="text-sm text-muted-foreground">{title}</span>
+				{icon}
+			</div>
+			<p className="text-2xl font-bold">{value}</p>
+			{children}
+		</div>
+	);
+}
