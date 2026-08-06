@@ -77,7 +77,6 @@ import {
 import { Separator } from "../ui/separator";
 import { Button } from "../ui/button";
 import { Plus, X } from "lucide-react";
-import { toast } from "../ui/use-toast";
 
 const type: ElementType = "SelectField";
 
@@ -227,7 +226,7 @@ function PropertiesComponent({
 }) {
 	const element = elementInstance as CustomInstance;
 
-	const { updateElement, setSelectedElement } = useDesigner();
+	const { updateElement } = useDesigner();
 	const form = useForm<propertiesSchemaType>({
 		resolver: zodResolver(propertiesSchema),
 		mode: "onSubmit",
@@ -252,17 +251,17 @@ function PropertiesComponent({
 				...values,
 			},
 		});
-
-		toast({
-			title: "success",
-			description: "Properties saved successfully",
-		});
-		setSelectedElement(null);
 	}
 
 	return (
 		<Form {...form}>
-			<form className="space-y-3" onSubmit={form.handleSubmit(applyChanges)}>
+			<form
+				className="space-y-3"
+				onBlur={form.handleSubmit(applyChanges)}
+				onSubmit={(e) => {
+					e.preventDefault();
+				}}
+			>
 				<FormField
 					control={form.control}
 					name="label"
@@ -403,10 +402,6 @@ function PropertiesComponent({
 						</FormItem>
 					)}
 				/>
-				<Separator />
-				<Button className="w-full" type="submit">
-					Save
-				</Button>
 			</form>
 		</Form>
 	);
