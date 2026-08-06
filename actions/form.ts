@@ -5,6 +5,7 @@ import { formSchema, formSchemaType } from "@/lib/schema";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { scryptSync, randomBytes, timingSafeEqual } from "crypto";
+import { subDays } from "date-fns";
 
 export async function GetFormStats() {
 	const { userId } = await auth();
@@ -104,6 +105,23 @@ export async function UpdateForm(
 	return response;
 }
 
+export async function UpdateFormBranding(
+	id: string,
+	accent: string,
+	logo?: string,
+) {
+	const { userId } = await auth();
+	if (!userId) redirect("/sign-in");
+
+	const response = await db.form.updateMany({
+		where: { id, userId },
+		data: { accent, logo: logo ?? "" },
+	});
+
+	if (response.count === 0) throw new Error("Form not found!");
+	return response;
+}
+
 export async function PublishForm(id: string) {
 	const { userId } = await auth();
 	if (!userId) redirect("/sign-in");
@@ -134,6 +152,8 @@ export async function GetFormContentByUrl(formUrl: string) {
 			id: true,
 			content: true,
 			name: true,
+			accent: true,
+			logo: true,
 			passwordHash: true,
 			thankYouMessage: true,
 			redirectUrl: true,
@@ -151,7 +171,13 @@ export async function GetFormContentByUrl(formUrl: string) {
 export async function SubmitForm(formUrl: string, content: string) {
 	const form = await db.form.findFirst({
 		where: { shareURL: formUrl, published: true },
-		select: { id: true, closeDate: true, submissionLimit: true, submissions: true },
+		select: {
+			id: true,
+			userId: true,
+			closeDate: true,
+			submissionLimit: true,
+			submissions: true,
+		},
 	});
 
 	if (!form) throw new Error("Form not found!");
@@ -159,14 +185,57 @@ export async function SubmitForm(formUrl: string, content: string) {
 	if (form.submissionLimit !== null && form.submissions >= form.submissionLimit)
 		throw new Error("FORM_CLOSED");
 
-	const response = await db.formSubmission.create({
+	const formSubmission = await db.formSubmission.create({
 		data: { formId: form.id, content },
+	});
+
+	const inbox = await db.inbox.upsert({
+		where: { userId: form.userId },
+		create: { userId: form.userId },
+		update: {},
+	});
+	await db.formInbox.create({
+		data: {
+			inboxId: inbox.id,
+			formId: form.id,
+			submissionId: formSubmission.id,
+		},
 	});
 
 	await db.form.update({
 		where: { id: form.id },
 		data: { submissions: { increment: 1 } },
 	});
+}
+
+export async function GetInboxData() {
+	const { userId } = await auth();
+	if (!userId) redirect("/sign-in");
+
+	const inbox = await db.inbox.findUnique({
+		where: { userId },
+		include: {
+			submissions: {
+				orderBy: { answeredAt: "desc" },
+				include: {
+					form: { select: { id: true, name: true } },
+					submission: true,
+				},
+			},
+		},
+	});
+
+	const formSubmissions = await db.formSubmission.findMany({
+		where: { form: { userId } },
+		include: { form: { select: { id: true, name: true } } },
+		orderBy: { createdAt: "desc" },
+		take: 10,
+	});
+
+	return {
+		inbox: inbox ?? { submissions: [] },
+		formSubmissions,
+	};
 }
 
 export async function UpdateFormSettings(
@@ -279,4 +348,81 @@ export async function VerifyFormPassword(formUrl: string, password: string): Pro
 		return false;
 	}
 }
-// ponytail: crypto scrypt for password hashing — no bcrypt dep needed
+
+export async function GetFormAnalytics(id: string) {
+	const { userId } = await auth();
+	if (!userId) redirect("/sign-in");
+
+	const form = await db.form.findUnique({
+		where: { id, userId },
+		include: { FormSubmission: true },
+	});
+
+	if (!form) throw new Error("Form not found!");
+
+	const now = new Date();
+	const start = subDays(now, 7);
+
+	const buckets = Array.from({ length: 14 }, (_, i) => {
+		const day = subDays(now, 13 - i);
+		const key = day.toISOString().split("T")[0];
+		const count = form.FormSubmission.filter(
+			(s) => s.createdAt.toISOString().split("T")[0] === key,
+		).length;
+		return { date: key, submissions: count };
+	});
+
+	return {
+		form: {
+			name: form.name,
+			visits: form.visits,
+			submissions: form.FormSubmission.length,
+			// updatedAt: form.updatedAt,
+		},
+		submissionCount: form.FormSubmission.length,
+		funnel: {
+			views: form.visits,
+			// ponytail: no "started" event tracked yet; report equals submitted
+			started: form.FormSubmission.length,
+			submitted: form.FormSubmission.length,
+		},
+		trend: {
+			from: start,
+			to: now,
+			submissions: form.FormSubmission.filter(
+				(s) => s.createdAt >= start,
+			).length,
+		},
+		chart: buckets,
+	};
+}
+
+export async function GetGlobalInsights() {
+	const { userId } = await auth();
+	if (!userId) redirect("/sign-in");
+
+	const [totalForms, totalSubmissions, topForms] = await Promise.all([
+		db.form.count({ where: { userId } }),
+		db.formSubmission.count({ where: { form: { userId } } }),
+		db.form.findMany({
+			where: { userId },
+			select: {
+				name: true,
+				visits: true,
+				_count: { select: { FormSubmission: true } },
+			},
+			orderBy: { FormSubmission: { _count: "desc" } },
+			take: 5,
+		}),
+	]);
+
+	return {
+		totalForms,
+		totalSubmissions,
+		topForms: topForms.map((f) => ({
+			name: f.name,
+			visits: f.visits,
+			submissions: f._count.FormSubmission,
+		})),
+	};
+}
