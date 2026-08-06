@@ -11,7 +11,7 @@ import useDesigner from "@/hooks/useDesigner";
 const DesignerSidebar = () => {
 	const { selectedElement } = useDesigner();
 	return (
-		<aside className="w-96 max-w-96 h-full min-h-0 rounded-xl flex flex-col flex-grow border-l-2 border-muted p-4 bg-background overflow-y-auto scrollbar-hide">
+		<aside className="w-80 max-w-80 h-full min-h-0 rounded-xl flex flex-col flex-grow border-l-2 border-muted p-4 bg-background overflow-y-auto scrollbar-hide">
 			{!selectedElement && <FormElementSidebar />}
 			{selectedElement && <PropertyFormSidebar />}
 		</aside>

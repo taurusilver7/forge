@@ -17,7 +17,7 @@ import {
 } from "@/components/form-elements";
 import DesignerSidebar from "./designer-sidebar";
 import { Button } from "@/components/ui/button";
-import { Trash2 } from "lucide-react";
+import { Copy, Trash2 } from "lucide-react";
 import useDesigner from "@/hooks/useDesigner";
 
 const Designer = ({ currentPage }: { currentPage: string }) => {
@@ -150,7 +150,7 @@ const Designer = ({ currentPage }: { currentPage: string }) => {
 				<div
 					ref={droppable.setNodeRef}
 					className={cn(
-						"bg-background max-w-5xl lg:max-w-6xl mx-auto h-full rounded-xl flex flex-col flex-grow items-center justify-start flex-1 overflow-y-auto scrollbar-hide",
+						"bg-background max-w-5xl lg:max-w-7xl mx-auto h-full rounded-xl flex flex-col flex-grow items-center justify-start flex-1 overflow-y-auto scrollbar-hide",
 						droppable.isOver && "ring-3 ring-primary ring-inset"
 					)}
 				>
@@ -187,7 +187,8 @@ const Designer = ({ currentPage }: { currentPage: string }) => {
 export default Designer;
 
 function DesignerElementWrapper({ element }: { element: FormElementInstance }) {
-	const { removeElement, selectedElement, setSelectedElement } = useDesigner();
+	const { removeElement, selectedElement, setSelectedElement, duplicateElement } =
+		useDesigner();
 	const [mouseIsOver, setMouseIsOver] = useState<boolean>(false);
 
 	const topHalf = useDroppable({
@@ -247,7 +248,7 @@ function DesignerElementWrapper({ element }: { element: FormElementInstance }) {
 			{mouseIsOver && (
 				<>
 					<div
-						className="absolute left-0 top-0 h-full w-10/12 md:w-11/12 lg:w-[95%] cursor-grab z-40 hover:bg-primary/10"
+						className="absolute left-0 top-0 h-full w-8/12 md:w-10/12 lg:w-[93%] cursor-grab z-40 hover:bg-primary/10"
 						{...draggable.listeners}
 						{...draggable.attributes}
 					/>
@@ -257,7 +258,18 @@ function DesignerElementWrapper({ element }: { element: FormElementInstance }) {
 						</p>
 					</div>
 
-					<div className="absolute right-0 h-full">
+					<div className="absolute right-0 h-full flex">
+						<Button
+							variant="outline"
+							className="rounded-none h-full px-2"
+							onClick={(e) => {
+								e.stopPropagation();
+								e.preventDefault();
+								duplicateElement(element.id);
+							}}
+						>
+							<Copy className="h-5 w-5" />
+						</Button>
 						<Button
 							className="rounded-l-none flex justify-items-center h-full border rounded-md bg-orange-500 hover:bg-orange-600"
 							variant={"outline"}
